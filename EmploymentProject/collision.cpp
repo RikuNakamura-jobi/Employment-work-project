@@ -218,9 +218,9 @@ void CCollider::Uninit(void)
 void CCollider::Update(void)
 {
 #ifdef _DEBUG
-	/*CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
+	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
 	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
-	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);*/
+	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);
 #endif //_DEBUG
 }
 
@@ -264,7 +264,7 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 			{
 				D3DXPlaneIntersectLine(&vecIntersect, &plane, posTarget, &posTargetOld);
 
-				if (posPlaneCenter[nCnt].x == 0.0f)
+				/*if (posPlaneCenter[nCnt].x == 0.0f)
 				{
 					vecIntersect.x = 0.0f;
 				}
@@ -277,7 +277,7 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 				if (posPlaneCenter[nCnt].z == 0.0f)
 				{
 					vecIntersect.z = 0.0f;
-				}
+				}*/
 
 				D3DXVECTOR3 vecMove, vecMoveRef;
 				float fDot;
@@ -301,7 +301,7 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 				}
 
 				*posTarget = vecIntersect - (vecNorPlaneCenter * 1.0f);
-
+				
 				return true;
 			}
 		}

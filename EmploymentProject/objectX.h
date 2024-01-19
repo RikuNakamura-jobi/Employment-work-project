@@ -19,7 +19,7 @@ class CObjectX : public CObject
 {
 public:				//外部からアクセス可能
 
-	typedef struct
+	struct MODELX
 	{
 		LPDIRECT3DTEXTURE9 *pTexture;
 		LPD3DXMESH pMeshModel;
@@ -27,7 +27,7 @@ public:				//外部からアクセス可能
 		DWORD dwNumMatModel;
 		D3DXVECTOR3 vtxMin;
 		D3DXVECTOR3 vtxMax;
-	} MODELX;
+	};
 
 	//コンストラクタ・デストラクタ
 	CObjectX(int nPriority);

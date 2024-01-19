@@ -19,7 +19,7 @@ class CBg : public CObject2D
 {
 public:				//外部からアクセス可能
 
-	typedef enum
+	enum TEXTURE
 	{
 		TEXTURE_RESULT = 0,		//なにもしてない状態
 		TEXTURE_TUTORIAL_KEY_MOVE,		//フェードイン状態
@@ -33,7 +33,7 @@ public:				//外部からアクセス可能
 		TEXTURE_FAILED,					//フェードイン状態
 		TEXTURE_START,					//フェードイン状態
 		TEXTURE_MAX
-	}TEXTURE;
+	};
 
 	//コンストラクタ・デストラクタ
 	CBg(int nPriority);				//デフォルト

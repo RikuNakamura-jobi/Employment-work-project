@@ -57,13 +57,21 @@ class CCollider
 {
 public:
 
-	typedef enum
+	enum TYPE
 	{
 		TYPE_NONE = 0,			//タイプ無し
 		TYPE_POINT,			//プレイヤー
 		TYPE_BOX,			//プレイヤー
 		TYPE_MAX
-	}TYPE;
+	};
+
+	enum TAG
+	{
+		TAG_NONE = 0,		//タイプ無し
+		TAG_PLAYER,			//プレイヤー
+		TAG_BOX,			//プレイヤー
+		TAG_MAX
+	};
 
 	CCollider();
 	~CCollider();
@@ -102,8 +110,8 @@ private:
 	D3DXVECTOR3 m_offsetMin;
 
 	int m_nID;									//自分自身のID
-	int m_nPriority;							//自分自身のID
 	TYPE m_type;
+	TAG m_tag;
 
 	CCollider *m_pPrev;
 	CCollider *m_pNext;

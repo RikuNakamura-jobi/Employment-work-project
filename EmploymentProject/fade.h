@@ -22,16 +22,16 @@ class CFade : public CObject2D
 public:				//外部からアクセス可能
 
 	//フェードの状態
-	typedef enum
+	enum STATE
 	{
 		STATE_NONE = 0,			//なにもしてない状態
 		STATE_IN,				//フェードイン状態
 		STATE_OUT,				//フェードアウト状態
 		STATE_MAX
-	}STATE;
+	};
 
 	//種類
-	typedef enum
+	enum TYPE
 	{
 		TYPE_NONE = 0,			//タイプ無し
 		TYPE_SLIDE,				//スライド
@@ -40,7 +40,7 @@ public:				//外部からアクセス可能
 		TYPE_CURTAIN_R,			//カーテン
 		TYPE_OUT,				//敵
 		TYPE_MAX
-	}TYPE;
+	};
 
 	//コンストラクタ・デストラクタ
 	CFade(int nPriority);				//デフォルト

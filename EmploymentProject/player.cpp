@@ -56,6 +56,7 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_Type = TYPE_NORMAL;
 	m_bAir = true;
 	m_bShot = false;
+	m_bDash = false;
 	m_nShotTimer = 0;
 	m_state = STATE_NORMAL;
 	m_nCombo = 0;
@@ -235,7 +236,10 @@ void CPlayer::Update(void)
 			ControlPad(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 		}
 
-		move.y -= 1.0f;
+		if (m_bAir)
+		{
+			move.y -= 1.0f;
+		}
 	}
 
 	if (m_state == STATE_KICK)
@@ -296,23 +300,9 @@ void CPlayer::Update(void)
 		Collision(&pos, &posOld, &move);
 	}
 
-	if (pos.x > 11000.0f)
-	{
-		pos.x = 11000.0f;
-	}
-	else if (pos.x < -11000.0f)
-	{
-		pos.x = -11000.0f;
-	}
-
 	if (CManager::Get()->Get()->GetScene()->GetField() != NULL)
 	{
 		pos.y = CManager::Get()->Get()->GetScene()->GetField()->GetColHeight(pos, posOld, &move);
-	}
-
-	if (m_bAir == false)
-	{
-		m_nEnergy = 10;
 	}
 
 	CManager::Get()->Get()->GetDebugProc()->Print("プレイヤーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
@@ -385,95 +375,60 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	D3DXVECTOR3 rotCameraDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	rotCameraDest.z = atan2f(CManager::Get()->Get()->GetScene()->GetCamera()->GetPosV().z - CManager::Get()->Get()->GetScene()->GetCamera()->GetPosR().z, CManager::Get()->Get()->GetScene()->GetCamera()->GetPosV().x - CManager::Get()->Get()->GetScene()->GetCamera()->GetPosR().x);
 
+	float RotKey = 0.0f;
+	int NumInputKey = 0;
+
 	//移動処理
+	if (input->GetPress(DIK_S) == true)
+	{//Dキーが押された時
+
+		RotKey -= D3DX_PI * 0.5f;
+		NumInputKey++;
+
+	}
 	if (input->GetPress(DIK_A) == true)
 	{//Aキーが押された時
 
-		move->x += 1.5f;
+		if (NumInputKey > 0)
+		{
+			RotKey -= D3DX_PI * 1.0f;
+		}
+		else
+		{
+			RotKey += D3DX_PI * 1.0f;
+		}
 
-		m_rotDest.z = rotCamera.y + D3DX_PI * 0.5f;
-		m_rotMove.z = -D3DX_PI * 0.5f;
+		NumInputKey++;
+
 	}
-	else if (input->GetPress(DIK_D) == true)
+	if (input->GetPress(DIK_D) == true)
 	{//Dキーが押された時
 
-		move->x -= 1.5f;
+		RotKey += D3DX_PI * 0.0f;
+		NumInputKey++;
 
-		m_rotDest.z = rotCamera.y - D3DX_PI * 0.5f;
-		m_rotMove.z = D3DX_PI * 0.5f;
+	}
+	if (input->GetPress(DIK_W) == true)
+	{//Dキーが押された時
+
+		RotKey += D3DX_PI * 0.5f;
+		NumInputKey++;
+
 	}
 
-	if (input->GetPress(DIK_RETURN) == true || inputMouse->GetPress(0) == true)
-	{//Hキーが押された時
-		D3DXVECTOR3 moveShot = { 0.0f,0.0f,0.0f };
-		moveShot.x = -sinf(m_rotDest.z);
-		moveShot.y = -cosf(m_rotDest.z);
-		D3DXVECTOR3 posGun;
-		D3DXVec3Normalize(&moveShot, &moveShot);
-		m_nShotTimer++;
-		m_bShot = true;
-		int nNumLock = 0;
+	if (NumInputKey > 0)
+	{//Aキーが押された時
 
-		if (m_state != STATE_KICK && move->y < 0.0f)
+		if (NumInputKey > 1)
 		{
-			move->y = -1.0f;
-		}
-	}
-	else
-	{
-		if (m_nShotTimer > 15)
-		{
-			m_nShotTimer = -1;
+			RotKey *= 0.5f;
 		}
 
-		if (m_nShotTimer >= 0)
-		{
-			m_nShotTimer++;
-		}
-	}
+		move->x += sinf(rotCamera.y - RotKey - (D3DX_PI * 0.5f)) * -2.5f;
+		move->z += cosf(rotCamera.y - RotKey - (D3DX_PI * 0.5f)) * -2.5f;
 
-	if (input->GetTrigger(DIK_RSHIFT) == true || input->GetTrigger(DIK_LSHIFT) == true || inputMouse->GetTrigger(1) == true)
-	{
-		move->x = 0.0f;
-		move->y = 0.0f;
+		m_rotDest.z = rotCamera.y - RotKey - (D3DX_PI * 0.5f);
 
-		if (input->GetPress(DIK_A) == true)
-		{//Aキーが押された時
-			move->x = 20.0f;
-		}
-		else if (input->GetPress(DIK_D) == true)
-		{//Dキーが押された時
-			move->x = -20.0f;
-		}
-
-		if (input->GetPress(DIK_W) == true)
-		{//Aキーが押された時
-			move->y = 20.0f;
-		}
-		else if (input->GetPress(DIK_S) == true)
-		{//Dキーが押された時
-			move->y = -20.0f;
-		}
-
-		if (move->x == 0.0f && move->y == 0.0f)
-		{
-			float length = -1.0f;
-			int nWave, nNum;
-
-			if (length != -1.0f)
-			{
-				
-			}
-			else
-			{
-				move->x = -sinf(m_rotDest.z);
-				move->y = -cosf(m_rotDest.z);
-			}
-		}
-
-		m_state = STATE_KICK;
-
-		CSound::PlaySound(CSound::SOUND_LABEL_SE_DASH);
 	}
 
 	if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
@@ -495,72 +450,45 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 	float RotStick = atan2f((float)input->GetLStickLRPress(), (float)input->GetLStickUDPress());
 	float lengthStick = hypotf((float)input->GetLStickLRPress(), (float)input->GetLStickUDPress());
+
+	if (lengthStick > 1000.0f)
+	{
+		lengthStick = 1000.0f;
+	}
+
 	CManager::Get()->Get()->GetDebugProc()->Print("Lスティックの距離: %f\n", lengthStick);
 
 	if (lengthStick > 10.0f)
 	{
-		move->x += sinf(rotCamera.y - RotStick) * -1.5f;
-		move->z += cosf(rotCamera.y - RotStick) * -1.5f;
-
+		move->x += sinf(GetRot().y) * -2.5f;
+		move->z += cosf(GetRot().y) * -2.5f;
+		
 		m_rotDest.z = rotCamera.y - RotStick;
-	}
 
-	if (input->GetButtonPress(7) == true)
-	{//Gキーが押された時
-		D3DXVECTOR3 moveShot = { 0.0f,0.0f,0.0f };
-		moveShot.x = -sinf(m_rotDest.z);
-		moveShot.y = -cosf(m_rotDest.z);
-		D3DXVECTOR3 posGun;
-		D3DXVec3Normalize(&moveShot, &moveShot);
-		m_nShotTimer++;
-		m_bShot = true;
-		int nNumLock = 0;
-
-		if (m_state != STATE_KICK && move->y < 0.0f)
-		{
-			move->y = -1.0f;
-		}
-
-		if (m_nShotTimer % 15 == 0 || m_nShotTimer == 0)
-		{
-
-		}
+		m_bDash = true;
 	}
 	else
 	{
-		if (m_nShotTimer > 15)
-		{
-			m_nShotTimer = -1;
-		}
-
-		if (m_nShotTimer >= 0)
-		{
-			m_nShotTimer++;
-		}
+		m_bDash = false;
 	}
 
-	if (input->GetButtonTrigger(6) == true && m_nEnergy > 0)
+	if (input->GetButtonTrigger(5) == true && m_bAir == false)
 	{
-		move->x = 0.0f;
-		move->y = 0.0f;
+		
+	}
 
-		if (lengthStick > 10.0f)
-		{
-			move->x = 20.0f * sinf(D3DX_PI + RotStick);
-			move->y = 20.0f * cosf(D3DX_PI + RotStick);
-		}
+	if (input->GetButtonPress(5) == true && m_bAir == false)
+	{
+		move->x *= 0.6f;
+		move->z *= 0.6f;
 
-		if (move->x == 0.0f && move->y == 0.0f)
-		{
-			float length = -1.0f;
-			int nWave, nNum;
-		}
+		m_bDash = false;
+	}
 
-		m_nEnergy--;
-
-		m_state = STATE_KICK;
-
-		CSound::PlaySound(CSound::SOUND_LABEL_SE_DASH);
+	if (input->GetButtonRelease(5) == true && m_bAir == false)
+	{
+		move->x *= 2.5f;
+		move->z *= 2.5f;
 	}
 
 	if (input->GetButtonTrigger(2) == true && m_bAir == false)
@@ -640,7 +568,14 @@ void CPlayer::SetRot(D3DXVECTOR3 *rot)
 	}
 
 	//徐々に足してく
-	fRotMove += fRotDiff * 0.2f;
+	if (m_bDash)
+	{
+		fRotMove += fRotDiff * 0.02f;
+	}
+	else
+	{
+		fRotMove += fRotDiff * 0.1f;
+	}
 
 	if (fRotMove > 3.14f)
 	{
@@ -684,53 +619,10 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 						{
 							if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
 							{
-								if (pObj->GetPos().y + pObj->GetHeight() <= pos->y && pObj->GetRot().z == 0.0f)
-								{
-									move->y = 0.0f;
-									m_bAir = false;
-								}
-							}
-						}
-					}
-
-					if (type == TYPE_ENEMY)
-					{
-						if (pObj->GetCollider()->CollisionSquareTrigger(*pos) == true)
-						{
-							if (m_state == STATE_KICK)
-							{
-								CParticle::Create(*pos, GetRot(), D3DXCOLOR(0.8f, 0.2f, 0.1f, 1.0f), 5, 3, 10, 15, 32.0f, 32.0f);
-
-								pos->z = 0.0f;
+								m_bAir = false;
+								move->x = 0.0f;
+								move->y = 0.0f;
 								move->z = 0.0f;
-
-								*pos += *move;
-
-								CSound::PlaySound(CSound::SOUND_LABEL_SE_HIT);
-
-								m_nEnergy = 10;
-								m_pMotion->ResetFrame();
-
-								pObj->SetLockon();
-							}
-							else
-							{
-								move->x *= -1.0f;
-								move->y *= -1.0f;
-
-								D3DXVec3Normalize(move, move);
-
-								*move *= 20.0f;
-
-								pos->z = 0.0f;
-								move->z = 0.0f;
-
-								*pos += *move;
-
-								CManager::Get()->GetScene()->GetScore()->AddScore(-200);
-
-								m_state = STATE_DAMAGE;
-								CSound::PlaySound(CSound::SOUND_LABEL_SE_DAMAGE);
 							}
 						}
 					}

@@ -21,7 +21,7 @@ class CPlayer : public CObject
 {
 public:				//外部からアクセス可能
 
-	typedef enum
+	enum MOTION
 	{
 		MOTION_NORMAL = 0,			//待機モーション
 		MOTION_SHOT,				//待機モーション
@@ -34,23 +34,23 @@ public:				//外部からアクセス可能
 		MOTION_JUMP_SHOT,			//着地モーション
 		MOTION_KICK,				//空中モーション
 		MOTION_MAX
-	}MOTION;
+	};
 
-	typedef enum
+	enum TYPE
 	{
 		TYPE_NORMAL = 0,		//通常
 		TYPE_SAVEDATA,
 		TYPE_MAX
-	}TYPE;
+	};
 
-	typedef enum
+	enum STATE
 	{
 		STATE_NORMAL = 0,		//通常
 		STATE_KICK,
 		STATE_HIT,
 		STATE_DAMAGE,
 		STATE_MAX
-	}STATE;
+	};
 
 	//コンストラクタ・デストラクタ
 	CPlayer(int nPriority);				//デフォルト
@@ -128,6 +128,7 @@ private:			//外部からアクセス不可能
 	bool m_bSave;
 	bool m_bAir;
 	bool m_bShot;
+	bool m_bDash;
 	int m_nEasterTimer;
 	int m_nShotTimer;
 	int m_nCombo;

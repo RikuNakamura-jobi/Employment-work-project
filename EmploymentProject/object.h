@@ -22,7 +22,7 @@ class CObject
 public:				//外部からアクセス可能
 
 	//種類
-	typedef enum
+	enum TYPE
 	{
 		TYPE_NONE = 0,			//タイプ無し
 		TYPE_PLAYER,			//プレイヤー
@@ -40,7 +40,7 @@ public:				//外部からアクセス可能
 		TYPE_FADE,
 		TYPE_SKY,
 		TYPE_MAX
-	}TYPE;
+	};
 
 	//コンストラクタ・デストラクタ
 	CObject();				//デフォルト

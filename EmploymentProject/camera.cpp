@@ -103,8 +103,8 @@ void CCamera::Update(void)
 	{
 		if (lengthStick > 10.0f)
 		{
-			//m_rot.y += (float)inputPad->GetRStickLRPress() * 0.001f * 0.04f;
-			//m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.04f;
+			m_rot.y += (float)inputPad->GetRStickLRPress() * 0.001f * 0.04f;
+			m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.04f;
 		}
 	}
 
@@ -112,8 +112,8 @@ void CCamera::Update(void)
 
 	if (lengthStick > 10.0f)
 	{
-		//m_rot.y += (float)inputMouse->GetRStickLRPress() * 0.001f * 0.04f;
-		//m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.04f;
+		m_rot.y += (float)inputMouse->GetRStickLRPress() * 0.001f * 0.04f;
+		m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.04f;
 	}
 
 	Rot();
@@ -182,7 +182,7 @@ void CCamera::Rot(void)
 		m_rot.z = 3.13f;
 	}
 
-	fLengthCamera = 600.0f;
+	fLengthCamera = 200.0f;
 
 	m_posRDest.x = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().x - (sinf(0.0f) * 0.0f);
 	m_posRDest.y = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().y + 30.0f;

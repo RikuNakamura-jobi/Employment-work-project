@@ -23,25 +23,25 @@ class CMotion
 public:				//外部からアクセス可能
 
 	//プレイヤーの構造体
-	typedef struct
+	struct Key
 	{
 		D3DXVECTOR3 pos;
 		D3DXVECTOR3 rot;
-	}Key;
+	};
 
 	//プレイヤーの構造体
-	typedef struct
+	struct KeyInfo
 	{
 		Key aKey[MAX_KEY];
 		int nFrame;
-	}KeyInfo;
+	};
 
-	typedef struct
+	struct Info
 	{
 		KeyInfo aKeyInfo[MAX_KEY];
 		int nLoop;
 		int nNumKey;
-	}Info;
+	};
 
 	//コンストラクタ・デストラクタ
 	CMotion();

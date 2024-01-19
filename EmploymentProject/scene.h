@@ -28,7 +28,7 @@ class CScene
 public:				//外部からアクセス可能
 
 	//種類
-	typedef enum
+	enum MODE
 	{
 		MODE_NONE = 0,			//タイプ無し
 		MODE_TITLE,				//タイトル画面
@@ -36,7 +36,7 @@ public:				//外部からアクセス可能
 		MODE_GAME,				//ゲーム画面
 		MODE_RESULT,			//リザルト画面
 		MODE_MAX
-	}MODE;
+	};
 
 	//コンストラクタ・デストラクタ
 	CScene();				//デフォルト

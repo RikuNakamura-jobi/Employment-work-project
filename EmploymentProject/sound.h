@@ -15,7 +15,7 @@ class CSound
 public:
 
 	// サウンド一覧
-	typedef enum
+	enum SOUND_LABEL
 	{
 		SOUND_LABEL_BGM000 = 0,			// BGM0
 		SOUND_LABEL_BGM001,				// BGM0
@@ -31,14 +31,14 @@ public:
 		SOUND_LABEL_SE_DASH,			// 弾発射音1
 		SOUND_LABEL_SE_THUNDER,			// 弾発射音1
 		SOUND_LABEL_MAX,
-	} SOUND_LABEL;
+	} ;
 
 	// サウンド情報の構造体定義
-	typedef struct
+	struct SOUNDINFO
 	{
 		char *pFilename;	// ファイル名
 		int nCntLoop;		// ループカウント
-	} SOUNDINFO;
+	} ;
 
 	CSound();
 	~CSound();
