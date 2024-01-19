@@ -368,7 +368,7 @@ D3DXVECTOR3 CCollider::PosRelativeMtx(D3DXVECTOR3 posO, D3DXVECTOR3 rot, D3DXVEC
 	D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
 	D3DXMATRIX mtxRotModel, mtxTransModel, mtxPalent;		//計算用マトリックス
 
-															//パーツのワールドマトリックス初期化
+	//パーツのワールドマトリックス初期化
 	D3DXMatrixIdentity(&mtxO);
 
 	//向きを反映

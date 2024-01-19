@@ -57,6 +57,7 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_bAir = true;
 	m_bShot = false;
 	m_bDash = false;
+	m_bWall = false;
 	m_nShotTimer = 0;
 	m_state = STATE_NORMAL;
 	m_nCombo = 0;
@@ -495,6 +496,54 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	{
 		move->y = 18.0f;
 		m_pMotion->Set(MOTION_JUMP);
+
+		if (m_bWall)
+		{
+			move->x += sinf(GetRot().y) * 50.0f;
+			move->z += cosf(GetRot().y) * 50.0f;
+
+			rot->y += D3DX_PI;
+
+			m_bWall = false;
+		}
+	}
+
+	if (input->GetButtonTrigger(7) == true)
+	{
+		D3DXVECTOR3 wirePos = D3DXVECTOR3(0.0f, 0.0f, -1000.0f);
+		D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		D3DXVECTOR3 posAnswer;
+		D3DXMATRIX mtxO, mtxAnswer;
+		D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
+		D3DXMATRIX mtxRotModel, mtxTransModel, mtxPalent;		//計算用マトリックス
+
+		mtxPalent = CManager::Get()->Get()->GetScene()->GetCamera()->GetMtxView();
+
+		//パーツのワールドマトリックス初期化
+		D3DXMatrixIdentity(&mtxAnswer);
+
+		//向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot,
+			0.0f, 0.0f, 0.0f);
+		D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxRot);
+
+		//位置を反映
+		D3DXMatrixTranslation(&mtxTransModel,
+			wirePos.x, wirePos.y, wirePos.z);
+		D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxTransModel);
+
+		//算出したパーツのワールドマトリックスと親のマトリックスをかけ合わせる
+		D3DXMatrixMultiply(&mtxAnswer,
+			&mtxAnswer,
+			&m_mtxWorld);
+
+		posAnswer.x = mtxAnswer._41;
+		posAnswer.y = mtxAnswer._42;
+		posAnswer.z = mtxAnswer._43;
+
+		Collision(&wirePos, pos, &move);
+
+		*pos = posAnswer;
 	}
 }
 
@@ -620,6 +669,7 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 							if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
 							{
 								m_bAir = false;
+								m_bWall = true;
 								move->x = 0.0f;
 								move->y = 0.0f;
 								move->z = 0.0f;

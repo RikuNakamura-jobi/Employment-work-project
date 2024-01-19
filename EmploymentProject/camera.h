@@ -31,6 +31,8 @@ public:
 	D3DXVECTOR3 GetPosVDest(void) { return m_posVDest; }
 	D3DXVECTOR3 GetPosRDest(void) { return m_posRDest; }
 
+	D3DXMATRIX GetMtxView(void) { return m_mtxView; }
+
 	void Setzrot(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRot(void) { return m_rot; }
 

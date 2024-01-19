@@ -129,6 +129,7 @@ private:			//外部からアクセス不可能
 	bool m_bAir;
 	bool m_bShot;
 	bool m_bDash;
+	bool m_bWall;
 	int m_nEasterTimer;
 	int m_nShotTimer;
 	int m_nCombo;
