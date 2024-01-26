@@ -27,6 +27,7 @@
 #include "field.h"
 #include "sky.h"
 #include "block.h"
+#include "deliverypoint.h"
 #include "collision.h"
 
 //É}ÉNÉçíËã`---------------------------
@@ -299,6 +300,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	CSky::Load();
 	CPlayer::Load();
 	CBlock::Load();
+	CDeliverypoint::Load();
 
 	if (m_pScene != NULL)
 	{
@@ -338,6 +340,7 @@ void CManager::Uninit(void)
 	CSky::Unload();
 	CPlayer::Unload();
 	CBlock::Unload();
+	CDeliverypoint::Unload();
 
 	CObject::ReleaseAll();
 

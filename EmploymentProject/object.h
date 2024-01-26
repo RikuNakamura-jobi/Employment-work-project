@@ -39,6 +39,7 @@ public:				//外部からアクセス可能
 		TYPE_LOCKON,
 		TYPE_FADE,
 		TYPE_SKY,
+		TYPE_DELIVERYPOINT,
 		TYPE_MAX
 	};
 

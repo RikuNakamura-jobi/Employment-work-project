@@ -18,6 +18,7 @@
 #include "field.h"
 #include "sky.h"
 #include "block.h"
+#include "deliverypoint.h"
 #include "sound.h"
 
 //É}ÉNÉçíËã`---------------------------
@@ -313,6 +314,7 @@ HRESULT CGame::Init(void)
 	}
 
 	CBlock::Create(D3DXVECTOR3(8500.0f, -10.0f, 10.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
+	CDeliverypoint::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 
 	for (int nCnt = 0; nCnt < 2; nCnt++)
 	{
