@@ -355,7 +355,7 @@ void COrbit::SetPositionOffset(D3DXMATRIX mtxWorld)
 		m_mtxWorldOffset[nCntOffset] = mtxOffset;
 	}
 
-	m_nHue += 5.0f;
+	m_nHue += 4.0f;
 
 	//ƒ|ƒŠƒSƒ“XVˆ—
 	UpdatePolygon();

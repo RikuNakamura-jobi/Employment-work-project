@@ -59,9 +59,9 @@ public:
 
 	enum TYPE
 	{
-		TYPE_NONE = 0,			//タイプ無し
-		TYPE_POINT,			//プレイヤー
-		TYPE_BOX,			//プレイヤー
+		TYPE_NONE = 0,		//タイプ無し
+		TYPE_POINT,			//点
+		TYPE_BOX,			//ボックス
 		TYPE_MAX
 	};
 
@@ -69,7 +69,7 @@ public:
 	{
 		TAG_NONE = 0,		//タイプ無し
 		TAG_PLAYER,			//プレイヤー
-		TAG_BOX,			//プレイヤー
+		TAG_BOX,			//ボックス
 		TAG_MAX
 	};
 
