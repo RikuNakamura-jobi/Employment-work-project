@@ -15,6 +15,7 @@
 //列挙型定義---------------------------
 
 //クラス定義---------------------------
+class COrbit;
 class CModel;
 class CMotion;
 class CPlayer : public CObject
@@ -86,7 +87,15 @@ public:				//外部からアクセス可能
 	void SetSaveType(TYPE save) { m_Type = save; }
 	TYPE GetSaveType(void) { return m_Type; }
 
+	//移動量
+	void SetSpeedDest(float SpeedDest) { m_SpeedDest = SpeedDest; }
+	float GetSpeedDest(void) { return m_SpeedDest; }
+
+	void SetSpeed(float Speed) { m_Speed = Speed; }
+	float GetSpeed(void) { return m_Speed; }
+
 	int GetEnegy(void) { return m_nEnergy; }
+	bool GetDash(void) { return m_bDash; }
 
 	CModel *GetModel(int nIdx) { return m_apModel[nIdx]; }
 
@@ -108,6 +117,7 @@ private:			//外部からアクセス不可能
 	void Easter(void);
 	void Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
 	void ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
+	void ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
 	void ControlMotion(D3DXVECTOR3 move);
 
 	static void ReadFilePlayer(void);
@@ -124,23 +134,27 @@ private:			//外部からアクセス不可能
 	CMotion *m_pMotion;
 	TYPE m_Type;
 	STATE m_state;
+	COrbit *m_orbit[4];
 
 	bool m_bSave;
 	bool m_bAir;
 	bool m_bShot;
 	bool m_bDash;
 	bool m_bWall;
+	bool m_bTurn;
+	bool m_bBoost;
 	int m_nEasterTimer;
 	int m_nShotTimer;
 	int m_nCombo;
 	int m_nEnergy;
+	float m_Speed;
+	float m_SpeedDest;
+	float m_fHue;
 
 	//静的メンバ変数 
 	static int m_nNumModel;
 	static CModel *m_apModelOrigin[32];
-	static CModel *m_apModelSave[32];
 	static CMotion *m_pMotionOrigin;
-	static CMotion *m_pMotionSave;
 
 };
 

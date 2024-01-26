@@ -188,7 +188,7 @@ HRESULT CBlock::Init(void)
 
 	SetType(TYPE_BLOCK);
 
-	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(100.0f, 100.0f, 100.0f), D3DXVECTOR3(-100.0f, -100.0f, -100.0f)));
+	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(1000.0f, 1000.0f, 1000.0f), D3DXVECTOR3(-1000.0f, -1000.0f, -1000.0f)));
 	GetCollider()->SetType(CCollider::TYPE_BOX);
 
 	return S_OK;
@@ -220,6 +220,7 @@ void CBlock::Update(void)
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
+	SetMtxScale(10.0f);
 
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 

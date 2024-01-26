@@ -11,7 +11,7 @@
 #include "object.h"
 
 //マクロ定義---------------------------
-#define MAX_EDGE	(100)	//辺の最大数
+#define MAX_EDGE	(1000)	//辺の最大数
 #define NUM_OFFSET	(2)	//オフセットの数
 
 //列挙型定義---------------------------
@@ -43,7 +43,7 @@ public:				//外部からアクセス可能
 	D3DXVECTOR3 GetRot(void) { return D3DXVECTOR3(0.0f, 0.0f, 0.0f); }
 
 	void SetEdge(int nNumEdge) { m_nNumEdge = nNumEdge; }
-	void SetCol(D3DXCOLOR col) { m_col = col; }
+	void SetCol(D3DXCOLOR col) { m_col[0][0] = col; }
 	void SetposOffset(D3DXVECTOR3 posOffset, int nOffset) { m_posOffset[nOffset] = posOffset; }
 	void SetPosPoint(D3DXVECTOR3 posPoint, int nNumEdge, int nOffset) { m_aPosPoint[nNumEdge][nOffset] = posPoint; }
 	void SetmtxWorldOffset(D3DXMATRIX mtxWorldOffset, int nOffset) { m_mtxWorldOffset[nOffset] = mtxWorldOffset; }
@@ -68,10 +68,11 @@ private:			//外部からアクセス不可能
 	D3DXMATRIX m_mtxWorld;								//マトリックス
 	D3DXVECTOR3 m_posOffset[NUM_OFFSET];				//オフセット位置
 	D3DXVECTOR3 m_aPosPoint[MAX_EDGE][NUM_OFFSET];		//頂点座標保存用
-	D3DXCOLOR m_col;									//色
+	D3DXCOLOR m_col[MAX_EDGE][NUM_OFFSET];				//色
 	D3DXCOLOR m_aColPoint[MAX_EDGE][NUM_OFFSET];		//頂点カラー保存用
 	D3DXMATRIX m_mtxWorldOffset[NUM_OFFSET];			//オフセットのマトリックス
 	int m_nNumEdge;										//辺の数
+	float m_nHue;										//辺の数
 
 	//静的メンバ変数
 

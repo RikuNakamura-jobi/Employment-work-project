@@ -135,7 +135,7 @@ void CTime::Update(void)
 		nSeconds = 0;
 	}
 
-	nMinutes = (3 - ((m_nTime + 59) / 60)) * 100;
+	nMinutes = (1 - ((m_nTime + 59) / 60)) * 100;
 
 	m_nTime = nSeconds + nMinutes;
 

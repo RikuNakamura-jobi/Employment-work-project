@@ -42,7 +42,7 @@ HRESULT CCamera::Init(void)
 	m_posR = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
 	m_posVDest = D3DXVECTOR3(0.0f, 500.0f, -400.0f);
 	m_posRDest = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
-	m_rot = D3DXVECTOR3(0.0f, 3.14f, 1.57f);
+	m_rot = D3DXVECTOR3(0.0f, 3.14f, 1.7f);
 	m_rotOld = D3DXVECTOR3(0.0f, 3.14f, 1.57f);
 
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -160,6 +160,7 @@ void CCamera::Set(void)
 void CCamera::Rot(void)
 {
 	float fLengthCamera;
+	CPlayer *player = CManager::Get()->Get()->GetScene()->GetPlayer();
 
 	m_posVOld = m_posV;
 	m_posROld = m_posR;
@@ -173,19 +174,44 @@ void CCamera::Rot(void)
 		m_rot.y += 6.28f;
 	}
 
-	if (m_rot.z < 0.0f)
+	if (m_rot.z < 0.4f)
 	{
-		m_rot.z = 0.0f;
+		m_rot.z = 0.4f;
 	}
-	else if (m_rot.z > 3.13f)
+	else if (m_rot.z > 3.1f)
 	{
-		m_rot.z = 3.13f;
+		m_rot.z = 3.1f;
 	}
 
-	fLengthCamera = 200.0f;
+	float speedLength = CManager::Get()->Get()->GetScene()->GetPlayer()->GetSpeed();
+	float speedLengthDest = CManager::Get()->Get()->GetScene()->GetPlayer()->GetSpeedDest();
+
+	if (speedLength < -15.0f)
+	{
+		speedLength = -15.0f;
+	}
+
+	if (speedLengthDest == -0.3f)
+	{
+		fLengthCamera = 150.0f + (speedLength * -35.0f);
+	}
+	else if (speedLengthDest >= -5.0f)
+	{
+		fLengthCamera = 200.0f + (speedLength * -20.0f);
+	}
+	else if (speedLengthDest < -5.0f)
+	{
+		fLengthCamera = 100.0f + (speedLength * -40.0f);
+	}
+	else
+	{
+		fLengthCamera = 200.0f;
+	}
+	
+	CManager::Get()->Get()->GetDebugProc()->Print("ƒJƒƒ‰‹——£: %f\n", fLengthCamera);
 
 	m_posRDest.x = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().x - (sinf(0.0f) * 0.0f);
-	m_posRDest.y = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().y + 30.0f;
+	m_posRDest.y = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().y + 20.0f;
 	m_posRDest.z = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().z - (cosf(0.0f) * 0.0f);
 
 	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y)) * fLengthCamera;
@@ -199,4 +225,34 @@ void CCamera::Rot(void)
 	m_posV.x += (m_posVDest.x - m_posV.x) * 0.7f;
 	m_posV.y += (m_posVDest.y - m_posV.y) * 0.7f;
 	m_posV.z += (m_posVDest.z - m_posV.z) * 0.7f;
+
+	float fRotMove, fRotDest, fRotDiff;
+	fRotMove = m_rot.y;
+	fRotDest = player->GetRot().y + D3DX_PI;
+	fRotDiff = fRotDest - fRotMove;
+
+	if (fRotDiff > 3.14f)
+	{
+		fRotDiff -= 6.28f;
+	}
+	else if (fRotDiff <= -3.14f)
+	{
+		fRotDiff += 6.28f;
+	}
+
+	fRotMove += fRotDiff * 0.04f;
+
+	if (fRotMove > 3.14f)
+	{
+		fRotMove -= 6.28f;
+	}
+	else if (fRotMove <= -3.14f)
+	{
+		fRotMove += 6.28f;
+	}
+
+	if (speedLengthDest != -1.0f && speedLengthDest != 0.0f)
+	{
+		m_rot.y = fRotMove;
+	}
 }

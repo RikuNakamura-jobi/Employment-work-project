@@ -41,6 +41,7 @@ private:			//外部からアクセス不可能
 	//メンバ関数
 
 	//メンバ変数
+	int m_nHue;
 
 	//静的メンバ変数
 	static LPDIRECT3DTEXTURE9 m_pTexture;		//テクスチャへのポインタ

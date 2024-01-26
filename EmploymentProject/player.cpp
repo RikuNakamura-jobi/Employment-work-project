@@ -21,6 +21,8 @@
 #include "particle.h"
 #include "collision.h"
 #include "debugproc.h"
+#include "orbit.h"
+#include "useful.h"
 
 //マクロ定義---------------------------
 
@@ -35,9 +37,7 @@
 //静的メンバ変数宣言-------------------
 int CPlayer::m_nNumModel = 0;
 CModel *CPlayer::m_apModelOrigin[32] = {};
-CModel *CPlayer::m_apModelSave[32] = {};
 CMotion *CPlayer::m_pMotionOrigin = NULL;
-CMotion *CPlayer::m_pMotionSave = NULL;
 
 //=====================================
 // コンストラクタ・デストラクタ
@@ -53,15 +53,22 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_bSave = false;
 	m_nEasterTimer = 0;
 	m_pMotion = NULL;
+	m_orbit[0] = NULL;
+	m_orbit[1] = NULL;
 	m_Type = TYPE_NORMAL;
 	m_bAir = true;
 	m_bShot = false;
 	m_bDash = false;
 	m_bWall = false;
+	m_bTurn = false;
+	m_bBoost = false;
 	m_nShotTimer = 0;
 	m_state = STATE_NORMAL;
 	m_nCombo = 0;
 	m_nEnergy = 0;
+	m_Speed = 0.0f;
+	m_SpeedDest = 0.0f;
+	m_fHue = 0.0f;
 
 	for (int nCntModel = 0; nCntModel < 32; nCntModel++)
 	{
@@ -129,27 +136,12 @@ void CPlayer::Unload(void)
 			delete m_apModelOrigin[nCnt];
 			m_apModelOrigin[nCnt] = NULL;
 		}
-
-		//テクスチャの破棄
-		if (m_apModelSave[nCnt] != NULL)
-		{
-			m_apModelSave[nCnt]->Uninit();
-
-			delete m_apModelSave[nCnt];
-			m_apModelSave[nCnt] = NULL;
-		}
 	}
 
 	if (m_pMotionOrigin != NULL)
 	{
 		delete m_pMotionOrigin;
 		m_pMotionOrigin = NULL;
-	}
-
-	if (m_pMotionSave != NULL)
-	{
-		delete m_pMotionSave;
-		m_pMotionSave = NULL;
 	}
 }
 
@@ -160,37 +152,31 @@ HRESULT CPlayer::Init(void)
 {
 	for (int nCnt = 0; nCnt < 32; nCnt++)
 	{
-		if (m_Type == TYPE_SAVEDATA)
-		{
-			m_apModel[nCnt] = m_apModelSave[nCnt];
-		}
-		else
-		{
-			m_apModel[nCnt] = m_apModelOrigin[nCnt];
-		}
+		m_apModel[nCnt] = m_apModelOrigin[nCnt];
 	}
 
-	if (m_Type == TYPE_SAVEDATA)
+	if (m_pMotionOrigin != NULL)
 	{
-		if (m_pMotionSave != NULL)
-		{
-			m_pMotion = m_pMotionSave;
-			m_pMotion->Set(MOTION_NORMAL);
-		}
-	}
-	else
-	{
-		if (m_pMotionOrigin != NULL)
-		{
-			m_pMotion = m_pMotionOrigin;
-			m_pMotion->Set(MOTION_NORMAL);
-		}
+		m_pMotion = m_pMotionOrigin;
+		m_pMotion->Set(MOTION_NORMAL);
 	}
 
 	SetType(TYPE_PLAYER);
 	SetCollider(CCollider::Create(&m_pos, &m_rot, D3DXVECTOR3(100.0f, 100.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
 	m_nEnergy = 10;
 	m_rotDest.z = 1.57f;
+
+	D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
+	m_orbit[0] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+
+	mtxTemp = GetModel(17)->GetMtxWorld();
+	m_orbit[1] = COrbit::Create(mtxTemp, D3DXVECTOR3(-0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+
+	mtxTemp = GetModel(16)->GetMtxWorld();
+	m_orbit[2] = COrbit::Create(mtxTemp, D3DXVECTOR3(-0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+
+	mtxTemp = GetModel(17)->GetMtxWorld();
+	m_orbit[3] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
 
 	return S_OK;
 }
@@ -239,8 +225,10 @@ void CPlayer::Update(void)
 
 		if (m_bAir)
 		{
-			move.y -= 1.0f;
+			move.y -= 0.65f;
 		}
+
+		ControlMove(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 	}
 
 	if (m_state == STATE_KICK)
@@ -290,6 +278,7 @@ void CPlayer::Update(void)
 	if (pos.y <= 0.0f)
 	{
 		m_bAir = false;
+		m_bWall = false;
 	}
 	else
 	{
@@ -315,6 +304,20 @@ void CPlayer::Update(void)
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
+
+	D3DXVECTOR3 posEffect;
+
+	/*posEffect.x = GetModel(16)->GetMtxWorld()._41;
+	posEffect.y = GetModel(16)->GetMtxWorld()._42;
+	posEffect.z = GetModel(16)->GetMtxWorld()._43;
+	CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), useful::HSLtoRGB(m_fHue), 100, 5.0f, 5.0f);
+
+	posEffect.x = GetModel(17)->GetMtxWorld()._41;
+	posEffect.y = GetModel(17)->GetMtxWorld()._42;
+	posEffect.z = GetModel(17)->GetMtxWorld()._43;
+	CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), useful::HSLtoRGB(m_fHue), 100, 5.0f, 5.0f);
+
+	m_fHue += 0.7f;*/
 
 	CManager::Get()->Get()->GetScene()->GetCamera()->SetPos(pos);
 
@@ -362,6 +365,30 @@ void CPlayer::Draw(void)
 			}
 		}
 	}
+
+	if (m_orbit[0] != NULL)
+	{
+		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
+		m_orbit[0]->SetPositionOffset(mtxTemp);
+	}
+
+	if (m_orbit[1] != NULL)
+	{
+		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
+		m_orbit[1]->SetPositionOffset(mtxTemp);
+	}
+
+	if (m_orbit[2] != NULL)
+	{
+		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
+		m_orbit[2]->SetPositionOffset(mtxTemp);
+	}
+
+	if (m_orbit[3] != NULL)
+	{
+		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
+		m_orbit[3]->SetPositionOffset(mtxTemp);
+	}
 }
 
 //=====================================
@@ -371,6 +398,7 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 {
 	CInput *input = CManager::Get()->Get()->GetInputKeyboard();
 	CInput *inputMouse = CManager::Get()->Get()->GetInputMouse();
+	CInput *inputPad = CManager::Get()->Get()->GetInputPad();
 
 	D3DXVECTOR3 rotCamera = CManager::Get()->Get()->GetScene()->GetCamera()->GetRot();
 	D3DXVECTOR3 rotCameraDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -379,15 +407,20 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	float RotKey = 0.0f;
 	int NumInputKey = 0;
 
+	if (inputPad->GetAll())
+	{
+		return;
+	}
+
 	//移動処理
-	if (input->GetPress(DIK_S) == true)
+	if (input->GetPress(DIK_A) == true)
 	{//Dキーが押された時
 
 		RotKey -= D3DX_PI * 0.5f;
 		NumInputKey++;
 
 	}
-	if (input->GetPress(DIK_A) == true)
+	if (input->GetPress(DIK_W) == true)
 	{//Aキーが押された時
 
 		if (NumInputKey > 0)
@@ -402,14 +435,14 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 		NumInputKey++;
 
 	}
-	if (input->GetPress(DIK_D) == true)
+	if (input->GetPress(DIK_S) == true)
 	{//Dキーが押された時
 
 		RotKey += D3DX_PI * 0.0f;
 		NumInputKey++;
 
 	}
-	if (input->GetPress(DIK_W) == true)
+	if (input->GetPress(DIK_D) == true)
 	{//Dキーが押された時
 
 		RotKey += D3DX_PI * 0.5f;
@@ -425,17 +458,88 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			RotKey *= 0.5f;
 		}
 
-		move->x += sinf(rotCamera.y - RotKey - (D3DX_PI * 0.5f)) * -2.5f;
-		move->z += cosf(rotCamera.y - RotKey - (D3DX_PI * 0.5f)) * -2.5f;
+		if (input->GetPress(DIK_LSHIFT))
+		{
+			if (m_SpeedDest < -5.0f)
+			{
+				m_SpeedDest += 0.1f;
+			}
+			else
+			{
+				m_SpeedDest = -1.0f;
+			}
 
-		m_rotDest.z = rotCamera.y - RotKey - (D3DX_PI * 0.5f);
+			m_rotDest.z = rotCamera.y - RotKey;
 
+			m_bDash = false;
+		}
+		else
+		{
+			if (m_SpeedDest < -5.0f)
+			{
+				m_SpeedDest += 0.1f;
+			}
+			else
+			{
+				m_SpeedDest = -5.0f;
+			}
+
+			m_rotDest.z = rotCamera.y - RotKey;
+
+			m_bDash = true;
+		}
+	}
+	else
+	{
+		m_SpeedDest = 0.0f;
+		m_bDash = false;
+	}
+
+	if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= -10.0f)
+	{
+		m_bTurn = true;
+	}
+
+	if (inputMouse->GetPress(1) == true && m_bAir == false && m_bTurn)
+	{
+		if (m_bDash)
+		{
+			m_SpeedDest = -0.3f;
+
+			m_bDash = false;
+		}
+	}
+	else
+	{
+		m_rotMove = *rot;
+	}
+
+	if (inputMouse->GetRelease(1) == true && m_bAir == false && m_bTurn)
+	{
+		m_SpeedDest = -20.0f;
+		m_bTurn = false;
+		m_bBoost = true;
 	}
 
 	if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
 	{
-		move->y = 18.0f;
+		move->y = 15.0f;
 		m_pMotion->Set(MOTION_JUMP);
+
+		if (m_bWall)
+		{
+			m_SpeedDest = 50.0f;
+
+			rot->y += D3DX_PI;
+
+			m_bWall = false;
+		}
+
+		if (m_SpeedDest <= -19.0f && m_bBoost)
+		{
+			m_SpeedDest -= 5.0f;
+			m_bBoost = false;
+		}
 	}
 }
 
@@ -445,6 +549,8 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth)
 {
 	CInput *input = CManager::Get()->Get()->GetInputPad();
+	CInput *inputKeyboard = CManager::Get()->Get()->GetInputKeyboard();
+	CInput *inputMouse = CManager::Get()->Get()->GetInputMouse();
 
 	D3DXVECTOR3 rotCamera = CManager::Get()->Get()->GetScene()->GetCamera()->GetRot();
 	D3DXVECTOR3 rotCameraDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -459,52 +565,91 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 	CManager::Get()->Get()->GetDebugProc()->Print("Lスティックの距離: %f\n", lengthStick);
 
-	if (lengthStick > 10.0f)
+	if (inputKeyboard->GetAll() || inputMouse->GetAll())
 	{
-		move->x += sinf(GetRot().y) * -2.5f;
-		move->z += cosf(GetRot().y) * -2.5f;
-		
+		return;
+	}
+
+	if (lengthStick >= 1000.0f)
+	{
+		if (m_SpeedDest < -5.0f)
+		{
+			m_SpeedDest += 0.1f;
+		}
+		else
+		{
+			m_SpeedDest = -5.0f;
+		}
+
 		m_rotDest.z = rotCamera.y - RotStick;
 
 		m_bDash = true;
 	}
+	else if (lengthStick > 10.0f)
+	{
+		if (m_SpeedDest < -5.0f)
+		{
+			m_SpeedDest += 0.1f;
+		}
+		else
+		{
+			m_SpeedDest = -1.0f;
+		}
+
+		m_rotDest.z = rotCamera.y - RotStick;
+
+		m_bDash = false;
+	}
 	else
 	{
+		m_SpeedDest = 0.0f;
 		m_bDash = false;
 	}
 
-	if (input->GetButtonTrigger(5) == true && m_bAir == false)
+	if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= -10.0f)
 	{
-		
+		m_bTurn = true;
 	}
 
-	if (input->GetButtonPress(5) == true && m_bAir == false)
+	if (input->GetButtonPress(5) == true && m_bAir == false && m_bTurn)
 	{
-		move->x *= 0.6f;
-		move->z *= 0.6f;
+		if (m_bDash)
+		{
+			m_SpeedDest = -0.3f;
 
-		m_bDash = false;
+			m_bDash = false;
+		}
+	}
+	else
+	{
+		m_rotMove = *rot;
 	}
 
-	if (input->GetButtonRelease(5) == true && m_bAir == false)
+	if (input->GetButtonRelease(5) == true && m_bAir == false && m_bTurn)
 	{
-		move->x *= 2.5f;
-		move->z *= 2.5f;
+		m_SpeedDest = -20.0f;
+		m_bTurn = false;
+		m_bBoost = true;
 	}
 
 	if (input->GetButtonTrigger(2) == true && m_bAir == false)
 	{
-		move->y = 18.0f;
+		move->y = 15.0f;
 		m_pMotion->Set(MOTION_JUMP);
 
 		if (m_bWall)
 		{
-			move->x += sinf(GetRot().y) * 50.0f;
-			move->z += cosf(GetRot().y) * 50.0f;
+			m_SpeedDest = 50.0f;
 
 			rot->y += D3DX_PI;
 
 			m_bWall = false;
+		}
+
+		if (m_SpeedDest <= -19.0f && m_bBoost)
+		{
+			m_SpeedDest -= 5.0f;
+			m_bBoost = false;
 		}
 	}
 
@@ -545,6 +690,39 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 		*pos = posAnswer;
 	}
+}
+
+//=====================================
+// プレイヤーの移動調整処理
+//=====================================
+void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth)
+{
+	float speed;
+
+	if (m_bDash)
+	{
+		m_Speed += (m_SpeedDest - m_Speed) * 0.3f;
+	}
+	else
+	{
+		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
+	}
+
+	if (m_Speed < -15.0f)
+	{
+		speed = -15.0f;
+	}
+	else
+	{
+		speed = m_Speed;
+	}
+
+	CManager::Get()->Get()->GetDebugProc()->Print("目標速度: %f\n", m_SpeedDest);
+	CManager::Get()->Get()->GetDebugProc()->Print("現在速度: %f\n", m_Speed);
+	CManager::Get()->Get()->GetDebugProc()->Print("実質速度: %f\n", speed);
+
+	move->x += sinf(m_rotMove.y) * speed;
+	move->z += cosf(m_rotMove.y) * speed;
 }
 
 //=====================================
@@ -660,20 +838,19 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 				//種類取得
 				type = pObj->GetType();
 
-				if (D3DXVec3Length(&(*pos - pObj->GetPos())) < 200.0f)
+				if (type == TYPE_BLOCK)
 				{
-					if (type == TYPE_BLOCK)
+					if (pObj->GetCollider() != NULL)
 					{
-						if (pObj->GetCollider() != NULL)
+						if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
 						{
-							if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
-							{
-								m_bAir = false;
-								m_bWall = true;
-								move->x = 0.0f;
-								move->y = 0.0f;
-								move->z = 0.0f;
-							}
+							m_bAir = false;
+							m_SpeedDest = 0.0f;
+
+							m_bWall = true;
+							move->x = 0.0f;
+							move->y = 0.0f;
+							move->z = 0.0f;
 						}
 					}
 				}
@@ -698,16 +875,10 @@ void CPlayer::ReadFilePlayer(void)
 	D3DXVECTOR3 pos, rot;
 	CMotion::Info info;
 	m_pMotionOrigin = new CMotion;
-	m_pMotionSave = new CMotion;
 
 	if (m_pMotionOrigin != NULL)
 	{
 		m_pMotionOrigin->Init();
-	}
-
-	if (m_pMotionSave != NULL)
-	{
-		m_pMotionSave->Init();
 	}
 
 	memset(&info, 0, sizeof(info));
@@ -750,7 +921,6 @@ void CPlayer::ReadFilePlayer(void)
 			fscanf(pFile, "%s", &aText[0]);
 
 			m_apModelOrigin[nCntFile] = CModel::Create(&aText[0]);
-			m_apModelSave[nCntFile] = CModel::Create(&aText[0]);
 
 			//読み込んだモデル数カウンタ加算
 			nCntFile++;
@@ -781,18 +951,13 @@ void CPlayer::ReadFilePlayer(void)
 		m_apModelOrigin[nCntModel]->SetPosDef(pos);
 		m_apModelOrigin[nCntModel]->SetRotDef(rot);
 
-		m_apModelSave[nCntModel]->SetPosDef(pos);
-		m_apModelSave[nCntModel]->SetRotDef(rot);
-
 		if (nParent == -1)
 		{
 			m_apModelOrigin[nCntModel]->SetParent(NULL);
-			m_apModelSave[nCntModel]->SetParent(NULL);
 		}
 		else
 		{
 			m_apModelOrigin[nCntModel]->SetParent(m_apModelOrigin[nParent]);
-			m_apModelSave[nCntModel]->SetParent(m_apModelSave[nParent]);
 		}
 	}
 
@@ -804,11 +969,6 @@ void CPlayer::ReadFilePlayer(void)
 	if (m_pMotionOrigin != NULL)
 	{
 		m_pMotionOrigin->SetModel(&m_apModelOrigin[0], m_nNumModel);
-	}
-
-	if (m_pMotionSave != NULL)
-	{
-		m_pMotionSave->SetModel(&m_apModelSave[0], m_nNumModel);
 	}
 
 	for (int nCntMotion = 0, nTemp = 0; nCntMotion < MOTION_MAX; nTemp++)
@@ -881,11 +1041,6 @@ void CPlayer::ReadFilePlayer(void)
 			if (m_pMotionOrigin != NULL)
 			{
 				m_pMotionOrigin->SetInfo(info);
-			}
-
-			if (m_pMotionSave != NULL)
-			{
-				m_pMotionSave->SetInfo(info);
 			}
 
 			nCntMotion++;

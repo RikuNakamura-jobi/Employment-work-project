@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "manager.h"
 #include "debugproc.h"
+#include "useful.h"
 
 //マクロ定義---------------------------
 
@@ -30,7 +31,8 @@ COrbit::COrbit(int nPriority = 5) : CObject(nPriority)
 	m_pVtxBuff = NULL;				//頂点情報を格納
 	m_pTexture = NULL;				//テクスチャへのポインタ
 
-	m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_col[MAX_EDGE][NUM_OFFSET] = {};
+	m_nHue = 0.0f;
 }
 
 COrbit::~COrbit()
@@ -206,6 +208,16 @@ void COrbit::UpdatePolygon(void)
 		}
 	}
 
+	//保存した座標をずらす==========
+	for (int nCntVtx = 1; nCntVtx < m_nNumEdge; nCntVtx++)
+	{
+		for (nCntOffset = 0; nCntOffset < NUM_OFFSET; nCntOffset++)
+		{
+			//一つ前の座標にずれる
+			m_col[nCntVtx - 1][nCntOffset] = m_col[nCntVtx][nCntOffset];
+		}
+	}
+
 	for (nCntOffset = 0; nCntOffset < NUM_OFFSET; nCntOffset++)
 	{
 		//現在のフレームのオフセット位置を保存
@@ -215,6 +227,12 @@ void COrbit::UpdatePolygon(void)
 			m_mtxWorldOffset[nCntOffset]._42,
 			m_mtxWorldOffset[nCntOffset]._43
 		};
+	}
+
+	for (nCntOffset = 0; nCntOffset < NUM_OFFSET; nCntOffset++)
+	{
+		//現在のフレームのオフセット位置を保存
+		m_col[m_nNumEdge - 1][nCntOffset] = useful::HSLtoRGB(m_nHue);
 	}
 	//保存した座標をずらす==========
 
@@ -233,7 +251,7 @@ void COrbit::UpdatePolygon(void)
 			pVtx[nCntOffset].pos = m_aPosPoint[nCntVtx][nCntOffset];
 
 			//頂点カラーの設定
-			pVtx[nCntOffset].col = D3DXCOLOR(m_col.r, m_col.g, m_col.b, (float)nCntVtx / m_nNumEdge);
+			pVtx[nCntOffset].col = D3DXCOLOR(m_col[nCntVtx][nCntOffset].r, m_col[nCntVtx][nCntOffset].g, m_col[nCntVtx][nCntOffset].b, (float)nCntVtx / m_nNumEdge);
 		}
 
 		//ポインタを進める
@@ -336,6 +354,8 @@ void COrbit::SetPositionOffset(D3DXMATRIX mtxWorld)
 
 		m_mtxWorldOffset[nCntOffset] = mtxOffset;
 	}
+
+	m_nHue += 5.0f;
 
 	//ポリゴン更新処理
 	UpdatePolygon();

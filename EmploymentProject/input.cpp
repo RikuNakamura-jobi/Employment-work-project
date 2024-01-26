@@ -563,6 +563,8 @@ void CInputMouse::Update(void)
 		{
 			m_StateTrigger.rgbButtons[nCntKey] = (m_State.rgbButtons[nCntKey] ^ mouse.rgbButtons[nCntKey]) & mouse.rgbButtons[nCntKey];
 
+			m_StateRelease.rgbButtons[nCntKey] = (m_State.rgbButtons[nCntKey] ^ mouse.rgbButtons[nCntKey]) & m_State.rgbButtons[nCntKey];
+
 			m_nCountRepeat++;
 			if ((m_nCountRepeat % 10) == 0)
 			{
@@ -598,6 +600,14 @@ bool CInputMouse::GetPress(int nKey)
 bool CInputMouse::GetTrigger(int nKey)
 {
 	return (m_StateTrigger.rgbButtons[nKey] & 0x80) ? true : false;
+}
+
+//=====================================
+//マウスリリース情報取得処理
+//=====================================
+bool CInputMouse::GetRelease(int nKey)
+{
+	return (m_StateRelease.rgbButtons[nKey] & 0x80) ? true : false;
 }
 
 //=====================================

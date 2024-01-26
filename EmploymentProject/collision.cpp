@@ -8,6 +8,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "effect.h"
+#include "useful.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -151,6 +152,8 @@ CCollider::CCollider()
 	m_rot = NULL;
 	m_offsetMax = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_offsetMin = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	m_nHue = 0.0f;
 }
 
 CCollider::~CCollider()
@@ -218,9 +221,12 @@ void CCollider::Uninit(void)
 void CCollider::Update(void)
 {
 #ifdef _DEBUG
-	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
+	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 2, 10.0f, 10.0f);
 	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
 	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);
+
+	m_nHue += 0.7f;
+
 #endif //_DEBUG
 }
 
@@ -300,7 +306,7 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 					vecMoveRef *= D3DXVec3Length(&vecMove);
 				}
 
-				*posTarget = vecIntersect - (vecNorPlaneCenter * 1.0f);
+				*posTarget = vecIntersect - (vecNorPlaneCenter * 3.0f);
 				
 				return true;
 			}

@@ -297,35 +297,35 @@ CGame::~CGame()
 HRESULT CGame::Init(void)
 {
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-	//m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
 	m_pField = CField::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(20000.0f, 0.0f, 20000.0f));
 	m_pSky = CSky::Create();
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(10600.0f, 0.1f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), CPlayer::TYPE_NORMAL);
 
 	for (int nCnt = 0; nCnt < 10; nCnt++)
 	{
-		CBlock::Create(D3DXVECTOR3(11000.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+		//CBlock::Create(D3DXVECTOR3(11000.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 	}
 
 	for (int nCnt = 0; nCnt < 3; nCnt++)
 	{
-		CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 9000.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 9000.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 	}
 
-	CBlock::Create(D3DXVECTOR3(8500.0f, -30.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.785f), 100.0f, 100.0f);
+	CBlock::Create(D3DXVECTOR3(8500.0f, -10.0f, 10.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 
 	for (int nCnt = 0; nCnt < 2; nCnt++)
 	{
-		CBlock::Create(D3DXVECTOR3(7500.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+		//CBlock::Create(D3DXVECTOR3(7500.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 	}
 
 	for (int nCnt = 0; nCnt < 5; nCnt++)
 	{
-		CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 	}
 	for (int nCnt = 0; nCnt < 5; nCnt++)
 	{
-		CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
+		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
 	}
 
 	CBg::Create(CBg::TEXTURE_TUTORIAL_GAME);
@@ -401,23 +401,12 @@ void CGame::Update(void)
 	}
 	else
 	{
-		//if (m_pTime->GetTime() == 0)
-		//{
-		//	CBg::Create(CBg::TEXTURE_SUCCESS);
-		//	CScore::SetScoreResult(m_pScore->GetScore());
-		//	m_bFinish = true;
-		//	CObject::ReleaseTYPE(CObject::TYPE_ENEMY);
-
-		//	if (m_pEnemyManager != NULL)
-		//	{
-		//		//I—¹ˆ—
-		//		m_pEnemyManager->Uninit();
-
-		//		delete m_pEnemyManager;
-		//		m_pEnemyManager = NULL;
-
-		//	}
-		//}
+		if (m_pTime->GetTime() == 0)
+		{
+			CBg::Create(CBg::TEXTURE_SUCCESS);
+			CScore::SetScoreResult(m_pScore->GetScore());
+			m_bFinish = true;
+		}
 	}
 
 	if (GetCntFade() == 300 && CFade::GetState() == 0)

@@ -7,6 +7,7 @@
 #include "field.h"
 #include "renderer.h"
 #include "manager.h"
+#include "useful.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -26,6 +27,7 @@ LPDIRECT3DTEXTURE9 CField::m_pTexture = NULL;
 //=====================================
 CField::CField(int nPriority = 0) : CObject3D(nPriority)
 {
+	m_nHue = 0;
 }
 
 CField::~CField()
@@ -112,6 +114,10 @@ void CField::Uninit(void)
 void CField::Update(void)
 {
 	//Set(D3DXVECTOR3(640.0f, 360.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1280.0f, 720.0f);
+
+	//SetCol(useful::HSLtoRGB(m_nHue));
+	m_nHue++;
+
 	CObject3D::Update();
 }
 

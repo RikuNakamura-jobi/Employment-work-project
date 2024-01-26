@@ -112,11 +112,15 @@ private:
 	int m_nID;									//©•ª©g‚ÌID
 	TYPE m_type;
 	TAG m_tag;
+	bool m_bDeath;
+	bool m_bMovable;
+	bool m_bOnCollider;
+	bool m_bTrigger;
+
+	float m_nHue;
 
 	CCollider *m_pPrev;
 	CCollider *m_pNext;
-
-	bool m_bDeath;
 
 	//Ã“Iƒƒ“ƒo•Ï”
 

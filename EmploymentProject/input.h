@@ -120,7 +120,7 @@ public:				//外部からアクセス可能
 
 	bool GetPress(int nKey);
 	bool GetTrigger(int nKey);
-	bool GetRelease(int nKey) { return false; }
+	bool GetRelease(int nKey);
 	bool GetRepeat(int nKey);
 	bool GetAll(void);
 
@@ -136,6 +136,7 @@ private:			//外部からアクセス不可能
 	//メンバ変数
 	DIMOUSESTATE2 m_State;							//全入力情報
 	DIMOUSESTATE2 m_StateTrigger;					//全入力情報
+	DIMOUSESTATE2 m_StateRelease;					//全入力情報
 	DIMOUSESTATE2 m_StateRepeat;					//全入力情報
 	int m_nCountRepeat;
 
