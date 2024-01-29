@@ -653,6 +653,12 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 		}
 	}
 
+	if (input->GetButtonPress(4) == true && m_bAir == false)
+	{
+		m_SpeedDest = 0.0f;
+		m_bDash = false;
+	}
+
 	if (input->GetButtonTrigger(7) == true)
 	{
 		D3DXVECTOR3 wirePos = D3DXVECTOR3(0.0f, 0.0f, -1000.0f);
@@ -699,13 +705,13 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 {
 	float speed;
 
-	if (m_bDash)
+	if (m_bTurn)
 	{
-		m_Speed += (m_SpeedDest - m_Speed) * 0.3f;
+		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
 	}
 	else
 	{
-		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
+		m_Speed += (m_SpeedDest - m_Speed) * 0.3f;
 	}
 
 	if (m_Speed < -15.0f)

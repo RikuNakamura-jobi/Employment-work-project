@@ -405,9 +405,9 @@ void CGame::Update(void)
 	{
 		if (m_pTime->GetTime() == 0)
 		{
-			CBg::Create(CBg::TEXTURE_SUCCESS);
+			/*CBg::Create(CBg::TEXTURE_SUCCESS);
 			CScore::SetScoreResult(m_pScore->GetScore());
-			m_bFinish = true;
+			m_bFinish = true;*/
 		}
 	}
 
