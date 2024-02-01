@@ -30,7 +30,7 @@ public:				//外部からアクセス可能
 	virtual HRESULT Init(void);
 	virtual void Uninit(void);
 	virtual void Update(void);
-	virtual void Draw(void);
+	virtual void Draw(void) override;
 
 	void Set(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight);
 

@@ -24,6 +24,7 @@ CCamera::CCamera()
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rotOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_cameraLength = 0.0f;
 
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 }
@@ -42,7 +43,7 @@ HRESULT CCamera::Init(void)
 	m_posR = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
 	m_posVDest = D3DXVECTOR3(0.0f, 500.0f, -400.0f);
 	m_posRDest = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
-	m_rot = D3DXVECTOR3(0.0f, 3.14f, 1.7f);
+	m_rot = D3DXVECTOR3(0.0f, 3.14f, 1.67f);
 	m_rotOld = D3DXVECTOR3(0.0f, 3.14f, 1.57f);
 
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -159,7 +160,7 @@ void CCamera::Set(void)
 //===========================
 void CCamera::Rot(void)
 {
-	float fLengthCamera;
+	m_cameraLength = 0.0f;
 	CPlayer *player = CManager::Get()->Get()->GetScene()->GetPlayer();
 
 	m_posVOld = m_posV;
@@ -193,30 +194,30 @@ void CCamera::Rot(void)
 
 	if (speedLengthDest == -0.3f)
 	{
-		fLengthCamera = 150.0f + (speedLength * -35.0f);
+		m_cameraLength = 150.0f + (speedLength * -35.0f);
 	}
 	else if (speedLengthDest >= -5.0f)
 	{
-		fLengthCamera = 200.0f + (speedLength * -20.0f);
+		m_cameraLength = 200.0f + (speedLength * -20.0f);
 	}
 	else if (speedLengthDest < -5.0f)
 	{
-		fLengthCamera = 100.0f + (speedLength * -40.0f);
+		m_cameraLength = 50.0f + (speedLength * -50.0f);
 	}
 	else
 	{
-		fLengthCamera = 200.0f;
+		m_cameraLength = 200.0f;
 	}
 	
-	CManager::Get()->Get()->GetDebugProc()->Print("ƒJƒƒ‰‹——£: %f\n", fLengthCamera);
+	CManager::Get()->Get()->GetDebugProc()->Print("ƒJƒƒ‰‹——£: %f\n", m_cameraLength);
 
 	m_posRDest.x = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().x - (sinf(0.0f) * 0.0f);
 	m_posRDest.y = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().y + 20.0f;
 	m_posRDest.z = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().z - (cosf(0.0f) * 0.0f);
 
-	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y)) * fLengthCamera;
-	m_posVDest.y = m_posRDest.y + 0.0f - (cosf(m_rot.z) * fLengthCamera);
-	m_posVDest.z = m_posRDest.z - (sinf(m_rot.z) * cosf(m_rot.y)) * fLengthCamera;
+	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y)) * m_cameraLength;
+	m_posVDest.y = m_posRDest.y + 0.0f - (cosf(m_rot.z) * m_cameraLength);
+	m_posVDest.z = m_posRDest.z - (sinf(m_rot.z) * cosf(m_rot.y)) * m_cameraLength;
 
 	m_posR.x += (m_posRDest.x - m_posR.x) * 0.7f;
 	m_posR.y += (m_posRDest.y - m_posR.y) * 0.7f;

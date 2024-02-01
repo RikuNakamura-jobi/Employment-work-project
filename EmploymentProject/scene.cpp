@@ -20,6 +20,7 @@
 #include "block.h"
 #include "deliverypoint.h"
 #include "sound.h"
+#include "map.h"
 
 //É}ÉNÉçíËã`---------------------------
 #define TIME_FADE (3600)
@@ -299,36 +300,12 @@ HRESULT CGame::Init(void)
 {
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-	m_pField = CField::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(20000.0f, 0.0f, 20000.0f));
+	m_pField = CField::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(40000.0f, 0.0f, 40000.0f), CField::TYPE_NONE);
 	m_pSky = CSky::Create();
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(10600.0f, 0.1f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), CPlayer::TYPE_NORMAL);
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.1f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), CPlayer::TYPE_NORMAL);
+	m_pMap = CMap::Create();
 
-	for (int nCnt = 0; nCnt < 10; nCnt++)
-	{
-		//CBlock::Create(D3DXVECTOR3(11000.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
-	}
-
-	for (int nCnt = 0; nCnt < 3; nCnt++)
-	{
-		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 9000.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
-	}
-
-	CBlock::Create(D3DXVECTOR3(8500.0f, -10.0f, 10.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
-	CDeliverypoint::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
-
-	for (int nCnt = 0; nCnt < 2; nCnt++)
-	{
-		//CBlock::Create(D3DXVECTOR3(7500.0f, 190.0f * nCnt + 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
-	}
-
-	for (int nCnt = 0; nCnt < 5; nCnt++)
-	{
-		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, -10.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
-	}
-	for (int nCnt = 0; nCnt < 5; nCnt++)
-	{
-		//CBlock::Create(D3DXVECTOR3(190.0f * nCnt + 1100.0f, 90.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 100.0f, 100.0f);
-	}
+	CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 
 	CBg::Create(CBg::TEXTURE_TUTORIAL_GAME);
 
@@ -374,6 +351,14 @@ void CGame::Uninit(void)
 	CSound::StopSound();
 	
 	CObject::ReleaseTYPEN(CObject::TYPE_FADE);
+
+	if (m_pMap != nullptr)
+	{
+		m_pMap->Uninit();
+
+		delete m_pMap;
+		m_pMap = nullptr;
+	}
 
 	if (m_pCamera != NULL)
 	{

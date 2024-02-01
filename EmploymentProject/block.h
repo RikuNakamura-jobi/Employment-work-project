@@ -19,6 +19,16 @@ class CBlock : public CObjectX
 {
 public:				//外部からアクセス可能
 
+	enum TYPE
+	{
+		TYPE_NONE = 0,			//なにもしてない状態
+		TYPE_BOX,				//フェードイン状態
+		TYPE_BIGBUILDING,		//フェードイン状態
+		TYPE_SMALLBUILDING,		//フェードイン状態
+		TYPE_APART,				//フェードイン状態
+		TYPE_MAX
+	};
+
 	//コンストラクタ・デストラクタ
 	CBlock(int nPriority);				//デフォルト
 	~CBlock();
@@ -33,7 +43,7 @@ public:				//外部からアクセス可能
 	MODELX *GetModel(void) { return &m_modelTemp; }
 
 	//静的メンバ関数
-	static CBlock *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight);
+	static CBlock *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, CBlock::TYPE type);
 	static HRESULT Load(void);
 	static void Unload(void);
 
@@ -47,7 +57,10 @@ private:			//外部からアクセス不可能
 	MODELX m_modelTemp;
 
 	//静的メンバ変数
-	static MODELX m_model;
+	static MODELX m_model[TYPE_MAX];
+	static const char *m_apFilename[TYPE_MAX];			//テクスチャの名前
+
+	TYPE m_type;
 
 };
 

@@ -100,9 +100,6 @@ public:
 
 private:
 
-	//ƒƒ“ƒoŠÖ”
-	D3DXVECTOR3 PosRelativeMtx(D3DXVECTOR3 posO, D3DXVECTOR3 rot, D3DXVECTOR3 offset);
-
 	//ƒƒ“ƒo•Ï”
 	D3DXVECTOR3 *m_pos;
 	D3DXVECTOR3 *m_rot;

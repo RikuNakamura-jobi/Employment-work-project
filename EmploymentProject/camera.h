@@ -36,6 +36,9 @@ public:
 	void Setzrot(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRot(void) { return m_rot; }
 
+	void SetLength(float length) { m_cameraLength = length; }
+	float GetLength(void) { return m_cameraLength; }
+
 	//静的メンバ関数
 
 private:
@@ -57,6 +60,7 @@ private:
 	D3DXVECTOR3 m_pos;			//角度
 	D3DXVECTOR3 m_rot;			//角度
 	D3DXVECTOR3 m_rotOld;		//角度
+	float m_cameraLength;		//角度
 
 	//静的メンバ変数
 

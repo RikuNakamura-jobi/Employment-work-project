@@ -85,3 +85,54 @@ D3DXCOLOR useful::HSLtoRGB(float Hue)
 	
 	return colRGB;
 }
+
+//========================================
+//3次元空間での行列による回転座標変換関数
+//(任意の点からのオフセット位置を角度と距離で変換)
+//========================================
+D3DXVECTOR3 useful::PosRelativeMtx(D3DXVECTOR3 posO, D3DXVECTOR3 rot, D3DXVECTOR3 offset)
+{
+	D3DXVECTOR3 posAnswer;
+	D3DXMATRIX mtxO, mtxAnswer;
+	D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
+	D3DXMATRIX mtxRotModel, mtxTransModel, mtxPalent;		//計算用マトリックス
+
+	//パーツのワールドマトリックス初期化
+	D3DXMatrixIdentity(&mtxO);
+
+	//向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot,
+		rot.y, rot.x, rot.z);
+	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxRot);
+
+	//位置を反映
+	D3DXMatrixTranslation(&mtxTransModel,
+		posO.x, posO.y, posO.z);
+	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxTransModel);
+
+	mtxPalent = mtxO;
+
+	//パーツのワールドマトリックス初期化
+	D3DXMatrixIdentity(&mtxAnswer);
+
+	//向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot,
+		3.14f, 3.14f, 3.14f);
+	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxRot);
+
+	//位置を反映
+	D3DXMatrixTranslation(&mtxTransModel,
+		offset.x, offset.y, offset.z);
+	D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxTransModel);
+
+	//算出したパーツのワールドマトリックスと親のマトリックスをかけ合わせる
+	D3DXMatrixMultiply(&mtxAnswer,
+		&mtxAnswer,
+		&mtxPalent);
+
+	posAnswer.x = mtxAnswer._41;
+	posAnswer.y = mtxAnswer._42;
+	posAnswer.z = mtxAnswer._43;
+
+	return posAnswer;
+}

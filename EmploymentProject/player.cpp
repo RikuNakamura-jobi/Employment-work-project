@@ -283,6 +283,11 @@ void CPlayer::Update(void)
 	else
 	{
 		m_bAir = true;
+
+		if (pos.y <= -300.0f)
+		{
+			pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		}
 	}
 
 	if (m_state != STATE_HIT)
@@ -472,6 +477,7 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			m_rotDest.z = rotCamera.y - RotKey;
 
 			m_bDash = false;
+			m_bTurn = false;
 		}
 		else
 		{
@@ -493,6 +499,7 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	{
 		m_SpeedDest = 0.0f;
 		m_bDash = false;
+		m_bTurn = false;
 	}
 
 	if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= -10.0f)
@@ -511,20 +518,30 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	}
 	else
 	{
-		m_rotMove = *rot;
-	}
+		if (m_bDash && m_bAir == false && m_bTurn)
+		{
+			m_SpeedDest = -0.3f;
 
-	if (inputMouse->GetRelease(1) == true && m_bAir == false && m_bTurn)
-	{
-		m_SpeedDest = -20.0f;
-		m_bTurn = false;
-		m_bBoost = true;
+			m_bDash = false;
+
+			if (m_Speed >= -0.35f)
+			{
+				m_SpeedDest = -20.0f;
+				m_bTurn = false;
+				m_bBoost = true;
+			}
+		}
+		else
+		{
+			m_rotMove = *rot;
+		}
 	}
 
 	if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
 	{
 		move->y = 15.0f;
 		m_pMotion->Set(MOTION_JUMP);
+		m_bTurn = false;
 
 		if (m_bWall)
 		{
@@ -535,11 +552,17 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			m_bWall = false;
 		}
 
-		if (m_SpeedDest <= -19.0f && m_bBoost)
+		if (m_SpeedDest <= -15.0f && m_bBoost)
 		{
 			m_SpeedDest -= 5.0f;
 			m_bBoost = false;
 		}
+	}
+
+	if (input->GetPress(DIK_LCONTROL) == true && m_bAir == false)
+	{
+		m_SpeedDest = 0.0f;
+		m_bDash = false;
 	}
 }
 
@@ -599,11 +622,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 		m_rotDest.z = rotCamera.y - RotStick;
 
 		m_bDash = false;
+		m_bTurn = false;
 	}
 	else
 	{
 		m_SpeedDest = 0.0f;
 		m_bDash = false;
+		m_bTurn = false;
 	}
 
 	if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= -10.0f)
@@ -622,20 +647,30 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	}
 	else
 	{
-		m_rotMove = *rot;
-	}
+		if (m_bDash && m_bAir == false && m_bTurn)
+		{
+			m_SpeedDest = -0.3f;
 
-	if (input->GetButtonRelease(5) == true && m_bAir == false && m_bTurn)
-	{
-		m_SpeedDest = -20.0f;
-		m_bTurn = false;
-		m_bBoost = true;
+			m_bDash = false;
+
+			if (m_Speed >= -0.35f)
+			{
+				m_SpeedDest = -20.0f;
+				m_bTurn = false;
+				m_bBoost = true;
+			}
+		}
+		else
+		{
+			m_rotMove = *rot;
+		}
 	}
 
 	if (input->GetButtonTrigger(2) == true && m_bAir == false)
 	{
 		move->y = 15.0f;
 		m_pMotion->Set(MOTION_JUMP);
+		m_bTurn = false;
 
 		if (m_bWall)
 		{
@@ -646,7 +681,7 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 			m_bWall = false;
 		}
 
-		if (m_SpeedDest <= -19.0f && m_bBoost)
+		if (m_SpeedDest <= -15.0f && m_bBoost)
 		{
 			m_SpeedDest -= 5.0f;
 			m_bBoost = false;
@@ -729,6 +764,29 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 
 	move->x += sinf(m_rotMove.y) * speed;
 	move->z += cosf(m_rotMove.y) * speed;
+
+	if (speed <= -4.0f)
+	{
+		D3DXVECTOR3 posEffectOffset = CManager::Get()->Get()->GetScene()->GetCamera()->GetPosV();
+		posEffectOffset = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y, 0.0f), D3DXVECTOR3(0.0f, -10.0f, 300.0f));
+
+		for (int nCntEff = 0; nCntEff < 5; nCntEff++)
+		{
+			float randRot = (float)(rand() % 629 - 314) * 0.01f;
+			D3DXVECTOR3 posEffect = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y + D3DX_PI, randRot), D3DXVECTOR3((float)(rand() % 100) + 70.0f + (speed * 1.0f), 0.0f, 0.0f));
+
+			if (speed >= -10.0f)
+			{
+				CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 100.0f, 5.0f);
+				break;
+			}
+			else
+			{
+				CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 100.0f, 5.0f);
+				//CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), useful::HSLtoRGB((float)(rand() % 360)), 20, 100.0f, 5.0f);
+			}
+		}
+	}
 }
 
 //=====================================

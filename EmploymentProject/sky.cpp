@@ -24,11 +24,11 @@
 LPDIRECT3DTEXTURE9 CSky::m_pTexture[MAX_SKY] = {};
 const char *CSky::m_apFilename[MAX_SKY] =
 {
-	"data\\TEXTURE\\sky003.png",
-	"data\\TEXTURE\\sky003.png",
-	"data\\TEXTURE\\sky003.png",
-	"data\\TEXTURE\\sky003.png",
-	"data\\TEXTURE\\sky003.png"
+	"data\\TEXTURE\\sky001.png",
+	"data\\TEXTURE\\sky001.png",
+	"data\\TEXTURE\\sky001.png",
+	"data\\TEXTURE\\sky001.png",
+	"data\\TEXTURE\\sky002.png"
 };
 
 //=====================================
@@ -115,31 +115,31 @@ HRESULT CSky::Init(void)
 		{
 		case 0:
 
-			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(SKY_LENGTH, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH, SKY_LENGTH));
+			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(SKY_LENGTH * 2.0f - 2000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH, SKY_LENGTH * 2.0f));
 
 			break;
 
 		case 1:
 
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, -SKY_LENGTH), D3DXVECTOR3(SKY_LENGTH, SKY_LENGTH, 0.0f));
+			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, -2000.0f), D3DXVECTOR3(SKY_LENGTH * 2.0f, SKY_LENGTH, 0.0f));
 
 			break;
 
 		case 2:
 
-			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(-SKY_LENGTH, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH, -SKY_LENGTH));
+			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(-2000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH, -SKY_LENGTH * 2.0f));
 
 			break;
 
 		case 3:
 
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, SKY_LENGTH), D3DXVECTOR3(-SKY_LENGTH, SKY_LENGTH, 0.0f));
+			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, SKY_LENGTH * 2.0f - 2000.0f), D3DXVECTOR3(-SKY_LENGTH * 2.0f, SKY_LENGTH, 0.0f));
 
 			break;
 
 		case 4:
 
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, SKY_LENGTH + 1000.0f, 0.0f), D3DXVECTOR3(-SKY_LENGTH * 1.1f, 0.0f, SKY_LENGTH * 1.1f));
+			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, SKY_LENGTH + 1000.0f, 0.0f), D3DXVECTOR3(-SKY_LENGTH * 2.1f, 0.0f, SKY_LENGTH * 2.1f));
 
 			break;
 		}
@@ -202,7 +202,7 @@ void CSky::Update(void)
 //=====================================
 void CSky::Draw(void)
 {
-
+	
 }
 
 //=====================================

@@ -222,8 +222,8 @@ void CCollider::Update(void)
 {
 #ifdef _DEBUG
 	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 2, 10.0f, 10.0f);
-	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
-	CEffect::Create(PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);
+	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
+	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);
 
 	m_nHue += 0.7f;
 
@@ -247,12 +247,12 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 	lengthZ = fabsf(m_offsetMax.z - m_offsetMin.z) * 0.5f;
 
 	//箱の各面の中心を求める
-	posPlaneCenter[0] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(lengthX, 0.0f, 0.0f));
-	posPlaneCenter[1] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(-lengthX, 0.0f, 0.0f));
-	posPlaneCenter[2] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, lengthY, 0.0f));
-	posPlaneCenter[3] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, -lengthY, 0.0f));
-	posPlaneCenter[4] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, lengthZ));
-	posPlaneCenter[5] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, -lengthZ));
+	posPlaneCenter[0] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(lengthX, 0.0f, 0.0f));
+	posPlaneCenter[1] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(-lengthX, 0.0f, 0.0f));
+	posPlaneCenter[2] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, lengthY, 0.0f));
+	posPlaneCenter[3] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, -lengthY, 0.0f));
+	posPlaneCenter[4] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, lengthZ));
+	posPlaneCenter[5] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, -lengthZ));
 
 	if (CollisionSquareTrigger(*posTarget) == true)
 	{
@@ -331,12 +331,12 @@ bool CCollider::CollisionSquareTrigger(D3DXVECTOR3 posTarget)
 	int nCheckCollision = 0;
 
 	//箱の各面の中心を求める
-	posPlaneCenter[0] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMax.x, 0.0f, 0.0f));
-	posPlaneCenter[1] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMin.x, 0.0f, 0.0f));
-	posPlaneCenter[2] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMax.y, 0.0f));
-	posPlaneCenter[3] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMin.y, 0.0f));
-	posPlaneCenter[4] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMax.z));
-	posPlaneCenter[5] = PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMin.z));
+	posPlaneCenter[0] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMax.x, 0.0f, 0.0f));
+	posPlaneCenter[1] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMin.x, 0.0f, 0.0f));
+	posPlaneCenter[2] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMax.y, 0.0f));
+	posPlaneCenter[3] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMin.y, 0.0f));
+	posPlaneCenter[4] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMax.z));
+	posPlaneCenter[5] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMin.z));
 
 	for (int nCnt = 0; nCnt < 6; nCnt++)
 	{
@@ -360,62 +360,4 @@ bool CCollider::CollisionSquareTrigger(D3DXVECTOR3 posTarget)
 	}
 
 	return bSquare;
-}
-
-//========================================
-//3次元空間での行列による回転座標変換関数
-//(任意の点からのオフセット位置を角度と距離で変換)
-//========================================
-D3DXVECTOR3 CCollider::PosRelativeMtx(D3DXVECTOR3 posO, D3DXVECTOR3 rot, D3DXVECTOR3 offset)
-{
-	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->GetRenderer()->GetDevice();
-	D3DXVECTOR3 posAnswer;
-	D3DXMATRIX mtxO, mtxAnswer;
-	D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
-	D3DXMATRIX mtxRotModel, mtxTransModel, mtxPalent;		//計算用マトリックス
-
-	//パーツのワールドマトリックス初期化
-	D3DXMatrixIdentity(&mtxO);
-
-	//向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot,
-		rot.y, rot.x, rot.z);
-	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxRot);
-
-	//位置を反映
-	D3DXMatrixTranslation(&mtxTransModel,
-		posO.x, posO.y, posO.z);
-	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxTransModel);
-
-	//ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &mtxO);
-
-	mtxPalent = mtxO;
-
-	//パーツのワールドマトリックス初期化
-	D3DXMatrixIdentity(&mtxAnswer);
-
-	//向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot,
-		3.14f, 3.14f, 3.14f);
-	D3DXMatrixMultiply(&mtxO, &mtxO, &mtxRot);
-
-	//位置を反映
-	D3DXMatrixTranslation(&mtxTransModel,
-		offset.x, offset.y, offset.z);
-	D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxTransModel);
-
-	//算出したパーツのワールドマトリックスと親のマトリックスをかけ合わせる
-	D3DXMatrixMultiply(&mtxAnswer,
-		&mtxAnswer,
-		&mtxPalent);
-
-	//ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &mtxAnswer);
-
-	posAnswer.x = mtxAnswer._41;
-	posAnswer.y = mtxAnswer._42;
-	posAnswer.z = mtxAnswer._43;
-
-	return posAnswer;
 }

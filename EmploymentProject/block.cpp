@@ -24,8 +24,15 @@
 //プロトタイプ宣言---------------------
 
 //静的メンバ変数宣言-------------------
-CObjectX::MODELX CBlock::m_model = {};
-
+CObjectX::MODELX CBlock::m_model[CBlock::TYPE_MAX] = {};
+const char *CBlock::m_apFilename[CBlock::TYPE_MAX] =
+{
+	"data/MODEL/block000.x",
+	"data/MODEL/block000.x",
+	"data/MODEL/block000.x",
+	"data/MODEL/block000.x",
+	"data/MODEL/block000.x"
+};
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
@@ -40,7 +47,7 @@ CBlock::~CBlock()
 //=====================================
 // 生成処理
 //=====================================
-CBlock *CBlock::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
+CBlock *CBlock::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, CBlock::TYPE type)
 {
 	CBlock *pObjectBlock;
 
@@ -50,8 +57,9 @@ CBlock *CBlock::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHe
 	if (pObjectBlock != NULL)
 	{
 		pObjectBlock->Set(pos, rot, fWidth, fHeight);
+		pObjectBlock->m_type = type;
 
-		pObjectBlock->SetModel(m_model);
+		pObjectBlock->SetModel(m_model[type]);
 		pObjectBlock->BindModel(pObjectBlock->GetModel());
 
 		//初期化
@@ -73,109 +81,114 @@ HRESULT CBlock::Load(void)
 
 	D3DXMATERIAL *pMat;
 
-	//xファイルの読み込み
-	D3DXLoadMeshFromX("data/MODEL/block000.x",
-		D3DXMESH_SYSTEMMEM,
-		pDevice,
-		NULL,
-		&m_model.pBuffMatModel,
-		NULL,
-		&m_model.dwNumMatModel,
-		&m_model.pMeshModel);
-
-	int nNumVtx;
-	DWORD dwSizeFVF;
-	BYTE *pVtxBuff;
-
-	//頂点数取得
-	nNumVtx = m_model.pMeshModel->GetNumVertices();
-
-	//頂点フォーマットのサイズを取得
-	dwSizeFVF = D3DXGetFVFVertexSize(m_model.pMeshModel->GetFVF());
-
-	//頂点バッファをロック
-	m_model.pMeshModel->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
-
-	for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
+	for (int nCnt = 0; nCnt < CBlock::TYPE_MAX; nCnt++)
 	{
-		D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVtxBuff;
+		//xファイルの読み込み
+		D3DXLoadMeshFromX(m_apFilename[nCnt],
+			D3DXMESH_SYSTEMMEM,
+			pDevice,
+			NULL,
+			&m_model[nCnt].pBuffMatModel,
+			NULL,
+			&m_model[nCnt].dwNumMatModel,
+			&m_model[nCnt].pMeshModel);
 
-		if (vtx.x >= m_model.vtxMax.x)
+		int nNumVtx;
+		DWORD dwSizeFVF;
+		BYTE *pVtxBuff;
+
+		//頂点数取得
+		nNumVtx = m_model[nCnt].pMeshModel->GetNumVertices();
+
+		//頂点フォーマットのサイズを取得
+		dwSizeFVF = D3DXGetFVFVertexSize(m_model[nCnt].pMeshModel->GetFVF());
+
+		//頂点バッファをロック
+		m_model[nCnt].pMeshModel->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
+
+		for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
 		{
-			m_model.vtxMax.x = vtx.x;
-		}
-		if (vtx.x <= m_model.vtxMin.x)
-		{
-			m_model.vtxMin.x = vtx.x;
+			D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVtxBuff;
+
+			if (vtx.x >= m_model[nCnt].vtxMax.x)
+			{
+				m_model[nCnt].vtxMax.x = vtx.x;
+			}
+			if (vtx.x <= m_model[nCnt].vtxMin.x)
+			{
+				m_model[nCnt].vtxMin.x = vtx.x;
+			}
+
+			if (vtx.y >= m_model[nCnt].vtxMax.y)
+			{
+				m_model[nCnt].vtxMax.y = vtx.y;
+			}
+			if (vtx.y <= m_model[nCnt].vtxMin.y)
+			{
+				m_model[nCnt].vtxMin.y = vtx.y;
+			}
+
+			if (vtx.z >= m_model[nCnt].vtxMax.z)
+			{
+				m_model[nCnt].vtxMax.z = vtx.z;
+			}
+			if (vtx.z <= m_model[nCnt].vtxMin.z)
+			{
+				m_model[nCnt].vtxMin.z = vtx.z;
+			}
+
+			pVtxBuff += dwSizeFVF;
 		}
 
-		if (vtx.y >= m_model.vtxMax.y)
-		{
-			m_model.vtxMax.y = vtx.y;
-		}
-		if (vtx.y <= m_model.vtxMin.y)
-		{
-			m_model.vtxMin.y = vtx.y;
-		}
+		//頂点バッファをアンロック
+		m_model[nCnt].pMeshModel->UnlockVertexBuffer();
 
-		if (vtx.z >= m_model.vtxMax.z)
-		{
-			m_model.vtxMax.z = vtx.z;
-		}
-		if (vtx.z <= m_model.vtxMin.z)
-		{
-			m_model.vtxMin.z = vtx.z;
-		}
+		//マテリアル情報に対するポインタを取得
+		pMat = (D3DXMATERIAL*)m_model[nCnt].pBuffMatModel->GetBufferPointer();
 
-		pVtxBuff += dwSizeFVF;
+		m_model[nCnt].pTexture = new LPDIRECT3DTEXTURE9[m_model[nCnt].dwNumMatModel];
+
+		for (int nCntMat = 0; nCntMat < (int)m_model[nCnt].dwNumMatModel; nCntMat++)
+		{
+			if (pMat[nCntMat].pTextureFilename != NULL)
+			{
+				//テクスチャの読み込み
+				D3DXCreateTextureFromFile(pDevice,
+					pMat[nCntMat].pTextureFilename,
+					&m_model[nCnt].pTexture[nCntMat]);
+			}
+			else
+			{
+				m_model[nCnt].pTexture[nCntMat] = NULL;
+			}
+		}
 	}
-
-	//頂点バッファをアンロック
-	m_model.pMeshModel->UnlockVertexBuffer();
-
-	//マテリアル情報に対するポインタを取得
-	pMat = (D3DXMATERIAL*)m_model.pBuffMatModel->GetBufferPointer();
-
-	m_model.pTexture = new LPDIRECT3DTEXTURE9[m_model.dwNumMatModel];
-
-	for (int nCntMat = 0; nCntMat < (int)m_model.dwNumMatModel; nCntMat++)
-	{
-		if (pMat[nCntMat].pTextureFilename != NULL)
-		{
-			//テクスチャの読み込み
-			D3DXCreateTextureFromFile(pDevice,
-				pMat[nCntMat].pTextureFilename,
-				&m_model.pTexture[nCntMat]);
-		}
-		else
-		{
-			m_model.pTexture[nCntMat] = NULL;
-		}
-	}
-
 	return S_OK;
 }
 void CBlock::Unload(void)
 {
-	//テクスチャの破棄
-	if (m_model.pMeshModel != NULL)
+	for (int nCnt = 0; nCnt < CBlock::TYPE_MAX; nCnt++)
 	{
-		m_model.pMeshModel->Release();
-		m_model.pMeshModel = NULL;
-	}
+		//テクスチャの破棄
+		if (m_model[nCnt].pMeshModel != NULL)
+		{
+			m_model[nCnt].pMeshModel->Release();
+			m_model[nCnt].pMeshModel = NULL;
+		}
 
-	//頂点バッファの破棄
-	if (m_model.pBuffMatModel != NULL)
-	{
-		m_model.pBuffMatModel->Release();
-		m_model.pBuffMatModel = NULL;
-	}
+		//頂点バッファの破棄
+		if (m_model[nCnt].pBuffMatModel != NULL)
+		{
+			m_model[nCnt].pBuffMatModel->Release();
+			m_model[nCnt].pBuffMatModel = NULL;
+		}
 
-	//頂点バッファの破棄
-	if (m_model.pTexture != NULL)
-	{
-		delete[] m_model.pTexture;
-		m_model.pTexture = NULL;
+		//頂点バッファの破棄
+		if (m_model[nCnt].pTexture != NULL)
+		{
+			delete[] m_model[nCnt].pTexture;
+			m_model[nCnt].pTexture = NULL;
+		}
 	}
 }
 

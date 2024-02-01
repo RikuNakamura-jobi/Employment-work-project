@@ -77,7 +77,7 @@ HRESULT CSound::Init(HWND hWnd)
 
 		return E_FAIL;
 	}
-
+	
 	// サウンドデータの初期化
 	for(int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
 	{
@@ -194,7 +194,7 @@ void CSound::Uninit(void)
 			// ソースボイスの破棄
 			m_apSourceVoice[nCntSound]->DestroyVoice();
 			m_apSourceVoice[nCntSound] = NULL;
-	
+			
 			// オーディオデータの開放
 			free(m_apDataAudio[nCntSound]);
 			m_apDataAudio[nCntSound] = NULL;

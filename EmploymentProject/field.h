@@ -19,6 +19,19 @@ class CField : public CObject3D
 {
 public:				//外部からアクセス可能
 
+	enum TYPE
+	{
+		TYPE_NONE = 0,			//なにもしてない状態
+		TYPE_ROADCROSS,			//フェードイン状態
+		TYPE_ROADT,				//フェードイン状態
+		TYPE_ROADL,				//フェードイン状態
+		TYPE_ROADU,				//フェードイン状態
+		TYPE_ROADO,				//フェードイン状態
+		TYPE_ROADS,				//フェードイン状態
+		TYPE_RAND,				//フェードイン状態
+		TYPE_MAX
+	};
+
 	//コンストラクタ・デストラクタ
 	CField(int nPriority);				//デフォルト
 	~CField();
@@ -30,7 +43,7 @@ public:				//外部からアクセス可能
 	void Draw(void);
 
 	//静的メンバ関数
-	static CField *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size);
+	static CField *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, CField::TYPE type);
 	static HRESULT Load(void);
 	static void Unload(void);
 
@@ -42,9 +55,11 @@ private:			//外部からアクセス不可能
 
 	//メンバ変数
 	int m_nHue;
+	TYPE m_type;
 
 	//静的メンバ変数
-	static LPDIRECT3DTEXTURE9 m_pTexture;		//テクスチャへのポインタ
+	static LPDIRECT3DTEXTURE9 m_pTexture[TYPE_MAX];		//テクスチャへのポインタ
+	static const char *m_apFilename[TYPE_MAX];			//テクスチャの名前
 
 };
 

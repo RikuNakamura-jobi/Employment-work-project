@@ -23,6 +23,7 @@ class CCamera;
 class CTime;
 class CField;
 class CSky;
+class CMap;
 class CScene
 {
 public:				//外部からアクセス可能
@@ -211,6 +212,7 @@ private:			//外部からアクセス不可能
 	CCamera *m_pCamera;
 	CTime *m_pTime;
 	CSky *m_pSky;
+	CMap *m_pMap;
 
 	bool m_bFinish;
 

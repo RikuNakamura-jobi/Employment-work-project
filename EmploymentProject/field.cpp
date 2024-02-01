@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "manager.h"
 #include "useful.h"
+#include "debugproc.h"
 
 //マクロ定義---------------------------
 
@@ -20,8 +21,18 @@
 //プロトタイプ宣言---------------------
 
 //静的メンバ変数宣言-------------------
-LPDIRECT3DTEXTURE9 CField::m_pTexture = NULL;
-
+LPDIRECT3DTEXTURE9 CField::m_pTexture[TYPE_MAX] = {};
+const char *CField::m_apFilename[TYPE_MAX] =
+{
+	"data/MODEL/roadCross000.png",
+	"data/MODEL/roadCross000.png",
+	"data/MODEL/roadT000.png",
+	"data/MODEL/roadL000.png",
+	"data/MODEL/roadU000.png",
+	"data/MODEL/roadO000.png",
+	"data/MODEL/roadS000.png",
+	"data/MODEL/rand000.png"
+};
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
@@ -37,7 +48,7 @@ CField::~CField()
 //=====================================
 // 生成処理
 //=====================================
-CField *CField::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
+CField *CField::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, CField::TYPE type)
 {
 	CField *pObjectBg;
 
@@ -48,6 +59,7 @@ CField *CField::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
 	{
 		pObjectBg->SetPos(pos);
 		pObjectBg->SetSize(size);
+		pObjectBg->m_type = type;
 
 		//初期化
 		if (FAILED(pObjectBg->Init()))
@@ -55,7 +67,7 @@ CField *CField::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
 			pObjectBg->Release();
 		}
 
-		pObjectBg->BindTexture(m_pTexture);
+		pObjectBg->BindTexture(m_pTexture[type]);
 	}
 
 	return pObjectBg;
@@ -68,23 +80,29 @@ HRESULT CField::Load(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->GetRenderer()->GetDevice();
 
-	//テクスチャの読み込み
-	if (FAILED(D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\field001.png",
-		&m_pTexture)))
+	for (int nCnt = 0; nCnt < TYPE_MAX; nCnt++)
 	{
-		return E_FAIL;
+		//テクスチャの読み込み
+		if (FAILED(D3DXCreateTextureFromFile(pDevice,
+			"data\\TEXTURE\\field001.png",
+			&m_pTexture[nCnt])))
+		{
+			return E_FAIL;
+		}
 	}
 
 	return S_OK;
 }
 void CField::Unload(void)
 {
-	//テクスチャの破棄
-	if (m_pTexture != NULL)
+	for (int nCnt = 0; nCnt < TYPE_MAX; nCnt++)
 	{
-		m_pTexture->Release();
-		m_pTexture = NULL;
+		//テクスチャの破棄
+		if (m_pTexture != NULL)
+		{
+			m_pTexture[nCnt]->Release();
+			m_pTexture[nCnt] = NULL;
+		}
 	}
 }
 
@@ -126,5 +144,8 @@ void CField::Update(void)
 //=====================================
 void CField::Draw(void)
 {
-	CObject3D::Draw();
+	if (m_type == TYPE_NONE)
+	{
+		CObject3D::Draw();
+	}
 }

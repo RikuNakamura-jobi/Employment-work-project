@@ -234,6 +234,7 @@ void COrbit::UpdatePolygon(void)
 		//現在のフレームのオフセット位置を保存
 		m_col[m_nNumEdge - 1][nCntOffset] = useful::HSLtoRGB(m_nHue);
 	}
+
 	//保存した座標をずらす==========
 
 	VERTEX_3D *pVtx;		//頂点情報のポインタ
