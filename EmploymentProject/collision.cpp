@@ -306,7 +306,7 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 					vecMoveRef *= D3DXVec3Length(&vecMove);
 				}
 
-				*posTarget = vecIntersect - (vecNorPlaneCenter * 3.0f);
+				*posTarget = vecIntersect - (vecNorPlaneCenter * 0.1f);
 				
 				return true;
 			}
