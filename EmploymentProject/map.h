@@ -95,7 +95,7 @@ public:
 	CAreaBigBuilding()
 	{ 
 		m_pBlock = CBlock::Create(DEF_VECTOR, DEF_VECTOR, 1500.0f, 1500.0f, CBlock::TYPE_BIGBUILDING);
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_RAND);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_RAND);
 	}
 	~CAreaBigBuilding() {}
 
@@ -109,7 +109,7 @@ public:
 	CAreaSmallBuilding() 
 	{ 
 		m_pBlock = CBlock::Create(DEF_VECTOR, DEF_VECTOR, 1500.0f, 1500.0f, CBlock::TYPE_SMALLBUILDING);
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_RAND);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_RAND);
 	}
 	~CAreaSmallBuilding() {}
 
@@ -123,7 +123,7 @@ public:
 	CAreaApart() 
 	{ 
 		m_pBlock = CBlock::Create(DEF_VECTOR, DEF_VECTOR, 1500.0f, 1500.0f, CBlock::TYPE_APART);
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_RAND);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_RAND);
 	}
 	~CAreaApart() {}
 
@@ -149,7 +149,7 @@ public:
 	CAreaRoadCross()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADCROSS);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADCROSS);
 	}
 	~CAreaRoadCross() {}
 
@@ -163,7 +163,7 @@ public:
 	CAreaRoadT()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADT);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADT);
 	}
 	~CAreaRoadT() {}
 
@@ -177,7 +177,7 @@ public:
 	CAreaRoadL()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADL);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADL);
 	}
 	~CAreaRoadL() {}
 
@@ -191,7 +191,7 @@ public:
 	CAreaRoadU()
 	{
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADU);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADU);
 	}
 	~CAreaRoadU() {}
 
@@ -205,7 +205,7 @@ public:
 	CAreaRoadO()
 	{
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADO);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADO);
 	}
 	~CAreaRoadO() {}
 
@@ -219,7 +219,7 @@ public:
 	CAreaRoadS() 
 	{ 
 		m_pBlock = nullptr; 
-		m_pRand = CField::Create(DEF_VECTOR, SIZ_FIELD, CField::TYPE_ROADS);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADS);
 	}
 	~CAreaRoadS() {}
 

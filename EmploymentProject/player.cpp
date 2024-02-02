@@ -277,6 +277,7 @@ void CPlayer::Update(void)
 
 	if (pos.y <= 0.0f)
 	{
+		pos.y = 0.0f;
 		m_bAir = false;
 		m_bWall = false;
 	}

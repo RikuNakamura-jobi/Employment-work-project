@@ -21,17 +21,17 @@
 //プロトタイプ宣言---------------------
 
 //静的メンバ変数宣言-------------------
-LPDIRECT3DTEXTURE9 CField::m_pTexture[TYPE_MAX] = {};
-const char *CField::m_apFilename[TYPE_MAX] =
+LPDIRECT3DTEXTURE9 CField::m_pTexture[CField::TYPE_MAX] = {};
+const char *CField::m_apFilename[CField::TYPE_MAX] =
 {
-	"data/MODEL/roadCross000.png",
-	"data/MODEL/roadCross000.png",
-	"data/MODEL/roadT000.png",
-	"data/MODEL/roadL000.png",
-	"data/MODEL/roadU000.png",
-	"data/MODEL/roadO000.png",
-	"data/MODEL/roadS000.png",
-	"data/MODEL/rand000.png"
+	"data/TEXTURE/field001.png",
+	"data/TEXTURE/roadCross000.png",
+	"data/TEXTURE/roadT000.png",
+	"data/TEXTURE/roadL000.png",
+	"data/TEXTURE/roadU000.png",
+	"data/TEXTURE/roadO000.png",
+	"data/TEXTURE/roadS000.png",
+	"data/TEXTURE/rand000.png"
 };
 //=====================================
 // コンストラクタ・デストラクタ
@@ -84,7 +84,7 @@ HRESULT CField::Load(void)
 	{
 		//テクスチャの読み込み
 		if (FAILED(D3DXCreateTextureFromFile(pDevice,
-			"data\\TEXTURE\\field001.png",
+			m_apFilename[nCnt],
 			&m_pTexture[nCnt])))
 		{
 			return E_FAIL;
@@ -144,8 +144,7 @@ void CField::Update(void)
 //=====================================
 void CField::Draw(void)
 {
-	if (m_type == TYPE_NONE)
-	{
+	
 		CObject3D::Draw();
-	}
+	
 }

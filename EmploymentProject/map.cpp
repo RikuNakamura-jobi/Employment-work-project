@@ -85,8 +85,8 @@ HRESULT CMap::Init(void)
 			m_pArea[areaX][areaY] = new CAreaBigBuilding;
 			m_bRoad[areaX][areaY] = false;
 
-			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(4000.0f * areaX, 3000.0f, 4000.0f * areaY));
-			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(4000.0f * areaX, 0.0f, 4000.0f * areaY));
+			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
+			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
 
 			setArea++;
 		}
@@ -105,8 +105,8 @@ HRESULT CMap::Init(void)
 			m_pArea[areaX][areaY] = new CAreaSmallBuilding;
 			m_bRoad[areaX][areaY] = false;
 
-			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(4000.0f * areaX, 2000.0f, 4000.0f * areaY));
-			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(4000.0f * areaX, 0.0f, 4000.0f * areaY));
+			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
+			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
 
 			setArea++;
 		}
@@ -125,8 +125,8 @@ HRESULT CMap::Init(void)
 			m_pArea[areaX][areaY] = new CAreaApart;
 			m_bRoad[areaX][areaY] = false;
 
-			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(4000.0f * areaX, 1000.0f, 4000.0f * areaY));
-			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(4000.0f * areaX, 0.0f, 4000.0f * areaY));
+			m_pArea[areaX][areaY]->GetBlock()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
+			m_pArea[areaX][areaY]->GetRand()->SetPos(D3DXVECTOR3(8000.0f * areaX, 0.0f, 8000.0f * areaY));
 
 			setArea++;
 		}
@@ -180,7 +180,7 @@ HRESULT CMap::Init(void)
 				m_pArea[nCnt1][nCnt2] = CAreaRoad::Create(bUP, bDown, bAreaL, bAreaR, nCntNumRoad);
 
 				//m_pArea[nCnt1][nCnt2]->GetBlock()->SetPos(D3DXVECTOR3(4000.0f * nCnt1, 4000.0f * nCnt2, 0.0f));
-				m_pArea[nCnt1][nCnt2]->GetRand()->SetPos(D3DXVECTOR3(4000.0f * nCnt1, 0.0f, 4000.0f * nCnt2));
+				m_pArea[nCnt1][nCnt2]->GetRand()->SetPos(D3DXVECTOR3(8000.0f * nCnt1, 0.0f, 8000.0f * nCnt2));
 			}
 		}
 	}
@@ -303,12 +303,12 @@ CAreaRoad *CAreaRoad::Create(bool bRoadUP, bool bRoadDown, bool bRoadL, bool bRo
 			{
 				if (bRoadL)
 				{
-					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 3.14f, 0.0f));
+					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, -1.57f, 0.0f));
 				}
 
 				if (bRoadR)
 				{
-					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 1.57f, 0.0f));
+					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 3.14f, 0.0f));
 				}
 			}
 
@@ -316,12 +316,12 @@ CAreaRoad *CAreaRoad::Create(bool bRoadUP, bool bRoadDown, bool bRoadL, bool bRo
 			{
 				if (bRoadL)
 				{
-					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, -1.57f, 0.0f));
+					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 				}
 
 				if (bRoadR)
 				{
-					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+					pAreaRoad->m_pRand->SetRot(D3DXVECTOR3(0.0f, 1.57f, 0.0f));
 				}
 			}
 		}

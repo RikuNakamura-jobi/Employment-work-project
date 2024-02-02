@@ -29,9 +29,9 @@ const char *CBlock::m_apFilename[CBlock::TYPE_MAX] =
 {
 	"data/MODEL/block000.x",
 	"data/MODEL/block000.x",
-	"data/MODEL/block000.x",
-	"data/MODEL/block000.x",
-	"data/MODEL/block000.x"
+	"data/MODEL/BigBuilding000.x",
+	"data/MODEL/SmallBuilding000.x",
+	"data/MODEL/Apart000.x"
 };
 //=====================================
 // コンストラクタ・デストラクタ
@@ -201,8 +201,26 @@ HRESULT CBlock::Init(void)
 
 	SetType(TYPE_BLOCK);
 
-	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(1000.0f, 1000.0f, 1000.0f), D3DXVECTOR3(-1000.0f, -1000.0f, -1000.0f)));
-	GetCollider()->SetType(CCollider::TYPE_BOX);
+	if (m_type == TYPE_BIGBUILDING)
+	{
+		SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(1800.0f* 2.0f, 28800.0f * 2.0f, 1800.0f* 2.0f), D3DXVECTOR3(-1800.0f* 2.0f, -10.0f, -1800.0f* 2.0f)));
+		GetCollider()->SetType(CCollider::TYPE_BOX);
+	}
+	else if (m_type == TYPE_SMALLBUILDING)
+	{
+		SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(3000.0f, 40000.0f, 3000.0f), D3DXVECTOR3(-3000.0f, -10.0f, -3000.0f)));
+		GetCollider()->SetType(CCollider::TYPE_BOX);
+	}
+	else if (m_type == TYPE_APART)
+	{
+		SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(3000.0f, 16000.0f, 3000.0f), D3DXVECTOR3(-3000.0f, -10.0f, -3000.0f)));
+		GetCollider()->SetType(CCollider::TYPE_BOX);
+	}
+	else
+	{
+		SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(1000.0f, 1000.0f, 1000.0f), D3DXVECTOR3(-1000.0f, -1000.0f, -1000.0f)));
+		GetCollider()->SetType(CCollider::TYPE_BOX);
+	}
 
 	return S_OK;
 }
@@ -233,7 +251,7 @@ void CBlock::Update(void)
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
-	SetMtxScale(10.0f);
+	SetMtxScale(1.0f);
 
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 

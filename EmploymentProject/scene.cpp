@@ -300,7 +300,7 @@ HRESULT CGame::Init(void)
 {
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-	m_pField = CField::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(40000.0f, 0.0f, 40000.0f), CField::TYPE_NONE);
+	m_pField = CField::Create(D3DXVECTOR3(0.0f, -1.0f, 0.0f), D3DXVECTOR3(40000.0f, 0.0f, 40000.0f), CField::TYPE_NONE);
 	m_pSky = CSky::Create();
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.1f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), CPlayer::TYPE_NORMAL);
 	m_pMap = CMap::Create();
