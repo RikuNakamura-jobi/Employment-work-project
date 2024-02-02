@@ -28,6 +28,7 @@
 #include "sky.h"
 #include "block.h"
 #include "deliverypoint.h"
+#include "deliveryarrow.h"
 #include "collision.h"
 
 //É}ÉNÉçíËã`---------------------------
@@ -301,6 +302,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	CPlayer::Load();
 	CBlock::Load();
 	CDeliverypoint::Load();
+	CDeliveryarrow::Load();
 
 	if (m_pScene != NULL)
 	{
@@ -341,6 +343,7 @@ void CManager::Uninit(void)
 	CPlayer::Unload();
 	CBlock::Unload();
 	CDeliverypoint::Unload();
+	CDeliveryarrow::Unload();
 
 	CObject::ReleaseAll();
 

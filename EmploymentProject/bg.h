@@ -21,17 +21,12 @@ public:				//外部からアクセス可能
 
 	enum TEXTURE
 	{
-		TEXTURE_RESULT = 0,		//なにもしてない状態
-		TEXTURE_TUTORIAL_KEY_MOVE,		//フェードイン状態
-		TEXTURE_TUTORIAL_KEY_SHOT,		//フェードイン状態
-		TEXTURE_TUTORIAL_KEY_SAVE,		//フェードイン状態
-		TEXTURE_TUTORIAL_PAD_MOVE,		//フェードイン状態
-		TEXTURE_TUTORIAL_PAD_SHOT,		//フェードイン状態
-		TEXTURE_TUTORIAL_PAD_SAVE,		//フェードイン状態
-		TEXTURE_TUTORIAL_GAME,			//フェードイン状態
+		TEXTURE_RESULT = 0,				//なにもしてない状態
+		TEXTURE_START,					//フェードイン状態
+		TEXTURE_READY,					//フェードイン状態
+		TEXTURE_GO,						//フェードイン状態
 		TEXTURE_SUCCESS,				//フェードイン状態
 		TEXTURE_FAILED,					//フェードイン状態
-		TEXTURE_START,					//フェードイン状態
 		TEXTURE_MAX
 	};
 
@@ -49,6 +44,7 @@ public:				//外部からアクセス可能
 
 	//静的メンバ関数
 	static CBg *Create(TEXTURE texture);
+	static CBg *CreateMin(D3DXVECTOR3 pos, float width, float height,TEXTURE texture);
 	static HRESULT Load(void);
 	static void Unload(void);
 

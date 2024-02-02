@@ -241,6 +241,24 @@ void CMap::Draw(void)
 }
 
 //=====================================
+// マップのエリアの角取得処理
+//=====================================
+D3DXVECTOR3 CMap::GetPosAreaCorner()
+{
+	int areaX = rand() % 8 + 1;
+	int areaY = rand() % 8 + 1;
+	D3DXVECTOR3 areaCornerPos;
+	D3DXVECTOR3 areaPos;
+	areaPos = m_pArea[areaX][areaY]->GetRand()->GetPos();
+
+	areaCornerPos.x = areaPos.x + (4000.0f * (float)(rand() % 3 - 1));
+	areaCornerPos.y = 0.0f;
+	areaCornerPos.z = areaPos.z + (4000.0f * (float)(rand() % 3 - 1));
+
+	return areaCornerPos;
+}
+
+//=====================================
 // 道路の生成処理
 //=====================================
 CAreaRoad *CAreaRoad::Create(bool bRoadUP, bool bRoadDown, bool bRoadL, bool bRoadR, int nNumRoad)

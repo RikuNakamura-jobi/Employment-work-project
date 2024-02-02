@@ -17,6 +17,7 @@
 #include "object3D.h"
 #include "camera.h"
 #include "field.h"
+#include "deliveryarrow.h"
 #include "scene.h"
 #include "particle.h"
 #include "collision.h"
@@ -47,14 +48,15 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_rot = D3DXVECTOR3(0.0f, 0.785f, 0.0f);
+	m_rotDest = D3DXVECTOR3(0.0f, 0.785f, 0.0f);
 	m_rotMove = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_bSave = false;
 	m_nEasterTimer = 0;
 	m_pMotion = NULL;
 	m_orbit[0] = NULL;
 	m_orbit[1] = NULL;
+	m_Arrow = nullptr;
 	m_Type = TYPE_NORMAL;
 	m_bAir = true;
 	m_bShot = false;
@@ -62,6 +64,7 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_bWall = false;
 	m_bTurn = false;
 	m_bBoost = false;
+	m_bControl = false;
 	m_nShotTimer = 0;
 	m_state = STATE_NORMAL;
 	m_nCombo = 0;
@@ -164,7 +167,7 @@ HRESULT CPlayer::Init(void)
 	SetType(TYPE_PLAYER);
 	SetCollider(CCollider::Create(&m_pos, &m_rot, D3DXVECTOR3(100.0f, 100.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
 	m_nEnergy = 10;
-	m_rotDest.z = 1.57f;
+	m_rotDest.z = -2.335f;
 
 	D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
 	m_orbit[0] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
@@ -177,6 +180,8 @@ HRESULT CPlayer::Init(void)
 
 	mtxTemp = GetModel(17)->GetMtxWorld();
 	m_orbit[3] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+
+	m_Arrow = CDeliveryarrow::Create(GetPos(), GetRot(), 0.0f, 0.0f);
 
 	return S_OK;
 }
@@ -214,7 +219,7 @@ void CPlayer::Update(void)
 	float fWidth = GetWidth();
 	m_bShot = false;
 
-	if (m_state != STATE_KICK && m_state != STATE_HIT)
+	if (m_state != STATE_KICK && m_state != STATE_HIT && m_bControl)
 	{
 		Control(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 
@@ -223,7 +228,7 @@ void CPlayer::Update(void)
 			ControlPad(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 		}
 
-		if (m_bAir)
+		if (m_bAir && !m_bWall)
 		{
 			move.y -= 0.65f;
 		}
@@ -283,7 +288,10 @@ void CPlayer::Update(void)
 	}
 	else
 	{
-		m_bAir = true;
+		if (!m_bWall)
+		{
+			m_bAir = true;
+		}
 
 		if (pos.y <= -300.0f)
 		{
@@ -296,6 +304,24 @@ void CPlayer::Update(void)
 		Collision(&pos, &posOld, &move);
 	}
 
+	if (pos.x < -4000.0f)
+	{
+		pos.x = -4000.0f;
+	}
+	if (pos.z < -4000.0f)
+	{
+		pos.z = -4000.0f;
+	}
+
+	if (pos.x > 76000.0f)
+	{
+		pos.x = 76000.0f;
+	}
+	if (pos.z > 76000.0f)
+	{
+		pos.z = 76000.0f;
+	}
+
 	if (CManager::Get()->Get()->GetScene()->GetField() != NULL)
 	{
 		pos.y = CManager::Get()->Get()->GetScene()->GetField()->GetColHeight(pos, posOld, &move);
@@ -304,12 +330,20 @@ void CPlayer::Update(void)
 	CManager::Get()->Get()->GetDebugProc()->Print("プレイヤーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 	CManager::Get()->Get()->GetDebugProc()->Print("プレイヤーのmove: %f, %f, %f\n", move.x, move.y, move.z);
 
-	SetRot(&rot);
+	if (!m_bWall)
+	{
+		SetRot(&rot);
+	}
+
 	SetPos(pos);
 	SetRot(rot);
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
+
+	D3DXVECTOR3 posArrow = pos;
+	posArrow.y += 60.0f;
+	m_Arrow->SetPos(posArrow);
 
 	D3DXVECTOR3 posEffect;
 
@@ -466,13 +500,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 
 		if (input->GetPress(DIK_LSHIFT))
 		{
-			if (m_SpeedDest < -5.0f)
+			if (m_SpeedDest < SPEED_DASH)
 			{
-				m_SpeedDest += 0.1f;
+				m_SpeedDest += SPEED_DECELERATION;
 			}
 			else
 			{
-				m_SpeedDest = -1.0f;
+				m_SpeedDest = SPEED_WALK;
 			}
 
 			m_rotDest.z = rotCamera.y - RotKey;
@@ -482,13 +516,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 		}
 		else
 		{
-			if (m_SpeedDest < -5.0f)
+			if (m_SpeedDest < SPEED_DASH)
 			{
-				m_SpeedDest += 0.1f;
+				m_SpeedDest += SPEED_DECELERATION;
 			}
 			else
 			{
-				m_SpeedDest = -5.0f;
+				m_SpeedDest = SPEED_DASH;
 			}
 
 			m_rotDest.z = rotCamera.y - RotKey;
@@ -499,11 +533,12 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	else
 	{
 		m_SpeedDest = 0.0f;
+		m_bWall = false;
 		m_bDash = false;
 		m_bTurn = false;
 	}
 
-	if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= -10.0f)
+	if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
 	{
 		m_bTurn = true;
 	}
@@ -512,7 +547,7 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	{
 		if (m_bDash)
 		{
-			m_SpeedDest = -0.3f;
+			m_SpeedDest = SPEED_TURN;
 
 			m_bDash = false;
 		}
@@ -521,13 +556,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	{
 		if (m_bDash && m_bAir == false && m_bTurn)
 		{
-			m_SpeedDest = -0.3f;
+			m_SpeedDest = SPEED_TURN;
 
 			m_bDash = false;
 
-			if (m_Speed >= -0.35f)
+			if (m_Speed >= SPEED_BOOSTON)
 			{
-				m_SpeedDest = -20.0f;
+				m_SpeedDest = SPEED_BOOST;
 				m_bTurn = false;
 				m_bBoost = true;
 			}
@@ -553,9 +588,9 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			m_bWall = false;
 		}
 
-		if (m_SpeedDest <= -15.0f && m_bBoost)
+		if (m_SpeedDest <= SPEED_MAX && m_bBoost)
 		{
-			m_SpeedDest -= 5.0f;
+			m_SpeedDest += SPEED_DASH;
 			m_bBoost = false;
 		}
 	}
@@ -596,13 +631,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 	if (lengthStick >= 1000.0f)
 	{
-		if (m_SpeedDest < -5.0f)
+		if (m_SpeedDest < SPEED_DASH)
 		{
-			m_SpeedDest += 0.1f;
+			m_SpeedDest += SPEED_DECELERATION;
 		}
 		else
 		{
-			m_SpeedDest = -5.0f;
+			m_SpeedDest = SPEED_DASH;
 		}
 
 		m_rotDest.z = rotCamera.y - RotStick;
@@ -611,13 +646,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	}
 	else if (lengthStick > 10.0f)
 	{
-		if (m_SpeedDest < -5.0f)
+		if (m_SpeedDest < SPEED_DASH)
 		{
-			m_SpeedDest += 0.1f;
+			m_SpeedDest += SPEED_DECELERATION;
 		}
 		else
 		{
-			m_SpeedDest = -1.0f;
+			m_SpeedDest = SPEED_WALK;
 		}
 
 		m_rotDest.z = rotCamera.y - RotStick;
@@ -628,11 +663,12 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	else
 	{
 		m_SpeedDest = 0.0f;
+		m_bWall = false;
 		m_bDash = false;
 		m_bTurn = false;
 	}
 
-	if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= -10.0f)
+	if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
 	{
 		m_bTurn = true;
 	}
@@ -641,7 +677,7 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	{
 		if (m_bDash)
 		{
-			m_SpeedDest = -0.3f;
+			m_SpeedDest = SPEED_TURN;
 
 			m_bDash = false;
 		}
@@ -650,13 +686,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 	{
 		if (m_bDash && m_bAir == false && m_bTurn)
 		{
-			m_SpeedDest = -0.3f;
+			m_SpeedDest = SPEED_TURN;
 
 			m_bDash = false;
 
-			if (m_Speed >= -0.35f)
+			if (m_Speed >= SPEED_BOOSTON)
 			{
-				m_SpeedDest = -20.0f;
+				m_SpeedDest = SPEED_BOOST;
 				m_bTurn = false;
 				m_bBoost = true;
 			}
@@ -678,13 +714,14 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 			m_SpeedDest = 50.0f;
 
 			rot->y += D3DX_PI;
+			m_rotDest.z += D3DX_PI;
 
 			m_bWall = false;
 		}
 
-		if (m_SpeedDest <= -15.0f && m_bBoost)
+		if (m_SpeedDest <= SPEED_MAX && m_bBoost)
 		{
-			m_SpeedDest -= 5.0f;
+			m_SpeedDest += SPEED_DASH;
 			m_bBoost = false;
 		}
 	}
@@ -750,13 +787,18 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 		m_Speed += (m_SpeedDest - m_Speed) * 0.3f;
 	}
 
-	if (m_Speed < -15.0f)
+	if (m_Speed < SPEED_MAX)
 	{
-		speed = -15.0f;
+		speed = SPEED_MAX;
 	}
 	else
 	{
 		speed = m_Speed;
+	}
+
+	if (m_bWall)
+	{
+		speed = 0.0f;
 	}
 
 	CManager::Get()->Get()->GetDebugProc()->Print("目標速度: %f\n", m_SpeedDest);
@@ -766,7 +808,7 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 	move->x += sinf(m_rotMove.y) * speed;
 	move->z += cosf(m_rotMove.y) * speed;
 
-	if (speed <= -4.0f)
+	if (speed <= SPEED_EFFECT)
 	{
 		D3DXVECTOR3 posEffectOffset = CManager::Get()->Get()->GetScene()->GetCamera()->GetPosV();
 		posEffectOffset = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y, 0.0f), D3DXVECTOR3(0.0f, -10.0f, 300.0f));
@@ -776,7 +818,7 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 			float randRot = (float)(rand() % 629 - 314) * 0.01f;
 			D3DXVECTOR3 posEffect = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y + D3DX_PI, randRot), D3DXVECTOR3((float)(rand() % 100) + 70.0f + (speed * 1.0f), 0.0f, 0.0f));
 
-			if (speed >= -10.0f)
+			if (speed >= SPEED_EFFECT_BOOST)
 			{
 				CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 100.0f, 5.0f);
 				break;
@@ -909,10 +951,9 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 					{
 						if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
 						{
+							m_bWall = true;
 							m_bAir = false;
 							m_SpeedDest = 0.0f;
-
-							m_bWall = true;
 							move->x = 0.0f;
 							move->y = 0.0f;
 							move->z = 0.0f;

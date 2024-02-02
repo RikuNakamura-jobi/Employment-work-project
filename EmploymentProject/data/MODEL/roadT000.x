@@ -177,7 +177,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\rand000.png";
+    "data\\TEXTURE\\rand000.png";
    }
   }
   Material {
@@ -186,7 +186,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadCross000.png";
+    "data\\TEXTURE\\roadCross000.png";
    }
   }
   Material {
@@ -195,7 +195,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadT000.png";
+    "data\\TEXTURE\\roadT000.png";
    }
   }
   Material {
@@ -204,7 +204,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadL000.png";
+    "data\\TEXTURE\\roadL000.png";
    }
   }
   Material {
@@ -213,7 +213,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadS000.png";
+    "data\\TEXTURE\\roadS000.png";
    }
   }
   Material {
@@ -222,7 +222,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadU000.png";
+    "data\\TEXTURE\\roadU000.png";
    }
   }
   Material {
@@ -231,7 +231,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\roadO000.png";
+    "data\\TEXTURE\\roadO000.png";
    }
   }
   Material {

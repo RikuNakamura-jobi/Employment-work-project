@@ -43,7 +43,7 @@ HRESULT CCamera::Init(void)
 	m_posR = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
 	m_posVDest = D3DXVECTOR3(0.0f, 500.0f, -400.0f);
 	m_posRDest = D3DXVECTOR3(0.0f, 500.0f, 200.0f);
-	m_rot = D3DXVECTOR3(0.0f, 3.14f, 1.67f);
+	m_rot = D3DXVECTOR3(0.0f, 0.785f, 1.67f);
 	m_rotOld = D3DXVECTOR3(0.0f, 3.14f, 1.57f);
 
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -184,8 +184,8 @@ void CCamera::Rot(void)
 		m_rot.z = 3.1f;
 	}
 
-	float speedLength = CManager::Get()->Get()->GetScene()->GetPlayer()->GetSpeed();
-	float speedLengthDest = CManager::Get()->Get()->GetScene()->GetPlayer()->GetSpeedDest();
+	float speedLength = player->GetSpeed();
+	float speedLengthDest = player->GetSpeedDest();
 
 	if (speedLength < -15.0f)
 	{
@@ -211,9 +211,9 @@ void CCamera::Rot(void)
 	
 	CManager::Get()->Get()->GetDebugProc()->Print("ƒJƒƒ‰‹——£: %f\n", m_cameraLength);
 
-	m_posRDest.x = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().x - (sinf(0.0f) * 0.0f);
-	m_posRDest.y = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().y + 20.0f;
-	m_posRDest.z = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos().z - (cosf(0.0f) * 0.0f);
+	m_posRDest.x = player->GetPos().x - (sinf(0.0f) * 0.0f);
+	m_posRDest.y = player->GetPos().y + 20.0f;
+	m_posRDest.z = player->GetPos().z - (cosf(0.0f) * 0.0f);
 
 	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y)) * m_cameraLength;
 	m_posVDest.y = m_posRDest.y + 0.0f - (cosf(m_rot.z) * m_cameraLength);
@@ -252,7 +252,7 @@ void CCamera::Rot(void)
 		fRotMove += 6.28f;
 	}
 
-	if (speedLengthDest != -1.0f && speedLengthDest != 0.0f)
+	if (speedLengthDest != -1.0f && speedLengthDest != 0.0f && !player->GetAir() && !player->GetWall())
 	{
 		m_rot.y = fRotMove;
 	}

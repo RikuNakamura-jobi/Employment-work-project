@@ -24,6 +24,7 @@ class CTime;
 class CField;
 class CSky;
 class CMap;
+class CDeliverypoint;
 class CScene
 {
 public:				//外部からアクセス可能
@@ -63,6 +64,10 @@ public:				//外部からアクセス可能
 	virtual CField *GetField(void) { return NULL; }
 
 	virtual CScore *GetScore(void) { return NULL; }
+
+	virtual CMap *GetMap(void) { return NULL; }
+
+	virtual CDeliverypoint *GetDeliverypoint(void) { return NULL; }
 
 	virtual void SetFinish(void) { return; }
 
@@ -194,6 +199,10 @@ public:				//外部からアクセス可能
 
 	CSky *GetSky(void) { return m_pSky; }
 
+	CMap *GetMap(void) { return m_pMap; }
+
+	CDeliverypoint *GetDeliverypoint(void) { return m_pDeliverypoint; }
+
 	void SetFinish(void) { m_bFinish = true; }
 
 	//静的メンバ関数
@@ -213,8 +222,12 @@ private:			//外部からアクセス不可能
 	CTime *m_pTime;
 	CSky *m_pSky;
 	CMap *m_pMap;
+	CDeliverypoint *m_pDeliverypoint;
+	CBg *m_pBgStart;
 
 	bool m_bFinish;
+
+	int m_nStartCount;
 
 	//静的メンバ変数
 

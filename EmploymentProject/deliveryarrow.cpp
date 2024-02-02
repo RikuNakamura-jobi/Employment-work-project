@@ -4,7 +4,7 @@
 // Author:中村陸
 //
 //=====================================
-#include "deliverypoint.h"
+#include "deliveryarrow.h"
 #include "renderer.h"
 #include "input.h"
 #include "manager.h"
@@ -15,6 +15,7 @@
 #include "player.h"
 #include "score.h"
 #include "map.h"
+#include "deliverypoint.h"
 
 //マクロ定義---------------------------
 
@@ -27,29 +28,29 @@
 //プロトタイプ宣言---------------------
 
 //静的メンバ変数宣言-------------------
-CObjectX::MODELX CDeliverypoint::m_model = {};
+CObjectX::MODELX CDeliveryarrow::m_model = {};
 
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
-CDeliverypoint::CDeliverypoint(int nPriority = 3) : CObjectX(nPriority)
+CDeliveryarrow::CDeliveryarrow(int nPriority = 3) : CObjectX(nPriority)
 {
 	m_nCntDelivery = 0;
 }
 
-CDeliverypoint::~CDeliverypoint()
+CDeliveryarrow::~CDeliveryarrow()
 {
 }
 
 //=====================================
 // 生成処理
 //=====================================
-CDeliverypoint *CDeliverypoint::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
+CDeliveryarrow *CDeliveryarrow::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
 {
-	CDeliverypoint *pObjectBlock;
+	CDeliveryarrow *pObjectBlock;
 
 	//2Dオブジェクトの生成
-	pObjectBlock = new CDeliverypoint();
+	pObjectBlock = new CDeliveryarrow();
 
 	if (pObjectBlock != NULL)
 	{
@@ -71,14 +72,14 @@ CDeliverypoint *CDeliverypoint::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float f
 //=====================================
 // ポリゴンのテクスチャ処理
 //=====================================
-HRESULT CDeliverypoint::Load(void)
+HRESULT CDeliveryarrow::Load(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->GetRenderer()->GetDevice();
 
 	D3DXMATERIAL *pMat;
 
 	//xファイルの読み込み
-	D3DXLoadMeshFromX("data/MODEL/deliverypoint000.x",
+	D3DXLoadMeshFromX("data/MODEL/deliveryarrow000.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -159,7 +160,7 @@ HRESULT CDeliverypoint::Load(void)
 
 	return S_OK;
 }
-void CDeliverypoint::Unload(void)
+void CDeliveryarrow::Unload(void)
 {
 	//テクスチャの破棄
 	if (m_model.pMeshModel != NULL)
@@ -186,7 +187,7 @@ void CDeliverypoint::Unload(void)
 //=====================================
 // ポリゴンの初期化処理
 //=====================================
-HRESULT CDeliverypoint::Init(void)
+HRESULT CDeliveryarrow::Init(void)
 {
 	CObjectX::Init();
 
@@ -201,7 +202,7 @@ HRESULT CDeliverypoint::Init(void)
 //=====================================
 // ポリゴンの終了処理
 //=====================================
-void CDeliverypoint::Uninit(void)
+void CDeliveryarrow::Uninit(void)
 {	
 	CObjectX::Uninit();
 }
@@ -209,7 +210,7 @@ void CDeliverypoint::Uninit(void)
 //=====================================
 // ポリゴンの更新処理
 //=====================================
-void CDeliverypoint::Update(void)
+void CDeliveryarrow::Update(void)
 {
 	CInput *input = CManager::Get()->GetInputKeyboard();
 	D3DXVECTOR3 pos = GetPos();
@@ -218,6 +219,10 @@ void CDeliverypoint::Update(void)
 	float fHeight = GetHeight();
 	float fWidth = GetWidth();
 	D3DXVECTOR3 movePos;
+
+	D3DXVECTOR3 Deliverypoint = CManager::Get()->GetScene()->GetDeliverypoint()->GetPos();
+
+	rot.y += (atan2f(Deliverypoint.x - pos.x, Deliverypoint.z - pos.z) - rot.y) * 0.1f;
 
 	SetPos(pos);
 	SetRot(rot);
@@ -235,33 +240,14 @@ void CDeliverypoint::Update(void)
 //=====================================
 // ポリゴンの描画処理
 //=====================================
-void CDeliverypoint::Draw(void)
+void CDeliveryarrow::Draw(void)
 {
 	CObjectX::Draw();
 }
 
-bool CDeliverypoint::Collision(void)
+bool CDeliveryarrow::Collision(void)
 {
-	D3DXVECTOR3 pos = GetPos();
-	D3DXVECTOR3 posPlayer = CManager::Get()->Get()->GetScene()->GetPlayer()->GetPos();
-	D3DXVECTOR3 vecPlayer;
-
-	vecPlayer.x = pos.x - posPlayer.x;
-	vecPlayer.y = 0.0f;
-	vecPlayer.z = pos.z - posPlayer.z;
-
-	if (D3DXVec3Length(&vecPlayer) < 300.0f)
-	{
-		m_nCntDelivery++;
-
-		if (m_nCntDelivery >= 60)
-		{
-			m_nCntDelivery = 0;
-			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000);
-
-			SetPos(CManager::Get()->Get()->GetScene()->GetMap()->GetPosAreaCorner());
-		}
-	}
+	
 
 	return true;
 }

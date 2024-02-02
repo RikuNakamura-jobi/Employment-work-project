@@ -177,7 +177,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\BigBuilding000.png";
+    "data\\TEXTURE\\BigBuilding000.png";
    }
   }
   Material {
@@ -192,7 +192,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\Apart000.png";
+    "data\\TEXTURE\\Apart000.png";
    }
   }
   Material {
@@ -201,7 +201,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\Apart001.png";
+    "data\\TEXTURE\\Apart001.png";
    }
   }
   Material {
@@ -216,7 +216,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\個人\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\Apart002.png";
+    "data\\TEXTURE\\Apart002.png";
    }
   }
  }

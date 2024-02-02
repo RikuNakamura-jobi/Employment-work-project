@@ -185,7 +185,7 @@ CTutorial::~CTutorial()
 //=====================================
 HRESULT CTutorial::Init(void)
 {
-	m_pBg = CBg::Create(CBg::TEXTURE_TUTORIAL_KEY_MOVE);
+	m_pBg = CBg::Create(CBg::TEXTURE_RESULT);
 
 	CSound::PlaySound(CSound::SOUND_LABEL_BGM002);
 
@@ -287,6 +287,7 @@ CGame::CGame()
 	m_pCamera = NULL;
 	m_pTime = NULL;
 	m_bFinish = false;
+	m_nStartCount = 0;
 }
 
 CGame::~CGame()
@@ -298,16 +299,13 @@ CGame::~CGame()
 //=====================================
 HRESULT CGame::Init(void)
 {
-	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
 	m_pField = CField::Create(D3DXVECTOR3(0.0f, -1.0f, 0.0f), D3DXVECTOR3(40000.0f, 0.0f, 40000.0f), CField::TYPE_NONE);
 	m_pSky = CSky::Create();
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.1f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), CPlayer::TYPE_NORMAL);
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f), CPlayer::TYPE_NORMAL);
 	m_pMap = CMap::Create();
 
-	CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
-
-	CBg::Create(CBg::TEXTURE_TUTORIAL_GAME);
+	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
+	m_pDeliverypoint->SetPos(m_pMap->GetPosAreaCorner());
 
 	//ƒJƒƒ‰‚Ì¶¬
 	if (m_pCamera != NULL)
@@ -339,7 +337,8 @@ HRESULT CGame::Init(void)
 	}
 
 	CSound::PlaySound(CSound::SOUND_LABEL_BGM003);
-	
+	m_nStartCount = 0;
+
 	return S_OK;
 }
 
@@ -375,6 +374,49 @@ void CGame::Uninit(void)
 //=====================================
 void CGame::Update(void)
 {
+	m_nStartCount++;
+
+	if (m_nStartCount == 30)
+	{
+		if (m_pBgStart != nullptr)
+		{
+			m_pBgStart->Uninit();
+		}
+		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_START);
+	}
+	else if (m_nStartCount == 150)
+	{
+		if (m_pBgStart != nullptr)
+		{
+			m_pBgStart->Uninit();
+		}
+		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_READY);
+	}
+	else if (m_nStartCount == 210)
+	{
+		if (m_pBgStart != nullptr)
+		{
+			m_pBgStart->Uninit();
+		}
+		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_GO);
+
+		m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+		m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+
+		m_pPlayer->SetControl(true);
+	}
+	else if(m_nStartCount == 240)
+	{
+		if (m_pBgStart != nullptr)
+		{
+			m_pBgStart->Uninit();
+		}
+	}
+	else if (m_nStartCount > 300)
+	{
+		m_nStartCount = 300;
+	}
+
 	if (m_pCamera != NULL)
 	{
 		m_pCamera->Update();
@@ -382,30 +424,34 @@ void CGame::Update(void)
 
 	CInput *input = CManager::Get()->GetInputKeyboard();
 
-	if (m_bFinish == true)
+	if (m_nStartCount == 300)
 	{
-		addCntFade();
-	}
-	else
-	{
-		if (m_pTime->GetTime() == 0)
+		if (m_bFinish == true)
 		{
-			/*CBg::Create(CBg::TEXTURE_SUCCESS);
-			CScore::SetScoreResult(m_pScore->GetScore());
-			m_bFinish = true;*/
+			addCntFade();
 		}
-	}
+		else
+		{
+			if (m_pTime->GetTime() == 0)
+			{
+				CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_SUCCESS);
+				CScore::SetScoreResult(m_pScore->GetScore());
+				m_bFinish = true;
+				m_pPlayer->SetControl(false);
+			}
+		}
 
-	if (GetCntFade() == 300 && CFade::GetState() == 0)
-	{
-		m_pScore->SetScoreResult(m_pScore->GetScore());
-		CFade::Create(CFade::TYPE_OUT, MODE_RESULT);
-	}
+		if (GetCntFade() == 300 && CFade::GetState() == 0)
+		{
+			m_pScore->SetScoreResult(m_pScore->GetScore());
+			CFade::Create(CFade::TYPE_OUT, MODE_RESULT);
+		}
 
-	if (GetbFade() == true)
-	{
-		CManager::Get()->SetMode(CScene::MODE_RESULT);
-		SetbFade(false);
+		if (GetbFade() == true)
+		{
+			CManager::Get()->SetMode(CScene::MODE_RESULT);
+			SetbFade(false);
+		}
 	}
 }
 

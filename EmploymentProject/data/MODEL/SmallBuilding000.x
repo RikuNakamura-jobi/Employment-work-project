@@ -177,7 +177,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\å¬êl\\github\\Employment-work-project\\EmploymentProject\\data\\TEXTURE\\BigBuilding000.png";
+    "data\\TEXTURE\\BigBuilding000.png";
    }
   }
   Material {

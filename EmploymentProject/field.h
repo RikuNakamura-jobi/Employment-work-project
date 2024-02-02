@@ -21,14 +21,14 @@ public:				//外部からアクセス可能
 
 	enum TYPE
 	{
-		TYPE_NONE = 0,			//なにもしてない状態
-		TYPE_ROADCROSS,			//フェードイン状態
-		TYPE_ROADT,				//フェードイン状態
-		TYPE_ROADL,				//フェードイン状態
-		TYPE_ROADU,				//フェードイン状態
-		TYPE_ROADO,				//フェードイン状態
-		TYPE_ROADS,				//フェードイン状態
-		TYPE_RAND,				//フェードイン状態
+		TYPE_NONE = 0,				//なにもしてない状態
+		TYPE_ROAD_CROSS,			//フェードイン状態
+		TYPE_ROAD_T,				//フェードイン状態
+		TYPE_ROAD_L,				//フェードイン状態
+		TYPE_ROAD_U,				//フェードイン状態
+		TYPE_ROAD_O,				//フェードイン状態
+		TYPE_ROAD_S,				//フェードイン状態
+		TYPE_RAND,					//フェードイン状態
 		TYPE_MAX
 	};
 

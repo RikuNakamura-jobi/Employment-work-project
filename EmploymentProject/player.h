@@ -14,10 +14,24 @@
 
 //列挙型定義---------------------------
 
+//名前空間宣言---------------------
+namespace
+{
+	const float SPEED_DASH = -10.0f;			//X方向のエリア数
+	const float SPEED_BOOST = -40.0f;			//Y方向のエリア数
+	const float SPEED_TURN = -0.6f;				//Y方向のエリア数
+	const float SPEED_WALK = -2.0f;				//Y方向のエリア数
+	const float SPEED_MAX = -30.0f;				//Y方向のエリア数
+	const float SPEED_EFFECT = -8.0f;			//Y方向のエリア数
+	const float SPEED_EFFECT_BOOST = -20.0f;	//Y方向のエリア数
+	const float SPEED_BOOSTON = -0.7f;			//Y方向のエリア数
+	const float SPEED_DECELERATION = 0.2f;		//Y方向のエリア数
+}
 //クラス定義---------------------------
 class COrbit;
 class CModel;
 class CMotion;
+class CDeliveryarrow;
 class CPlayer : public CObject
 {
 public:				//外部からアクセス可能
@@ -96,6 +110,11 @@ public:				//外部からアクセス可能
 
 	int GetEnegy(void) { return m_nEnergy; }
 	bool GetDash(void) { return m_bDash; }
+	bool GetAir(void) { return m_bAir; }
+	bool GetWall(void) { return m_bWall; }
+
+	bool GetControl(void) { return m_bControl; }
+	void SetControl(bool bCon) { m_bControl = bCon; }
 
 	CModel *GetModel(int nIdx) { return m_apModel[nIdx]; }
 
@@ -135,6 +154,7 @@ private:			//外部からアクセス不可能
 	TYPE m_Type;
 	STATE m_state;
 	COrbit *m_orbit[4];
+	CDeliveryarrow *m_Arrow;
 
 	bool m_bSave;
 	bool m_bAir;
@@ -143,6 +163,7 @@ private:			//外部からアクセス不可能
 	bool m_bWall;
 	bool m_bTurn;
 	bool m_bBoost;
+	bool m_bControl;
 	int m_nEasterTimer;
 	int m_nShotTimer;
 	int m_nCombo;

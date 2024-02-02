@@ -54,6 +54,8 @@ public:				//外部からアクセス可能
 	//静的メンバ関数
 	static CMap *Create(void);
 
+	D3DXVECTOR3 GetPosAreaCorner();
+
 protected:			//子ならアクセス可能(使わない)
 
 private:			//外部からアクセス不可能
@@ -149,7 +151,7 @@ public:
 	CAreaRoadCross()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADCROSS);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_CROSS);
 	}
 	~CAreaRoadCross() {}
 
@@ -163,7 +165,7 @@ public:
 	CAreaRoadT()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADT);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_T);
 	}
 	~CAreaRoadT() {}
 
@@ -177,7 +179,7 @@ public:
 	CAreaRoadL()
 	{ 
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADL);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_L);
 	}
 	~CAreaRoadL() {}
 
@@ -191,7 +193,7 @@ public:
 	CAreaRoadU()
 	{
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADU);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_U);
 	}
 	~CAreaRoadU() {}
 
@@ -205,7 +207,7 @@ public:
 	CAreaRoadO()
 	{
 		m_pBlock = nullptr;
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADO);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_O);
 	}
 	~CAreaRoadO() {}
 
@@ -219,7 +221,7 @@ public:
 	CAreaRoadS() 
 	{ 
 		m_pBlock = nullptr; 
-		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROADS);
+		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_ROAD_S);
 	}
 	~CAreaRoadS() {}
 

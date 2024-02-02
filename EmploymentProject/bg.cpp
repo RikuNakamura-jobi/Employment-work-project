@@ -23,15 +23,10 @@ LPDIRECT3DTEXTURE9 CBg::m_pTexture[TEXTURE_MAX] = {};
 const char *CBg::m_apFilename[TEXTURE_MAX] =
 {
 	"data\\TEXTURE\\result001.png",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\effect000.jpg",
-	"data\\TEXTURE\\game000.png",
-	"data\\TEXTURE\\success000.png",
-	"data\\TEXTURE\\Failed.png",
+	"data\\TEXTURE\\Start000.png",
+	"data\\TEXTURE\\Start001.png",
+	"data\\TEXTURE\\Start002.png",
+	"data\\TEXTURE\\Start003.png",
 	"data\\TEXTURE\\tutorialStart000.png"
 };
 
@@ -77,6 +72,38 @@ CBg *CBg::Create(TEXTURE texture)
 
 	return pObjectBg;
 }
+
+CBg *CBg::CreateMin(D3DXVECTOR3 pos, float width, float height, TEXTURE texture)
+{
+	CBg *pObjectBg;
+
+	//2Dオブジェクトの生成
+	pObjectBg = new CBg();
+
+	if (pObjectBg != NULL)
+	{
+		//初期化
+		if (FAILED(pObjectBg->Init()))
+		{
+			pObjectBg->Release();
+		}
+
+		if (texture == TEXTURE_MAX)
+		{
+			pObjectBg->BindTexture(NULL);
+		}
+		else
+		{
+			pObjectBg->BindTexture(m_pTexture[texture]);
+			pObjectBg->m_textureType = texture;
+		}
+
+		pObjectBg->Set(pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), width, height);
+	}
+
+	return pObjectBg;
+}
+
 
 //=====================================
 // ポリゴンのテクスチャ処理
