@@ -12,6 +12,8 @@
 #include "scene.h"
 #include "debugproc.h"
 
+using namespace PlayerSpeed;
+
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
@@ -252,7 +254,7 @@ void CCamera::Rot(void)
 		fRotMove += 6.28f;
 	}
 
-	if (speedLengthDest != -1.0f && speedLengthDest != 0.0f && !player->GetAir() && !player->GetWall())
+	if (speedLengthDest != SPEED_WALK && speedLengthDest != 0.0f && !player->GetAir() && !player->GetWall())
 	{
 		m_rot.y = fRotMove;
 	}

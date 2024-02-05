@@ -11,8 +11,8 @@
 #include "object.h"
 
 //マクロ定義---------------------------
-#define MAX_KEY (64)
-#define MAX_MOTION (64)
+#define MAX_KEY (32)
+#define MAX_MOTION (16)
 
 //列挙型定義---------------------------
 

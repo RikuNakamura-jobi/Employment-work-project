@@ -42,6 +42,8 @@ public:				//外部からアクセス可能
 
 	TEXTURE GetTextureType(void) { return m_textureType; }
 
+	void SetTextureType(TEXTURE texture);
+
 	//静的メンバ関数
 	static CBg *Create(TEXTURE texture);
 	static CBg *CreateMin(D3DXVECTOR3 pos, float width, float height,TEXTURE texture);

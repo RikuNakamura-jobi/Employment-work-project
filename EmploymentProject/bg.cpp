@@ -175,3 +175,19 @@ void CBg::Draw(void)
 {
 	CObject2D::Draw();
 }
+
+//=====================================
+// ƒ|ƒŠƒSƒ“‚Ì•`‰æˆ—
+//=====================================
+void CBg::SetTextureType(TEXTURE texture)
+{
+	if (texture == TEXTURE_MAX)
+	{
+		BindTexture(NULL);
+	}
+	else
+	{
+		BindTexture(m_pTexture[texture]);
+		m_textureType = texture;
+	}
+}

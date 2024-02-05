@@ -15,7 +15,7 @@
 //列挙型定義---------------------------
 
 //名前空間宣言---------------------
-namespace
+namespace PlayerSpeed
 {
 	const float SPEED_DASH = -10.0f;			//X方向のエリア数
 	const float SPEED_BOOST = -40.0f;			//Y方向のエリア数

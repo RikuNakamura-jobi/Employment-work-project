@@ -40,6 +40,8 @@ int CPlayer::m_nNumModel = 0;
 CModel *CPlayer::m_apModelOrigin[32] = {};
 CMotion *CPlayer::m_pMotionOrigin = NULL;
 
+using namespace PlayerSpeed;
+
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
@@ -447,9 +449,12 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 	float RotKey = 0.0f;
 	int NumInputKey = 0;
 
-	if (inputPad->GetAll())
+	if (inputPad != nullptr)
 	{
-		return;
+		if (inputPad->GetAll())
+		{
+			return;
+		}
 	}
 
 	//移動処理
@@ -506,13 +511,12 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			}
 			else
 			{
-				m_SpeedDest = SPEED_WALK;
+				m_SpeedDest = SPEED_DASH;
 			}
 
 			m_rotDest.z = rotCamera.y - RotKey;
 
-			m_bDash = false;
-			m_bTurn = false;
+			m_bDash = true;
 		}
 		else
 		{
@@ -522,12 +526,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			}
 			else
 			{
-				m_SpeedDest = SPEED_DASH;
+				m_SpeedDest = SPEED_WALK;
 			}
 
 			m_rotDest.z = rotCamera.y - RotKey;
 
-			m_bDash = true;
+			m_bDash = false;
+			m_bTurn = false;
 		}
 	}
 	else
@@ -594,12 +599,6 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			m_bBoost = false;
 		}
 	}
-
-	if (input->GetPress(DIK_LCONTROL) == true && m_bAir == false)
-	{
-		m_SpeedDest = 0.0f;
-		m_bDash = false;
-	}
 }
 
 //=====================================
@@ -629,36 +628,39 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 		return;
 	}
 
-	if (lengthStick >= 1000.0f)
+	if (lengthStick > 10.0f)
 	{
-		if (m_SpeedDest < SPEED_DASH)
+		if (input->GetButtonPress(4) == true)
 		{
-			m_SpeedDest += SPEED_DECELERATION;
+			if (m_SpeedDest < SPEED_DASH)
+			{
+				m_SpeedDest += SPEED_DECELERATION;
+			}
+			else
+			{
+				m_SpeedDest = SPEED_DASH;
+			}
+
+			m_rotDest.z = rotCamera.y - RotStick;
+
+			m_bDash = true;
 		}
 		else
 		{
-			m_SpeedDest = SPEED_DASH;
+			if (m_SpeedDest < SPEED_WALK)
+			{
+				m_SpeedDest += SPEED_DECELERATION * 5.0f;
+			}
+			else
+			{
+				m_SpeedDest = SPEED_WALK;
+			}
+
+			m_rotDest.z = rotCamera.y - RotStick;
+
+			m_bDash = false;
+			m_bTurn = false;
 		}
-
-		m_rotDest.z = rotCamera.y - RotStick;
-
-		m_bDash = true;
-	}
-	else if (lengthStick > 10.0f)
-	{
-		if (m_SpeedDest < SPEED_DASH)
-		{
-			m_SpeedDest += SPEED_DECELERATION;
-		}
-		else
-		{
-			m_SpeedDest = SPEED_WALK;
-		}
-
-		m_rotDest.z = rotCamera.y - RotStick;
-
-		m_bDash = false;
-		m_bTurn = false;
 	}
 	else
 	{
@@ -711,6 +713,7 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 		if (m_bWall)
 		{
+			move->y = 30.0f;
 			m_SpeedDest = 50.0f;
 
 			rot->y += D3DX_PI;
@@ -724,12 +727,6 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 			m_SpeedDest += SPEED_DASH;
 			m_bBoost = false;
 		}
-	}
-
-	if (input->GetButtonPress(4) == true && m_bAir == false)
-	{
-		m_SpeedDest = 0.0f;
-		m_bDash = false;
 	}
 
 	if (input->GetButtonTrigger(7) == true)
@@ -904,7 +901,14 @@ void CPlayer::SetRot(D3DXVECTOR3 *rot)
 	//徐々に足してく
 	if (m_bDash)
 	{
-		fRotMove += fRotDiff * 0.02f;
+		if (m_Speed > SPEED_EFFECT_BOOST)
+		{
+			fRotMove += fRotDiff * 0.02f;
+		}
+		else
+		{
+			fRotMove += fRotDiff * 0.008f;
+		}
 	}
 	else
 	{

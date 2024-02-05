@@ -224,7 +224,7 @@ void CDeliverypoint::Update(void)
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
-	SetMtxScale(1.0f);
+	SetMtxScale(2.0f);
 
 	Collision();
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
@@ -250,7 +250,7 @@ bool CDeliverypoint::Collision(void)
 	vecPlayer.y = 0.0f;
 	vecPlayer.z = pos.z - posPlayer.z;
 
-	if (D3DXVec3Length(&vecPlayer) < 300.0f)
+	if (D3DXVec3Length(&vecPlayer) < 600.0f)
 	{
 		m_nCntDelivery++;
 

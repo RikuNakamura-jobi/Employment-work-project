@@ -69,6 +69,8 @@ public:				//外部からアクセス可能
 
 	virtual CDeliverypoint *GetDeliverypoint(void) { return NULL; }
 
+	virtual int GetStartCount(void) { return 0; }
+
 	virtual void SetFinish(void) { return; }
 
 	void addCntFade(void) { m_nCntFade++; }
@@ -202,6 +204,8 @@ public:				//外部からアクセス可能
 	CMap *GetMap(void) { return m_pMap; }
 
 	CDeliverypoint *GetDeliverypoint(void) { return m_pDeliverypoint; }
+
+	int GetStartCount(void) { return m_nStartCount; }
 
 	void SetFinish(void) { m_bFinish = true; }
 

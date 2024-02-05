@@ -251,9 +251,24 @@ D3DXVECTOR3 CMap::GetPosAreaCorner()
 	D3DXVECTOR3 areaPos;
 	areaPos = m_pArea[areaX][areaY]->GetRand()->GetPos();
 
-	areaCornerPos.x = areaPos.x + (4000.0f * (float)(rand() % 3 - 1));
-	areaCornerPos.y = 0.0f;
-	areaCornerPos.z = areaPos.z + (4000.0f * (float)(rand() % 3 - 1));
+	areaX = rand() % 3 - 1;
+
+	if (areaX == 0)
+	{
+		areaY = rand() % 2 - 1;
+
+		areaCornerPos.x = areaPos.x + (4000.0f * (float)areaX);
+		areaCornerPos.y = 0.0f;
+		areaCornerPos.z = areaPos.z + (4000.0f * (float)(-2 * areaY - 1));
+	}
+	else
+	{
+		areaY = rand() % 3 - 1;
+
+		areaCornerPos.x = areaPos.x + (4000.0f * (float)areaX);
+		areaCornerPos.y = 0.0f;
+		areaCornerPos.z = areaPos.z + (4000.0f * (float)areaY);
+	}
 
 	return areaCornerPos;
 }

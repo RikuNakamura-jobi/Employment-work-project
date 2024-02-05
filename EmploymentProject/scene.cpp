@@ -286,6 +286,7 @@ CGame::CGame()
 	m_pPlayerSave = NULL;
 	m_pCamera = NULL;
 	m_pTime = NULL;
+	m_pBgStart = nullptr;
 	m_bFinish = false;
 	m_nStartCount = 0;
 }
@@ -303,7 +304,9 @@ HRESULT CGame::Init(void)
 	m_pSky = CSky::Create();
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f), CPlayer::TYPE_NORMAL);
 	m_pMap = CMap::Create();
-
+	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_MAX);
 	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 	m_pDeliverypoint->SetPos(m_pMap->GetPosAreaCorner());
 
@@ -378,39 +381,21 @@ void CGame::Update(void)
 
 	if (m_nStartCount == 30)
 	{
-		if (m_pBgStart != nullptr)
-		{
-			m_pBgStart->Uninit();
-		}
-		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_START);
+		m_pBgStart->SetTextureType(CBg::TEXTURE_START);
 	}
 	else if (m_nStartCount == 150)
 	{
-		if (m_pBgStart != nullptr)
-		{
-			m_pBgStart->Uninit();
-		}
-		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_READY);
+		m_pBgStart->SetTextureType(CBg::TEXTURE_READY);
 	}
 	else if (m_nStartCount == 210)
 	{
-		if (m_pBgStart != nullptr)
-		{
-			m_pBgStart->Uninit();
-		}
-		m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_GO);
-
-		m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-		m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+		m_pBgStart->SetTextureType(CBg::TEXTURE_GO);
 
 		m_pPlayer->SetControl(true);
 	}
 	else if(m_nStartCount == 240)
 	{
-		if (m_pBgStart != nullptr)
-		{
-			m_pBgStart->Uninit();
-		}
+		m_pBgStart->SetTextureType(CBg::TEXTURE_MAX);
 	}
 	else if (m_nStartCount > 300)
 	{
@@ -423,7 +408,6 @@ void CGame::Update(void)
 	}
 
 	CInput *input = CManager::Get()->GetInputKeyboard();
-
 	if (m_nStartCount == 300)
 	{
 		if (m_bFinish == true)

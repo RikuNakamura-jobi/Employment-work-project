@@ -123,36 +123,78 @@ void CTime::Uninit(void)
 //=====================================
 void CTime::Update(void)
 {
-	m_posOld = m_pos;
-	int nMinutes = 0, nSeconds = 0;
-	m_gameTime = timeGetTime() - m_startTime;
-
-	m_nTime = (int)(m_gameTime * 0.001f);
-
-	nSeconds = 60 - (m_nTime % 60);
-	if (nSeconds == 60)
+	if (CManager::Get()->Get()->GetScene()->GetStartCount() < 1)
 	{
-		nSeconds = 0;
-	}
+		m_posOld = m_pos;
+		int nMinutes = 0, nSeconds = 0;
+		m_gameTime = timeGetTime() - m_startTime;
 
-	nMinutes = (2 - ((m_nTime + 59) / 60)) * 100;
+		m_nTime = (int)(m_gameTime * 0.001f);
 
-	m_nTime = nSeconds + nMinutes;
-
-	if (m_nTime < 0)
-	{
-		m_nTime = 0;
-	}
-
-	for (int nCnt = 0; nCnt < MAX_PLACE_TIME; nCnt++)
-	{
-		if (m_apObject2D[nCnt] != NULL)
+		nSeconds = 60 - (m_nTime % 60);
+		if (nSeconds == 60)
 		{
-			D3DXVECTOR2 *texPos = NULL;
-			m_apObject2D[nCnt]->SetNumber(m_nTime % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
-
-			m_apObject2D[nCnt]->Update();
+			nSeconds = 0;
 		}
+
+		nMinutes = (2 - ((m_nTime + 59) / 60)) * 100;
+
+		m_nTime = nSeconds + nMinutes;
+
+		if (m_nTime < 0)
+		{
+			m_nTime = 0;
+		}
+
+		for (int nCnt = 0; nCnt < MAX_PLACE_TIME; nCnt++)
+		{
+			if (m_apObject2D[nCnt] != NULL)
+			{
+				D3DXVECTOR2 *texPos = NULL;
+				m_apObject2D[nCnt]->SetNumber(m_nTime % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
+
+				m_apObject2D[nCnt]->Update();
+			}
+		}
+	}
+
+	if (CManager::Get()->Get()->GetScene()->GetStartCount() >= 210)
+	{
+		m_posOld = m_pos;
+		int nMinutes = 0, nSeconds = 0;
+		m_gameTime = timeGetTime() - m_startTime;
+
+		m_nTime = (int)(m_gameTime * 0.001f);
+
+		nSeconds = 60 - (m_nTime % 60);
+		if (nSeconds == 60)
+		{
+			nSeconds = 0;
+		}
+
+		nMinutes = (2 - ((m_nTime + 59) / 60)) * 100;
+
+		m_nTime = nSeconds + nMinutes;
+
+		if (m_nTime < 0)
+		{
+			m_nTime = 0;
+		}
+
+		for (int nCnt = 0; nCnt < MAX_PLACE_TIME; nCnt++)
+		{
+			if (m_apObject2D[nCnt] != NULL)
+			{
+				D3DXVECTOR2 *texPos = NULL;
+				m_apObject2D[nCnt]->SetNumber(m_nTime % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
+
+				m_apObject2D[nCnt]->Update();
+			}
+		}
+	}
+	else
+	{
+		m_startTime = timeGetTime();
 	}
 }
 

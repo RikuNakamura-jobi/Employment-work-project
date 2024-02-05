@@ -31,7 +31,7 @@ COrbit::COrbit(int nPriority = 5) : CObject(nPriority)
 	m_pVtxBuff = NULL;				//頂点情報を格納
 	m_pTexture = NULL;				//テクスチャへのポインタ
 
-	m_col[MAX_EDGE][NUM_OFFSET] = {};
+	memset(&m_col[0][0], 0, sizeof(D3DXCOLOR));
 	m_nHue = 0.0f;
 }
 

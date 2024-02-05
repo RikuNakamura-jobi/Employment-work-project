@@ -201,20 +201,23 @@ void CObject2D::Draw(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->GetRenderer()->GetDevice();
 
-	//頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0,
-		m_pVtxBuff,
-		0,
-		sizeof(VERTEX_2D));
+	if (m_pTexturePolygon != nullptr)
+	{
+		//頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0,
+			m_pVtxBuff,
+			0,
+			sizeof(VERTEX_2D));
 
-	//頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
+		//頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//テクスチャの設定
-	pDevice->SetTexture(0, m_pTexturePolygon);
+		//テクスチャの設定
+		pDevice->SetTexture(0, m_pTexturePolygon);
 
-	//ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	}
 }
 
 //=====================================
