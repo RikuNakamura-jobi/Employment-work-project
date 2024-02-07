@@ -16,6 +16,7 @@
 #include "score.h"
 #include "map.h"
 #include "deliverypoint.h"
+#include "useful.h"
 
 //マクロ定義---------------------------
 
@@ -36,6 +37,8 @@ CObjectX::MODELX CDeliveryarrow::m_model = {};
 CDeliveryarrow::CDeliveryarrow(int nPriority = 3) : CObjectX(nPriority)
 {
 	m_nCntDelivery = 0;
+	m_fHue = 0.0f;
+	m_bPoint = false;
 }
 
 CDeliveryarrow::~CDeliveryarrow()
@@ -193,8 +196,8 @@ HRESULT CDeliveryarrow::Init(void)
 
 	SetType(TYPE_DELIVERYPOINT);
 
-	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(100.0f, 5.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
-	GetCollider()->SetType(CCollider::TYPE_BOX);
+	/*SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(100.0f, 5.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
+	GetCollider()->SetType(CCollider::TYPE_BOX);*/
 
 	return S_OK;
 }
@@ -221,15 +224,65 @@ void CDeliveryarrow::Update(void)
 	D3DXVECTOR3 movePos;
 
 	D3DXVECTOR3 Deliverypoint = CManager::Get()->GetScene()->GetDeliverypoint()->GetPos();
+	D3DXVECTOR3 Playerpoint = CManager::Get()->GetScene()->GetPlayer()->GetPos();
+	D3DXVECTOR3 posDef;
+	float rotX = 0.2f;
+	float scale = 1.0f;
 
-	rot.y += (atan2f(Deliverypoint.x - pos.x, Deliverypoint.z - pos.z) - rot.y) * 0.1f;
+	posDef = Playerpoint;
+	posDef.y = 0.0f;
+	float lengthDP = D3DXVec3Length(&(Deliverypoint - posDef));
+
+	if (lengthDP < 6000.0f && !m_bPoint)
+	{
+		pos += (Deliverypoint - pos) * 0.05f;
+		pos.y = lengthDP * 0.1f;
+
+		if (pos.y < 100.0f)
+		{
+			pos.y = 100.0f;
+		}
+		
+		posDef = pos;
+		posDef.y = 0.0f;
+		float lengthDA = D3DXVec3Length(&(Deliverypoint - posDef));
+		CManager::Get()->Get()->GetDebugProc()->Print("矢印と配達先の距離: %f\n", lengthDA);
+		if (lengthDA > 500.0f)
+		{
+			rot.y += 0.5f;
+		}
+		else
+		{
+			rot.y += 0.1f;
+		}
+
+		rotX = 1.57f;
+		scale = lengthDP * 0.003f;
+
+		if (scale < 1.0f)
+		{
+			scale = 1.0f;
+		}
+	}
+	else
+	{
+		pos += (Playerpoint - pos) * 0.85f;
+		pos.y = Playerpoint.y + 60.0f;
+		rot.y += (atan2f(Deliverypoint.x - pos.x, Deliverypoint.z - pos.z) - rot.y) * 0.3f;
+	}
+	
+	rot.x += (rotX - rot.x) * 0.08f;
+
+	m_fHue += 2.0f;
 
 	SetPos(pos);
 	SetRot(rot);
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
-	SetMtxScale(1.0f);
+	SetMtxScale(scale);
+
+	CManager::Get()->Get()->GetDebugProc()->Print("プレイヤーと配達先の距離: %f\n", lengthDP);
 
 	Collision();
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
@@ -242,12 +295,46 @@ void CDeliveryarrow::Update(void)
 //=====================================
 void CDeliveryarrow::Draw(void)
 {
+	D3DXMATERIAL *pMat;
+	//マテリアルのデータのポイントを取得
+	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
+
+	pMat->MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+	pMat->MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+
 	CObjectX::Draw();
 }
 
 bool CDeliveryarrow::Collision(void)
 {
-	
+	m_bPoint = false;
+	CCollider *pCollider;
+
+	pCollider = CCollision::Get()->GetTop();
+
+	while (pCollider != NULL)
+	{
+		CCollider *pColliderNext = pCollider->GetNext();
+
+		CCollider::TAG tag;
+
+		//種類取得
+		tag = pCollider->GetTag();
+
+		if (tag == CCollider::TAG_BOX)
+		{
+			D3DXVECTOR3 Deliverypoint = CManager::Get()->GetScene()->GetDeliverypoint()->GetPos();
+			D3DXVECTOR3 DeliverypointDef = CManager::Get()->GetScene()->GetDeliverypoint()->GetPos();
+			D3DXVECTOR3 Playerpoint = CManager::Get()->GetScene()->GetPlayer()->GetPos();
+
+			if (pCollider->CollisionSquare(&Deliverypoint, Playerpoint, &D3DXVECTOR3(0.0f,0.0f,0.0f)) == true)
+			{
+				m_bPoint = true;
+			}
+		}
+
+		pCollider = pColliderNext;
+	}
 
 	return true;
 }

@@ -160,7 +160,7 @@ CCollider::~CCollider()
 {
 }
 
-CCollider *CCollider::Create(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 offsetMax, D3DXVECTOR3 offsetMin)
+CCollider *CCollider::Create(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 offsetMax, D3DXVECTOR3 offsetMin, TAG tag)
 {
 	CCollider *pCllider = new CCollider;
 
@@ -172,6 +172,7 @@ CCollider *CCollider::Create(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 o
 		pCllider->m_rot = pRot;
 		pCllider->m_offsetMax = offsetMax;
 		pCllider->m_offsetMin = offsetMin;
+		pCllider->m_tag = tag;
 	}
 
 	return pCllider;
@@ -221,9 +222,9 @@ void CCollider::Uninit(void)
 void CCollider::Update(void)
 {
 #ifdef _DEBUG
-	/*CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 2, 10.0f, 10.0f);
-	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 3, 10.0f, 10.0f);
-	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 3, 10.0f, 10.0f);*/
+	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 1, 10.0f, 10.0f);
+	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 1, 10.0f, 10.0f);
+	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 1, 10.0f, 10.0f);
 
 	m_nHue += 0.7f;
 

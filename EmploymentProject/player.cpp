@@ -167,7 +167,7 @@ HRESULT CPlayer::Init(void)
 	}
 
 	SetType(TYPE_PLAYER);
-	SetCollider(CCollider::Create(&m_pos, &m_rot, D3DXVECTOR3(100.0f, 100.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
+	SetCollider(CCollider::Create(&m_pos, &m_rot, D3DXVECTOR3(100.0f, 100.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f), CCollider::TAG_PLAYER));
 	m_nEnergy = 10;
 	m_rotDest.z = -2.335f;
 
@@ -343,10 +343,6 @@ void CPlayer::Update(void)
 	SetHeight(fHeight);
 	SetWidth(fWidth);
 
-	D3DXVECTOR3 posArrow = pos;
-	posArrow.y += 60.0f;
-	m_Arrow->SetPos(posArrow);
-
 	D3DXVECTOR3 posEffect;
 
 	/*posEffect.x = GetModel(16)->GetMtxWorld()._41;
@@ -520,7 +516,7 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 		}
 		else
 		{
-			if (m_SpeedDest < SPEED_DASH)
+			if (m_SpeedDest < SPEED_WALK)
 			{
 				m_SpeedDest += SPEED_DECELERATION;
 			}
@@ -777,11 +773,11 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 
 	if (m_bTurn)
 	{
-		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
+		m_Speed += (m_SpeedDest - m_Speed) * 0.05f;
 	}
 	else
 	{
-		m_Speed += (m_SpeedDest - m_Speed) * 0.3f;
+		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
 	}
 
 	if (m_Speed < SPEED_MAX)

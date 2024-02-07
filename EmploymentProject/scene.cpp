@@ -305,7 +305,7 @@ HRESULT CGame::Init(void)
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f), CPlayer::TYPE_NORMAL);
 	m_pMap = CMap::Create();
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
-	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pTime = CTime::Create(D3DXVECTOR3(100.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_MAX);
 	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 	m_pDeliverypoint->SetPos(m_pMap->GetPosAreaCorner());

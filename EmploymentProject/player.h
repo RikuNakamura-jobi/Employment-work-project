@@ -24,7 +24,7 @@ namespace PlayerSpeed
 	const float SPEED_MAX = -30.0f;				//Y方向のエリア数
 	const float SPEED_EFFECT = -8.0f;			//Y方向のエリア数
 	const float SPEED_EFFECT_BOOST = -20.0f;	//Y方向のエリア数
-	const float SPEED_BOOSTON = -0.7f;			//Y方向のエリア数
+	const float SPEED_BOOSTON = -1.0f;			//Y方向のエリア数
 	const float SPEED_DECELERATION = 0.2f;		//Y方向のエリア数
 }
 //クラス定義---------------------------

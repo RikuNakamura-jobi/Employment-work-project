@@ -189,22 +189,22 @@ void CCamera::Rot(void)
 	float speedLength = player->GetSpeed();
 	float speedLengthDest = player->GetSpeedDest();
 
-	if (speedLength < -15.0f)
+	if (speedLength < SPEED_MAX)
 	{
-		speedLength = -15.0f;
+		speedLength = SPEED_MAX;
 	}
-
-	if (speedLengthDest == -0.3f)
+	
+	if (speedLengthDest == SPEED_TURN)
 	{
 		m_cameraLength = 150.0f + (speedLength * -35.0f);
 	}
-	else if (speedLengthDest >= -5.0f)
+	else if (speedLengthDest >= SPEED_DASH)
 	{
 		m_cameraLength = 200.0f + (speedLength * -20.0f);
 	}
-	else if (speedLengthDest < -5.0f)
+	else if (speedLengthDest < SPEED_DASH)
 	{
-		m_cameraLength = 50.0f + (speedLength * -50.0f);
+		m_cameraLength = 50.0f + (speedLength * -35.0f);
 	}
 	else
 	{

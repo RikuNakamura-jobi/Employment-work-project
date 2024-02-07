@@ -43,6 +43,7 @@ public:				//外部からアクセス可能
 	void Set(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight);
 
 	void BindModel(MODELX *model) { m_model = model; }
+	MODELX *GetModel(void) { return m_model; }
 
 	//位置
 	void SetPos(D3DXVECTOR3 pos){ m_pos = pos; }
@@ -94,6 +95,8 @@ private:			//外部からアクセス不可能
 	float m_mtxScale;
 
 	MODELX *m_model;
+
+	float m_fHue;
 
 	//静的メンバ変数
 

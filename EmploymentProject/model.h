@@ -71,6 +71,8 @@ private:			//外部からアクセス不可能
 
 	CModel *m_pParent;
 
+	float m_fHue;
+
 	//静的メンバ変数
 
 };

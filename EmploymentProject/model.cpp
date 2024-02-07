@@ -7,6 +7,7 @@
 #include "model.h"
 #include "renderer.h"
 #include "manager.h"
+#include "useful.h"
 
 //マクロ定義---------------------------
 
@@ -25,6 +26,7 @@ CModel::CModel()
 {
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_fHue = 0.0f;
 }
 
 CModel::~CModel()
@@ -127,7 +129,7 @@ void CModel::Uninit(void)
 //=====================================
 void CModel::Update(void)
 {
-	
+	m_fHue += 2.0f;
 }
 
 //=====================================
@@ -180,6 +182,9 @@ void CModel::Draw(void)
 
 	for (int nCntMat = 0; nCntMat < (int)m_dwNumMatModel; nCntMat++)
 	{
+		/*pMat[nCntMat].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+		pMat[nCntMat].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);*/
+
 		//マテリアルの設定
 		pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
 

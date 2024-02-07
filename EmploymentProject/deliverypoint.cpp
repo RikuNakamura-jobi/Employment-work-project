@@ -192,7 +192,7 @@ HRESULT CDeliverypoint::Init(void)
 
 	SetType(TYPE_DELIVERYPOINT);
 
-	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(100.0f, 5.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f)));
+	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(100.0f, 5.0f, 100.0f), D3DXVECTOR3(-100.0f, -5.0f, -100.0f), CCollider::TAG_NONE));
 	GetCollider()->SetType(CCollider::TYPE_BOX);
 
 	return S_OK;
@@ -254,7 +254,7 @@ bool CDeliverypoint::Collision(void)
 	{
 		m_nCntDelivery++;
 
-		if (m_nCntDelivery >= 60)
+		if (m_nCntDelivery >= 3)
 		{
 			m_nCntDelivery = 0;
 			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000);

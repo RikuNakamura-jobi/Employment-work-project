@@ -90,13 +90,16 @@ public:
 	bool GetDeath(void) { return m_bDeath; }
 	void SetDeath(bool bDeath) { m_bDeath = bDeath; }
 
+	TAG GetTag(void) { return m_tag; }
+	void SetTag(TAG tag) { m_tag = tag; }
+
 	void SetType(TYPE type) { m_type = type; }
 
 	bool CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld, D3DXVECTOR3 *move);			//” ‚Ì“–‚½‚è”»’è(‰Ÿ‚µ–ß‚µ‚ ‚è)
 	bool CollisionSquareTrigger(D3DXVECTOR3 posTarget);													//” ‚Ì“–‚½‚è”»’è(“àŠO”»’è‚Ì‚İ)
 
 	//Ã“Iƒƒ“ƒoŠÖ”
-	static CCollider *Create(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 offsetMax, D3DXVECTOR3 offsetMin);
+	static CCollider *Create(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 offsetMax, D3DXVECTOR3 offsetMin, TAG tag);
 
 private:
 

@@ -7,6 +7,7 @@
 #include "objectX.h"
 #include "renderer.h"
 #include "manager.h"
+#include "useful.h"
 
 //マクロ定義---------------------------
 
@@ -27,6 +28,7 @@ CObjectX::CObjectX(int nPriority = 6) : CObject(nPriority)
 	m_posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_mtxScale = 1.0f;
+	m_fHue = 0.0f;
 	//m_model->pTexture = NULL;
 	//m_model->pMeshModel = NULL;
 	//m_model->pBuffMatModel = NULL;					//頂点情報を格納
@@ -85,7 +87,7 @@ void CObjectX::Uninit(void)
 //=====================================
 void CObjectX::Update(void)
 {
-	
+	m_fHue += 2.0f;
 }
 
 //=====================================
@@ -126,6 +128,9 @@ void CObjectX::Draw(void)
 
 	for (int nCntMat = 0; nCntMat < (int)m_model->dwNumMatModel; nCntMat++)
 	{
+		/*pMat[nCntMat].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+		pMat[nCntMat].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);*/
+
 		//マテリアルの設定
 		pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
 
