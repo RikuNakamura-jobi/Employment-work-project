@@ -32,6 +32,7 @@ COrbit::COrbit(int nPriority = 5) : CObject(nPriority)
 	m_pTexture = NULL;				//テクスチャへのポインタ
 
 	memset(&m_col[0][0], 0, sizeof(D3DXCOLOR));
+	m_colOffset = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 	m_nHue = 0.0f;
 }
 
@@ -232,7 +233,7 @@ void COrbit::UpdatePolygon(void)
 	for (nCntOffset = 0; nCntOffset < NUM_OFFSET; nCntOffset++)
 	{
 		//現在のフレームのオフセット位置を保存
-		m_col[m_nNumEdge - 1][nCntOffset] = useful::HSLtoRGB(m_nHue);
+		m_col[m_nNumEdge - 1][nCntOffset] = m_colOffset;
 	}
 
 	//保存した座標をずらす==========
@@ -251,8 +252,16 @@ void COrbit::UpdatePolygon(void)
 			//頂点座標の設定
 			pVtx[nCntOffset].pos = m_aPosPoint[nCntVtx][nCntOffset];
 
-			//頂点カラーの設定
-			pVtx[nCntOffset].col = D3DXCOLOR(m_col[nCntVtx][nCntOffset].r, m_col[nCntVtx][nCntOffset].g, m_col[nCntVtx][nCntOffset].b, (float)nCntVtx / m_nNumEdge);
+			if (m_colOffset.a < 1.0f)
+			{
+				//頂点カラーの設定
+				pVtx[nCntOffset].col = D3DXCOLOR(m_col[nCntVtx][nCntOffset].r, m_col[nCntVtx][nCntOffset].g, m_col[nCntVtx][nCntOffset].b, m_colOffset.a);
+			}
+			else
+			{
+				//頂点カラーの設定
+				pVtx[nCntOffset].col = D3DXCOLOR(m_col[nCntVtx][nCntOffset].r, m_col[nCntVtx][nCntOffset].g, m_col[nCntVtx][nCntOffset].b, (float)nCntVtx / m_nNumEdge);
+			}
 		}
 
 		//ポインタを進める
@@ -328,7 +337,7 @@ void COrbit::Draw(void)
 //=====================================
 // ポリゴンの設定処理
 //=====================================
-void COrbit::SetPositionOffset(D3DXMATRIX mtxWorld)
+void COrbit::SetPositionOffset(D3DXMATRIX mtxWorld, D3DXCOLOR col)
 {
 	//デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->GetRenderer()->GetDevice();
@@ -356,7 +365,7 @@ void COrbit::SetPositionOffset(D3DXMATRIX mtxWorld)
 		m_mtxWorldOffset[nCntOffset] = mtxOffset;
 	}
 
-	m_nHue += 4.0f;
+	m_colOffset = col;
 
 	//ポリゴン更新処理
 	UpdatePolygon();

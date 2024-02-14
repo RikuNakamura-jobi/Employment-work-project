@@ -40,6 +40,8 @@ CObjectBillboard::CObjectBillboard(int nPriority = 7) : CObject(nPriority)
 	m_fHeight = 100.0f;
 	m_fLength = 0.0f;
 	m_fAngle = 0.0f;
+
+	m_bCenter = true;
 }
 
 CObjectBillboard::~CObjectBillboard()
@@ -218,11 +220,14 @@ void CObjectBillboard::Draw(void)
 	//ビューマトリックスを取得
 	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
 
-	//ポリゴンをカメラに対して正面に向ける
-	D3DXMatrixInverse(&m_mtxWorld, NULL, &mtxView);
-	m_mtxWorld._41 = 0.0f;
-	m_mtxWorld._42 = 0.0f;
-	m_mtxWorld._43 = 0.0f;
+	if (m_bCenter)
+	{
+		//ポリゴンをカメラに対して正面に向ける
+		D3DXMatrixInverse(&m_mtxWorld, NULL, &mtxView);
+		m_mtxWorld._41 = 0.0f;
+		m_mtxWorld._42 = 0.0f;
+		m_mtxWorld._43 = 0.0f;
+	}
 
 	//位置を反映
 	D3DXMatrixTranslation(&mtxTrans,

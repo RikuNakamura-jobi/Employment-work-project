@@ -27,6 +27,7 @@ CModel::CModel()
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_fHue = 0.0f;
+	m_pParent = nullptr;
 }
 
 CModel::~CModel()

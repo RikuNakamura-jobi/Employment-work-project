@@ -113,7 +113,7 @@ void CParticle::Update(void)
 		fHeight = (rand() % 20) * 0.1f + GetHeight();
 		fWidth = fHeight;
 
-		CEffect::Create(pos, move, rot, GetCol(), rand() % 60 + m_nLife, fWidth, fHeight);
+		CEffect3D::Create(pos, move, rot, GetCol(), rand() % 60 + m_nLife, fWidth, fHeight);
 	}
 
 	//éıñΩå∏è≠

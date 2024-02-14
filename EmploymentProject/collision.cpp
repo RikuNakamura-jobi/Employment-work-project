@@ -222,9 +222,9 @@ void CCollider::Uninit(void)
 void CCollider::Update(void)
 {
 #ifdef _DEBUG
-	CEffect::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 1, 10.0f, 10.0f);
-	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 1, 10.0f, 10.0f);
-	CEffect::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 1, 10.0f, 10.0f);
+	CEffect3D::Create(*m_pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, useful::HSLtoRGB(m_nHue), 1, 10.0f, 10.0f);
+	CEffect3D::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMax), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f), 1, 10.0f, 10.0f);
+	CEffect3D::Create(useful::PosRelativeMtx(*m_pos, *m_rot, m_offsetMin), D3DXVECTOR3(0.0f, 0.0f, 0.0f), *m_rot, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 1, 10.0f, 10.0f);
 
 	m_nHue += 0.7f;
 
@@ -234,7 +234,7 @@ void CCollider::Update(void)
 //==================================================================================================
 //点と箱の当たり判定
 //==================================================================================================
-bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld, D3DXVECTOR3 *move)
+bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld, D3DXVECTOR3 *move, bool bStop, D3DXVECTOR3 *vecNor)
 {
 	D3DXVECTOR3 posCorner[8] = {};
 	D3DXVECTOR3 posPlaneCenter[6] = {};
@@ -248,43 +248,33 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 	lengthZ = fabsf(m_offsetMax.z - m_offsetMin.z) * 0.5f;
 
 	//箱の各面の中心を求める
-	posPlaneCenter[0] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(lengthX, 0.0f, 0.0f));
-	posPlaneCenter[1] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(-lengthX, 0.0f, 0.0f));
-	posPlaneCenter[2] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, lengthY, 0.0f));
-	posPlaneCenter[3] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, -lengthY, 0.0f));
-	posPlaneCenter[4] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, lengthZ));
-	posPlaneCenter[5] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, -lengthZ));
+	posPlaneCenter[0] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMax.x, 0.0f, 0.0f));
+	posPlaneCenter[1] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(m_offsetMin.x, 0.0f, 0.0f));
+	posPlaneCenter[2] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMax.y, 0.0f));
+	posPlaneCenter[3] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, m_offsetMin.y, 0.0f));
+	posPlaneCenter[4] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMax.z));
+	posPlaneCenter[5] = useful::PosRelativeMtx(*m_pos, *m_rot, D3DXVECTOR3(0.0f, 0.0f, m_offsetMin.z));
 
-	if (CollisionSquareTrigger(*posTarget) == true)
+	for (int nCnt = 0; nCnt < 6; nCnt++)
 	{
-		for (int nCnt = 0; nCnt < 6; nCnt++)
+		//各面の法線ベクトルを計算する
+		vecNorPlaneCenter = *m_pos - posPlaneCenter[nCnt];
+		D3DXVec3Normalize(&vecNorPlaneCenter, &vecNorPlaneCenter);
+
+		//法線ベクトルから平面の式を計算する
+		D3DXPlaneFromPointNormal(&plane, &posPlaneCenter[nCnt], &vecNorPlaneCenter);
+
+		//平面の式と点から
+		if (D3DXPlaneDotCoord(&plane, posTarget) >= 0.0f && D3DXPlaneDotCoord(&plane, &posTargetOld) <= 0.0f)
 		{
-			//各面の法線ベクトルを計算する
-			vecNorPlaneCenter = *m_pos - posPlaneCenter[nCnt];
-			D3DXVec3Normalize(&vecNorPlaneCenter, &vecNorPlaneCenter);
+			D3DXPlaneIntersectLine(&vecIntersect, &plane, posTarget, &posTargetOld);
 
-			//法線ベクトルから平面の式を計算する
-			D3DXPlaneFromPointNormal(&plane, &posPlaneCenter[nCnt], &vecNorPlaneCenter);
-
-			//平面の式と点から
-			if (D3DXPlaneDotCoord(&plane, posTarget) >= 0.0f && D3DXPlaneDotCoord(&plane, &posTargetOld) <= 0.0f)
+			if (CollisionSquareTrigger(vecIntersect) == true)
 			{
-				D3DXPlaneIntersectLine(&vecIntersect, &plane, posTarget, &posTargetOld);
-
-				/*if (posPlaneCenter[nCnt].x == 0.0f)
+				if (vecNor != nullptr)
 				{
-					vecIntersect.x = 0.0f;
+					*vecNor = vecNorPlaneCenter;
 				}
-
-				if (posPlaneCenter[nCnt].y == 0.0f)
-				{
-					vecIntersect.y = 0.0f;
-				}
-
-				if (posPlaneCenter[nCnt].z == 0.0f)
-				{
-					vecIntersect.z = 0.0f;
-				}*/
 
 				D3DXVECTOR3 vecMove, vecMoveRef;
 				float fDot;
@@ -295,25 +285,27 @@ bool CCollider::CollisionSquare(D3DXVECTOR3 *posTarget, D3DXVECTOR3 posTargetOld
 
 				vecMove = *posTarget - vecIntersect;
 
-				vecMoveRef = vecMove + (vecNorPlaneCenter * fDot * 1.0001f);
-				D3DXVec3Normalize(&vecMoveRef, &vecMoveRef);
+				vecMoveRef = vecMove + (vecNorPlaneCenter * fDot * 1.0f);
 
-				if (m_rot->z == 0.0f)
+				if (bStop)
 				{
-					vecMoveRef *= D3DXVec3Length(&vecMove) * 0.01f;
+					*posTarget = vecIntersect;
+					*move = vecMoveRef * 0.0f;
 				}
 				else
 				{
-					vecMoveRef *= D3DXVec3Length(&vecMove);
+					if (vecNorPlaneCenter.y > -0.8f)
+					{
+						*move = vecMoveRef * 0.0f;
+					}
+					*posTarget = vecIntersect + vecMoveRef;
+					//*move = vecMoveRef;
 				}
 
-				*posTarget = vecIntersect - (vecNorPlaneCenter * 0.1f);
-				
 				return true;
 			}
 		}
 	}
-
 	return false;
 }
 

@@ -226,37 +226,36 @@ void CDeliveryarrow::Update(void)
 	D3DXVECTOR3 Deliverypoint = CManager::Get()->GetScene()->GetDeliverypoint()->GetPos();
 	D3DXVECTOR3 Playerpoint = CManager::Get()->GetScene()->GetPlayer()->GetPos();
 	D3DXVECTOR3 posDef;
-	float rotX = 0.2f;
 	float scale = 1.0f;
 
 	posDef = Playerpoint;
-	posDef.y = 0.0f;
 	float lengthDP = D3DXVec3Length(&(Deliverypoint - posDef));
 
 	if (lengthDP < 6000.0f && !m_bPoint)
 	{
 		pos += (Deliverypoint - pos) * 0.05f;
-		pos.y = lengthDP * 0.1f;
+		pos.y = Deliverypoint.y + lengthDP * 0.1f;
 
-		if (pos.y < 100.0f)
+		if (pos.y < Deliverypoint.y + 100.0f)
 		{
-			pos.y = 100.0f;
+			pos.y = Deliverypoint.y + 100.0f;
 		}
 		
 		posDef = pos;
-		posDef.y = 0.0f;
 		float lengthDA = D3DXVec3Length(&(Deliverypoint - posDef));
 		CManager::Get()->Get()->GetDebugProc()->Print("矢印と配達先の距離: %f\n", lengthDA);
-		if (lengthDA > 500.0f)
+
+		rot.x += (1.57f - rot.x) * 0.08f;
+		if (lengthDA > 600.0f)
 		{
-			rot.y += 0.5f;
+			rot.y += 0.8f;
 		}
 		else
 		{
-			rot.y += 0.1f;
+			rot.y += 0.05f;
 		}
+		rot.z += (0.0f - rot.x) * 0.08f;
 
-		rotX = 1.57f;
 		scale = lengthDP * 0.003f;
 
 		if (scale < 1.0f)
@@ -267,12 +266,30 @@ void CDeliveryarrow::Update(void)
 	else
 	{
 		pos += (Playerpoint - pos) * 0.85f;
-		pos.y = Playerpoint.y + 60.0f;
+		pos.y = Playerpoint.y + 70.0f;
+
+		// フレイルの高さに合わせて鎖の先端を下げる
+		float cosRot1, cosRot2, acosRot, rotNow;
+
+		cosRot1 = Deliverypoint.y - pos.y;
+		rotNow = 0.0f;
+
+		posDef = pos;
+		float lengthDA = D3DXVec3Length(&(Deliverypoint - posDef));
+		CManager::Get()->Get()->GetDebugProc()->Print("矢印と配達先の距離: %f\n", lengthDA);
+		if (cosRot1 < lengthDA)
+		{
+			cosRot2 = cosRot1 / lengthDA;
+			acosRot = acosf(cosRot2);
+
+			rotNow = -(D3DX_PI * 0.5f) + acosRot;
+		}
+
+		rot.x += (rotNow - rot.x) * 0.08f;
 		rot.y += (atan2f(Deliverypoint.x - pos.x, Deliverypoint.z - pos.z) - rot.y) * 0.3f;
+		rot.z += (1.57f - rot.z) * 0.2f;
 	}
 	
-	rot.x += (rotX - rot.x) * 0.08f;
-
 	m_fHue += 2.0f;
 
 	SetPos(pos);
@@ -299,7 +316,10 @@ void CDeliveryarrow::Draw(void)
 	//マテリアルのデータのポイントを取得
 	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
 
-	pMat->MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+	//pMat->MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+	//pMat->MatD3D.Ambient = useful::HSLtoRGB(m_fHue);
+	//pMat->MatD3D.Specular = useful::HSLtoRGB(m_fHue);
+	//pMat->MatD3D.Power = 1.0f;
 	pMat->MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
 
 	CObjectX::Draw();

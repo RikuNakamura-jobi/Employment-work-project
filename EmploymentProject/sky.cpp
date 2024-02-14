@@ -9,6 +9,7 @@
 #include "manager.h"
 #include "object3D.h"
 #include "bg.h"
+#include "skybox.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -41,6 +42,7 @@ CSky::CSky(int nPriority = 0) : CObject(nPriority)
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_fWidth = 0.0f;
 	m_fHeight = 0.0f;
+	m_SkyBox = nullptr;
 }
 
 CSky::~CSky()
@@ -87,6 +89,8 @@ HRESULT CSky::Load(void)
 		}
 	}
 
+	CSkybox::Load();
+
 	return S_OK;
 }
 void CSky::Unload(void)
@@ -100,6 +104,8 @@ void CSky::Unload(void)
 			m_pTexture[nCnt] = NULL;
 		}
 	}
+
+	CSkybox::Unload();
 }
 
 //=====================================
@@ -109,46 +115,48 @@ HRESULT CSky::Init(void)
 {
 	for (int nCnt = 0; nCnt < MAX_SKY; nCnt++)
 	{
-		m_apObject3D[nCnt] = CObject3D::Create();
-
-		switch (nCnt)
-		{
-		case 0:
-
-			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(SKY_LENGTH * 4.0f - 4000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH * 4.0f, SKY_LENGTH * 4.0f));
-
-			break;
-
-		case 1:
-
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, -4000.0f), D3DXVECTOR3(SKY_LENGTH * 4.0f, SKY_LENGTH * 4.0f, 0.0f));
-
-			break;
-
-		case 2:
-
-			m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(-4000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH* 4.0f, -SKY_LENGTH * 4.0f));
-
-			break;
-
-		case 3:
-
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, SKY_LENGTH * 4.0f - 4000.0f), D3DXVECTOR3(-SKY_LENGTH * 4.0f, SKY_LENGTH* 4.0f, 0.0f));
-
-			break;
-
-		case 4:
-
-			m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, SKY_LENGTH * 4.0f + 1000.0f, 0.0f), D3DXVECTOR3(-SKY_LENGTH * 4.1f, 0.0f, SKY_LENGTH * 4.1f));
-
-			break;
-		}
+		//m_apObject3D[nCnt] = CObject3D::Create();
 
 		if (m_apObject3D[nCnt] != NULL)
 		{
+			switch (nCnt)
+			{
+			case 0:
+
+				m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(SKY_LENGTH * 4.0f - 4000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH * 4.0f, SKY_LENGTH * 4.0f));
+
+				break;
+
+			case 1:
+
+				m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, -4000.0f), D3DXVECTOR3(SKY_LENGTH * 4.0f, SKY_LENGTH * 4.0f, 0.0f));
+
+				break;
+
+			case 2:
+
+				m_apObject3D[nCnt]->SetPosSizeX(D3DXVECTOR3(-4000.0f, 1000.0f, 0.0f), D3DXVECTOR3(0.0f, SKY_LENGTH* 4.0f, -SKY_LENGTH * 4.0f));
+
+				break;
+
+			case 3:
+
+				m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, 1000.0f, SKY_LENGTH * 4.0f - 4000.0f), D3DXVECTOR3(-SKY_LENGTH * 4.0f, SKY_LENGTH* 4.0f, 0.0f));
+
+				break;
+
+			case 4:
+
+				m_apObject3D[nCnt]->SetPosSize(D3DXVECTOR3(0.0f, SKY_LENGTH * 4.0f + 1000.0f, 0.0f), D3DXVECTOR3(-SKY_LENGTH * 4.1f, 0.0f, SKY_LENGTH * 4.1f));
+
+				break;
+			}
+
 			m_apObject3D[nCnt]->BindTexture(m_pTexture[nCnt]);
 			m_apObject3D[nCnt]->SetType(CObject::TYPE_SKY);
 		}
+
+		m_SkyBox = CSkybox::Create(D3DXVECTOR3(36000.0f, -30000.0f, 36000.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
 	}
 
 	SetType(TYPE_BGMULTI);

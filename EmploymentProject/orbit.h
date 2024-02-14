@@ -50,7 +50,7 @@ public:				//外部からアクセス可能
 	void SetMtx(D3DXMATRIX mtx) { m_mtxWorld = mtx; }
 
 	//設定処理
-	void SetPositionOffset(D3DXMATRIX mtxWorld);
+	void SetPositionOffset(D3DXMATRIX mtxWorld, D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//静的メンバ関数
 	static COrbit *Create(D3DXMATRIX mtxWorld, D3DXVECTOR3 posOffset1, D3DXVECTOR3 posOffset2, D3DXCOLOR col, int nNumEdge);
@@ -69,6 +69,7 @@ private:			//外部からアクセス不可能
 	D3DXVECTOR3 m_posOffset[NUM_OFFSET];				//オフセット位置
 	D3DXVECTOR3 m_aPosPoint[MAX_EDGE][NUM_OFFSET];		//頂点座標保存用
 	D3DXCOLOR m_col[MAX_EDGE][NUM_OFFSET];				//色
+	D3DXCOLOR m_colOffset;								//色
 	D3DXCOLOR m_aColPoint[MAX_EDGE][NUM_OFFSET];		//頂点カラー保存用
 	D3DXMATRIX m_mtxWorldOffset[NUM_OFFSET];			//オフセットのマトリックス
 	int m_nNumEdge;										//辺の数

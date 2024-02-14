@@ -18,6 +18,7 @@
 
 //クラス定義---------------------------
 class CObject3D;
+class CSkybox;
 class CSky : public CObject
 {
 public:				//外部からアクセス可能
@@ -60,6 +61,7 @@ private:			//外部からアクセス不可能
 
 	//メンバ変数
 	CObject3D *m_apObject3D[MAX_SKY];
+	CSkybox *m_SkyBox;
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_posOld;
 	D3DXVECTOR3 m_move;

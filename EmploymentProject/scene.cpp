@@ -300,9 +300,9 @@ CGame::~CGame()
 //=====================================
 HRESULT CGame::Init(void)
 {
-	m_pField = CField::Create(D3DXVECTOR3(0.0f, -1.0f, 0.0f), D3DXVECTOR3(40000.0f, 0.0f, 40000.0f), CField::TYPE_NONE);
+	m_pField = CField::Create(D3DXVECTOR3(36000.0f, -10.0f, 36000.0f), D3DXVECTOR3(100000.0f, 0.0f, 100000.0f), CField::TYPE_NONE);
 	m_pSky = CSky::Create();
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f), CPlayer::TYPE_NORMAL);
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f));
 	m_pMap = CMap::Create();
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(100.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
@@ -339,7 +339,6 @@ HRESULT CGame::Init(void)
 		return E_FAIL;
 	}
 
-	CSound::PlaySound(CSound::SOUND_LABEL_BGM003);
 	m_nStartCount = 0;
 
 	return S_OK;
@@ -390,6 +389,7 @@ void CGame::Update(void)
 	else if (m_nStartCount == 210)
 	{
 		m_pBgStart->SetTextureType(CBg::TEXTURE_GO);
+		CSound::PlaySound(CSound::SOUND_LABEL_BGM003);
 
 		m_pPlayer->SetControl(true);
 	}
@@ -422,6 +422,12 @@ void CGame::Update(void)
 				CScore::SetScoreResult(m_pScore->GetScore());
 				m_bFinish = true;
 				m_pPlayer->SetControl(false);
+			}
+
+			if (m_pTime->GetTime() == 100)
+			{
+				CSound::StopSound(CSound::SOUND_LABEL_BGM003);
+				CSound::PlaySound(CSound::SOUND_LABEL_BGM004);
 			}
 		}
 

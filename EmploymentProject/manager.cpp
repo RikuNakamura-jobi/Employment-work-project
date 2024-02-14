@@ -30,6 +30,7 @@
 #include "deliverypoint.h"
 #include "deliveryarrow.h"
 #include "collision.h"
+#include "chain.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -301,6 +302,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	CSky::Load();
 	CPlayer::Load();
 	CBlock::Load();
+	CHook::Load();
 	CDeliverypoint::Load();
 	CDeliveryarrow::Load();
 
@@ -342,6 +344,7 @@ void CManager::Uninit(void)
 	CSky::Unload();
 	CPlayer::Unload();
 	CBlock::Unload();
+	CHook::Unload();
 	CDeliverypoint::Unload();
 	CDeliveryarrow::Unload();
 

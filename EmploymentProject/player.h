@@ -26,11 +26,13 @@ namespace PlayerSpeed
 	const float SPEED_EFFECT_BOOST = -20.0f;	//Y方向のエリア数
 	const float SPEED_BOOSTON = -1.0f;			//Y方向のエリア数
 	const float SPEED_DECELERATION = 0.2f;		//Y方向のエリア数
+	const float SPEED_JUMP = 25.0f;				//Y方向のエリア数
 }
 //クラス定義---------------------------
 class COrbit;
 class CModel;
 class CMotion;
+class CHook;
 class CDeliveryarrow;
 class CPlayer : public CObject
 {
@@ -39,23 +41,13 @@ public:				//外部からアクセス可能
 	enum MOTION
 	{
 		MOTION_NORMAL = 0,			//待機モーション
-		MOTION_SHOT,				//待機モーション
-		MOTION_MOVE,				//移動モーション
-		MOTION_MOVE_SHOT,			//アクションモーション
-		MOTION_MOVE_SHOT_BACK,		//アクションモーション
-		MOTION_MOVE_SHOT_R,			//アクションモーション
-		MOTION_MOVE_SHOT_L,			//アクションモーション
-		MOTION_JUMP,				//ジャンプモーション
-		MOTION_JUMP_SHOT,			//着地モーション
-		MOTION_KICK,				//空中モーション
+		MOTION_MOVE,				//待機モーション
+		MOTION_DASH,				//移動モーション
+		MOTION_TURN,				//移動モーション
+		MOTION_WALL,				//アクションモーション
+		MOTION_HOOK,				//アクションモーション
+		MOTION_AIR,					//アクションモーション
 		MOTION_MAX
-	};
-
-	enum TYPE
-	{
-		TYPE_NORMAL = 0,		//通常
-		TYPE_SAVEDATA,
-		TYPE_MAX
 	};
 
 	enum STATE
@@ -95,12 +87,6 @@ public:				//外部からアクセス可能
 	void SetRot(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRot(void) { return m_rot; }
 
-	void SetSave(bool save) { m_bSave = save; }
-	bool GetSave(void) { return m_bSave; }
-
-	void SetSaveType(TYPE save) { m_Type = save; }
-	TYPE GetSaveType(void) { return m_Type; }
-
 	//移動量
 	void SetSpeedDest(float SpeedDest) { m_SpeedDest = SpeedDest; }
 	float GetSpeedDest(void) { return m_SpeedDest; }
@@ -118,11 +104,8 @@ public:				//外部からアクセス可能
 
 	CModel *GetModel(int nIdx) { return m_apModel[nIdx]; }
 
-	void SetSave(CPlayer *pPlayerSave);
-	void GetSave(CPlayer *pPlayerSave);
-
 	//静的メンバ関数
-	static CPlayer *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, TYPE type);
+	static CPlayer *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
 	static HRESULT Load(void);
 	static void Unload(void);
 
@@ -133,7 +116,6 @@ private:			//外部からアクセス不可能
 	//メンバ関数
 	bool Collision(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *move);
 	void SetRot(D3DXVECTOR3 *rot);
-	void Easter(void);
 	void Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
 	void ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
 	void ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D3DXVECTOR3 *move, float *fHeight, float *fWidth);
@@ -148,13 +130,14 @@ private:			//外部からアクセス不可能
 	D3DXVECTOR3 m_rot;
 	D3DXVECTOR3 m_rotDest;
 	D3DXVECTOR3 m_rotMove;
+	D3DXVECTOR3 m_vecWall;
 	D3DXMATRIX m_mtxWorld;		//ワールドマトリックス
 	CModel *m_apModel[32];
 	CMotion *m_pMotion;
-	TYPE m_Type;
 	STATE m_state;
 	COrbit *m_orbit[4];
 	CDeliveryarrow *m_Arrow;
+	CHook *m_Hook;
 
 	bool m_bSave;
 	bool m_bAir;

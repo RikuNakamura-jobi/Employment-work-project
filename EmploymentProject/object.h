@@ -40,6 +40,7 @@ public:				//外部からアクセス可能
 		TYPE_FADE,
 		TYPE_SKY,
 		TYPE_DELIVERYPOINT,
+		TYPE_INVISIBLE,
 		TYPE_MAX
 	};
 

@@ -242,7 +242,11 @@ void CObject::DrawAll(void)
 			}
 
 			CObject *pObjNext = pObj->m_pNext;
-			pObj->Draw();
+
+			if (pObj->m_type != TYPE_INVISIBLE)
+			{
+				pObj->Draw();
+			}
 
 			if (pObj->m_type == TYPE_SKY)
 			{

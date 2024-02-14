@@ -20,6 +20,7 @@
 #include "deliveryarrow.h"
 #include "scene.h"
 #include "particle.h"
+#include "chain.h"
 #include "collision.h"
 #include "debugproc.h"
 #include "orbit.h"
@@ -53,13 +54,14 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_rot = D3DXVECTOR3(0.0f, 0.785f, 0.0f);
 	m_rotDest = D3DXVECTOR3(0.0f, 0.785f, 0.0f);
 	m_rotMove = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_vecWall = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_bSave = false;
 	m_nEasterTimer = 0;
-	m_pMotion = NULL;
-	m_orbit[0] = NULL;
-	m_orbit[1] = NULL;
+	m_pMotion = nullptr;
+	m_orbit[0] = nullptr;
+	m_orbit[1] = nullptr;
 	m_Arrow = nullptr;
-	m_Type = TYPE_NORMAL;
+	m_Hook = nullptr;
 	m_bAir = true;
 	m_bShot = false;
 	m_bDash = false;
@@ -77,7 +79,7 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 
 	for (int nCntModel = 0; nCntModel < 32; nCntModel++)
 	{
-		m_apModel[nCntModel] = NULL;
+		m_apModel[nCntModel] = nullptr;
 	}
 }
 
@@ -88,33 +90,24 @@ CPlayer::~CPlayer()
 //=====================================
 // 生成処理
 //=====================================
-CPlayer *CPlayer::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, TYPE type)
+CPlayer *CPlayer::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	CPlayer *pObjectPlayer;
 
 	//2Dオブジェクトの生成
 	pObjectPlayer = new CPlayer();
 
-	if (pObjectPlayer != NULL)
+	if (pObjectPlayer != nullptr)
 	{
-		pObjectPlayer->m_Type = type;
-
 		//初期化
 		if (FAILED(pObjectPlayer->Init()))
 		{
 			pObjectPlayer->Release();
 
-			return NULL;
+			return nullptr;
 		}
 
 		pObjectPlayer->Set(pos, rot, 0.0f, 0.0f);
-		pObjectPlayer->SetSave(false);
-			
-		if (pObjectPlayer->m_Type == TYPE_SAVEDATA)
-		{
-			pObjectPlayer->SetSave(CManager::Get()->Get()->Get()->GetScene()->GetPlayer());
-			CManager::Get()->Get()->Get()->GetScene()->GetPlayer()->SetSave(pObjectPlayer);
-		}
 	}
 
 	return pObjectPlayer;
@@ -134,19 +127,19 @@ void CPlayer::Unload(void)
 	for (int nCnt = 0; nCnt < 32; nCnt++)
 	{
 		//テクスチャの破棄
-		if (m_apModelOrigin[nCnt] != NULL)
+		if (m_apModelOrigin[nCnt] != nullptr)
 		{
 			m_apModelOrigin[nCnt]->Uninit();
 
 			delete m_apModelOrigin[nCnt];
-			m_apModelOrigin[nCnt] = NULL;
+			m_apModelOrigin[nCnt] = nullptr;
 		}
 	}
 
-	if (m_pMotionOrigin != NULL)
+	if (m_pMotionOrigin != nullptr)
 	{
 		delete m_pMotionOrigin;
-		m_pMotionOrigin = NULL;
+		m_pMotionOrigin = nullptr;
 	}
 }
 
@@ -160,7 +153,7 @@ HRESULT CPlayer::Init(void)
 		m_apModel[nCnt] = m_apModelOrigin[nCnt];
 	}
 
-	if (m_pMotionOrigin != NULL)
+	if (m_pMotionOrigin != nullptr)
 	{
 		m_pMotion = m_pMotionOrigin;
 		m_pMotion->Set(MOTION_NORMAL);
@@ -172,18 +165,26 @@ HRESULT CPlayer::Init(void)
 	m_rotDest.z = -2.335f;
 
 	D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
-	m_orbit[0] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+	mtxTemp._41 = 0.0f;
+	mtxTemp._42 = 0.0f;
+	mtxTemp._43 = 0.0f;
+	m_orbit[0] = COrbit::Create(mtxTemp, D3DXVECTOR3(2.0f, 0.0f, 0.0f), D3DXVECTOR3(-2.0f, -0.0f, -0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
 
 	mtxTemp = GetModel(17)->GetMtxWorld();
-	m_orbit[1] = COrbit::Create(mtxTemp, D3DXVECTOR3(-0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+	mtxTemp._41 = 0.0f;
+	mtxTemp._42 = 0.0f;
+	mtxTemp._43 = 0.0f;
+	m_orbit[1] = COrbit::Create(mtxTemp, D3DXVECTOR3(2.0f, 0.0f, 0.0f), D3DXVECTOR3(-2.0f, -0.0f, -0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
 
-	mtxTemp = GetModel(16)->GetMtxWorld();
-	m_orbit[2] = COrbit::Create(mtxTemp, D3DXVECTOR3(-0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+	/*mtxTemp = GetModel(16)->GetMtxWorld();
+	m_orbit[2] = COrbit::Create(mtxTemp, D3DXVECTOR3(3.0f, 0.0f, 0.0f), D3DXVECTOR3(-3.0f, -0.0f, -0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
 
 	mtxTemp = GetModel(17)->GetMtxWorld();
-	m_orbit[3] = COrbit::Create(mtxTemp, D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(-0.0f, -3.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);
+	m_orbit[3] = COrbit::Create(mtxTemp, D3DXVECTOR3(3.0f, 0.0f, 0.0f), D3DXVECTOR3(-3.0f, -0.0f, -0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 100);*/
 
 	m_Arrow = CDeliveryarrow::Create(GetPos(), GetRot(), 0.0f, 0.0f);
+
+	m_Hook = CHook::Create(GetPos(), GetRot());
 
 	return S_OK;
 }
@@ -193,14 +194,14 @@ HRESULT CPlayer::Init(void)
 //=====================================
 void CPlayer::Uninit(void)
 {
-	if (m_pMotion != NULL)
+	if (m_pMotion != nullptr)
 	{
-		m_pMotion = NULL;
+		m_pMotion = nullptr;
 	}
 
 	for (int nCntModel = 0; nCntModel < m_nNumModel; nCntModel++)
 	{
-		m_apModel[nCntModel] = NULL;
+		m_apModel[nCntModel] = nullptr;
 	}
 
 	Release();
@@ -221,22 +222,22 @@ void CPlayer::Update(void)
 	float fWidth = GetWidth();
 	m_bShot = false;
 
-	if (m_state != STATE_KICK && m_state != STATE_HIT && m_bControl)
+	if (m_bControl)
 	{
 		Control(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 
-		if (inputPad != NULL)
+		if (inputPad != nullptr)
 		{
 			ControlPad(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 		}
-
-		if (m_bAir && !m_bWall)
-		{
-			move.y -= 0.65f;
-		}
-
-		ControlMove(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 	}
+
+	if (m_bAir && !m_bWall)
+	{
+		move.y -= 0.65f;
+	}
+
+	ControlMove(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 
 	if (m_state == STATE_KICK)
 	{
@@ -285,6 +286,7 @@ void CPlayer::Update(void)
 	if (pos.y <= 0.0f)
 	{
 		pos.y = 0.0f;
+		move.y = 0.0f;
 		m_bAir = false;
 		m_bWall = false;
 	}
@@ -324,7 +326,7 @@ void CPlayer::Update(void)
 		pos.z = 76000.0f;
 	}
 
-	if (CManager::Get()->Get()->GetScene()->GetField() != NULL)
+	if (CManager::Get()->Get()->GetScene()->GetField() != nullptr)
 	{
 		pos.y = CManager::Get()->Get()->GetScene()->GetField()->GetColHeight(pos, posOld, &move);
 	}
@@ -374,59 +376,70 @@ void CPlayer::Update(void)
 //=====================================
 void CPlayer::Draw(void)
 {
-	if (m_Type != TYPE_SAVEDATA || m_bSave == true)
+	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->Get()->GetRenderer()->GetDevice();
+	D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
+
+	//ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&m_mtxWorld);
+
+	//向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot,
+		m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
+
+	//位置を反映
+	D3DXMatrixTranslation(&mtxTrans,
+		m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+
+	//ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+
+	if ((m_nEasterTimer / 10) % 2 == 0 || m_state != STATE_DAMAGE)
 	{
-		LPDIRECT3DDEVICE9 pDevice = CManager::Get()->Get()->GetRenderer()->GetDevice();
-		D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
-
-		//ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&m_mtxWorld);
-
-		//向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot,
-			m_rot.y, m_rot.x, m_rot.z);
-		D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
-
-		//位置を反映
-		D3DXMatrixTranslation(&mtxTrans,
-			m_pos.x, m_pos.y, m_pos.z);
-		D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
-
-		//ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
-
-		if ((m_nEasterTimer / 10) % 2 == 0 || m_state != STATE_DAMAGE)
+		for (int nCntModel = 0; nCntModel < m_nNumModel; nCntModel++)
 		{
-			for (int nCntModel = 0; nCntModel < m_nNumModel; nCntModel++)
+			if (nCntModel == 16 || nCntModel == 17)
 			{
-				m_apModel[nCntModel]->Draw();
+				D3DXMATERIAL *pMat;
+				//マテリアルのデータのポイントを取得
+				pMat = (D3DXMATERIAL*)m_apModel[nCntModel]->GetBuffMat()->GetBufferPointer();
+
+				pMat[0].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+				pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
 			}
+
+			m_apModel[nCntModel]->Draw();
 		}
 	}
 
-	if (m_orbit[0] != NULL)
+	m_Hook->Draw();
+
+	if (m_orbit[0] != nullptr)
 	{
 		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
-		m_orbit[0]->SetPositionOffset(mtxTemp);
+		m_orbit[0]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
 	}
-
-	if (m_orbit[1] != NULL)
+	
+	if (m_orbit[1] != nullptr)
 	{
 		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
-		m_orbit[1]->SetPositionOffset(mtxTemp);
+		m_orbit[1]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
 	}
 
-	if (m_orbit[2] != NULL)
+	/*if (m_orbit[2] != nullptr)
 	{
 		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
-		m_orbit[2]->SetPositionOffset(mtxTemp);
+		m_orbit[2]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
 	}
 
-	if (m_orbit[3] != NULL)
+	if (m_orbit[3] != nullptr)
 	{
 		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
-		m_orbit[3]->SetPositionOffset(mtxTemp);
-	}
+		m_orbit[3]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
+	}*/
+
+	m_fHue += 4.0f;
 }
 
 //=====================================
@@ -453,146 +466,200 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 		}
 	}
 
-	//移動処理
-	if (input->GetPress(DIK_A) == true)
-	{//Dキーが押された時
+	if (!m_Hook->GetBoolCollision())
+	{
+		//移動処理
+		if (input->GetPress(DIK_A) == true)
+		{//Dキーが押された時
 
-		RotKey -= D3DX_PI * 0.5f;
-		NumInputKey++;
+			RotKey -= D3DX_PI * 0.5f;
+			NumInputKey++;
 
-	}
-	if (input->GetPress(DIK_W) == true)
-	{//Aキーが押された時
+		}
+		if (input->GetPress(DIK_W) == true)
+		{//Aキーが押された時
+
+			if (NumInputKey > 0)
+			{
+				RotKey -= D3DX_PI * 1.0f;
+			}
+			else
+			{
+				RotKey += D3DX_PI * 1.0f;
+			}
+
+			NumInputKey++;
+
+		}
+		if (input->GetPress(DIK_S) == true)
+		{//Dキーが押された時
+
+			RotKey += D3DX_PI * 0.0f;
+			NumInputKey++;
+
+		}
+		if (input->GetPress(DIK_D) == true)
+		{//Dキーが押された時
+
+			RotKey += D3DX_PI * 0.5f;
+			NumInputKey++;
+
+		}
 
 		if (NumInputKey > 0)
-		{
-			RotKey -= D3DX_PI * 1.0f;
-		}
-		else
-		{
-			RotKey += D3DX_PI * 1.0f;
-		}
+		{//Aキーが押された時
 
-		NumInputKey++;
-
-	}
-	if (input->GetPress(DIK_S) == true)
-	{//Dキーが押された時
-
-		RotKey += D3DX_PI * 0.0f;
-		NumInputKey++;
-
-	}
-	if (input->GetPress(DIK_D) == true)
-	{//Dキーが押された時
-
-		RotKey += D3DX_PI * 0.5f;
-		NumInputKey++;
-
-	}
-
-	if (NumInputKey > 0)
-	{//Aキーが押された時
-
-		if (NumInputKey > 1)
-		{
-			RotKey *= 0.5f;
-		}
-
-		if (input->GetPress(DIK_LSHIFT))
-		{
-			if (m_SpeedDest < SPEED_DASH)
+			if (NumInputKey > 1)
 			{
-				m_SpeedDest += SPEED_DECELERATION;
+				RotKey *= 0.5f;
+			}
+
+			if (input->GetPress(DIK_LSHIFT))
+			{
+				if (m_SpeedDest < SPEED_DASH)
+				{
+					m_SpeedDest += SPEED_DECELERATION;
+				}
+				else
+				{
+					m_SpeedDest = SPEED_DASH;
+				}
+
+				m_rotDest.z = rotCamera.y - RotKey;
+
+				m_bDash = true;
 			}
 			else
 			{
-				m_SpeedDest = SPEED_DASH;
+				if (m_SpeedDest < SPEED_WALK)
+				{
+					m_SpeedDest += SPEED_DECELERATION;
+				}
+				else
+				{
+					m_SpeedDest = SPEED_WALK;
+				}
+
+				m_rotDest.z = rotCamera.y - RotKey;
+
+				m_bDash = false;
+				m_bTurn = false;
 			}
-
-			m_rotDest.z = rotCamera.y - RotKey;
-
-			m_bDash = true;
 		}
 		else
 		{
-			if (m_SpeedDest < SPEED_WALK)
-			{
-				m_SpeedDest += SPEED_DECELERATION;
-			}
-			else
-			{
-				m_SpeedDest = SPEED_WALK;
-			}
-
-			m_rotDest.z = rotCamera.y - RotKey;
-
+			m_SpeedDest = 0.0f;
+			//m_bWall = false;
 			m_bDash = false;
 			m_bTurn = false;
 		}
-	}
-	else
-	{
-		m_SpeedDest = 0.0f;
-		m_bWall = false;
-		m_bDash = false;
-		m_bTurn = false;
-	}
 
-	if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
-	{
-		m_bTurn = true;
-	}
-
-	if (inputMouse->GetPress(1) == true && m_bAir == false && m_bTurn)
-	{
-		if (m_bDash)
+		if (inputMouse->GetTrigger(1) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
 		{
-			m_SpeedDest = SPEED_TURN;
-
-			m_bDash = false;
+			m_bTurn = true;
 		}
-	}
-	else
-	{
-		if (m_bDash && m_bAir == false && m_bTurn)
+
+		if (inputMouse->GetPress(1) == true && m_bAir == false && m_bTurn)
 		{
-			m_SpeedDest = SPEED_TURN;
-
-			m_bDash = false;
-
-			if (m_Speed >= SPEED_BOOSTON)
+			if (m_bDash)
 			{
-				m_SpeedDest = SPEED_BOOST;
-				m_bTurn = false;
-				m_bBoost = true;
+				m_SpeedDest = SPEED_TURN;
+
+				m_bDash = false;
 			}
 		}
 		else
 		{
-			m_rotMove = *rot;
+			if (m_bDash && m_bAir == false && m_bTurn)
+			{
+				m_SpeedDest = SPEED_TURN;
+
+				m_bDash = false;
+
+				if (m_Speed >= SPEED_BOOSTON)
+				{
+					m_SpeedDest = SPEED_BOOST;
+					m_bTurn = false;
+					m_bBoost = true;
+				}
+			}
+			else
+			{
+				m_rotMove = *rot;
+			}
+		}
+
+		if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
+		{
+			if (m_bAir && !m_Hook->GetBoolShot())
+			{
+				//m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+			}
+			else
+			{
+				move->y = SPEED_JUMP;
+				m_bTurn = false;
+
+				if (m_bWall)
+				{
+					if (m_SpeedDest <= SPEED_DASH)
+					{
+						move->y = 50.0f;
+					}
+					else if (m_SpeedDest <= SPEED_WALK)
+					{
+						move->y = 15.0f;
+					}
+					else
+					{
+						move->y = 5.0f;
+					}
+
+					m_SpeedDest = -10.0f;
+					rot->y = atan2f(m_vecWall.x, m_vecWall.z);
+					m_rotDest.z = atan2f(m_vecWall.x, m_vecWall.z);
+					m_rotMove.y = atan2f(m_vecWall.x, m_vecWall.z);
+
+					move->x += sinf(m_rotMove.y) * m_SpeedDest;
+					move->z += cosf(m_rotMove.y) * m_SpeedDest;
+
+					D3DXVECTOR3 posDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					posDest.x = sinf(rot->y) * m_SpeedDest;
+					posDest.z = cosf(rot->y) * m_SpeedDest;
+
+					*pos += posDest;
+
+					m_bWall = false;
+				}
+
+				if (m_SpeedDest <= SPEED_MAX && m_bBoost)
+				{
+					m_SpeedDest += SPEED_DASH;
+					m_bBoost = false;
+				}
+			}
+		}
+
+		if (inputMouse->GetTrigger(0) == true && !m_Hook->GetBoolShot() && !m_bWall)
+		{
+			m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
 		}
 	}
-
-	if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
+	else
 	{
-		move->y = 15.0f;
-		m_pMotion->Set(MOTION_JUMP);
-		m_bTurn = false;
+		D3DXVECTOR3 vecMove = *pos - m_Hook->GetPos();
+		D3DXVec3Normalize(&vecMove, &vecMove);
+		m_rotDest.z = atan2f(vecMove.x, vecMove.z);
+		rot->y = m_rotDest.z;
+		m_SpeedDest = -30.0f;
+		*move = vecMove * m_Speed * 10.0f;
 
-		if (m_bWall)
+		if (input->GetTrigger(DIK_SPACE) == true)
 		{
-			m_SpeedDest = 50.0f;
-
-			rot->y += D3DX_PI;
-
-			m_bWall = false;
-		}
-
-		if (m_SpeedDest <= SPEED_MAX && m_bBoost)
-		{
-			m_SpeedDest += SPEED_DASH;
-			m_bBoost = false;
+			m_SpeedDest = 0.0f;
+			m_Hook->SetBoolCollision(false);
+			m_Hook->SetBoolShot(false);
+			move->y = 50.0f;
 		}
 	}
 }
@@ -624,143 +691,158 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 		return;
 	}
 
-	if (lengthStick > 10.0f)
+	if (!m_Hook->GetBoolCollision())
 	{
-		if (input->GetButtonPress(4) == true)
+		if (lengthStick > 10.0f)
 		{
-			if (m_SpeedDest < SPEED_DASH)
+			if (input->GetButtonPress(4) == true)
 			{
-				m_SpeedDest += SPEED_DECELERATION;
+				if (m_SpeedDest < SPEED_DASH)
+				{
+					m_SpeedDest += SPEED_DECELERATION;
+				}
+				else
+				{
+					m_SpeedDest = SPEED_DASH;
+				}
+
+				m_rotDest.z = rotCamera.y - RotStick;
+
+				m_bDash = true;
 			}
 			else
 			{
-				m_SpeedDest = SPEED_DASH;
+				if (m_SpeedDest < SPEED_DASH)
+				{
+					m_SpeedDest += SPEED_DECELERATION * 5.0f;
+				}
+				else
+				{
+					m_SpeedDest = SPEED_WALK;
+				}
+
+				m_rotDest.z = rotCamera.y - RotStick;
+
+				m_bDash = false;
+				m_bTurn = false;
 			}
-
-			m_rotDest.z = rotCamera.y - RotStick;
-
-			m_bDash = true;
 		}
 		else
 		{
-			if (m_SpeedDest < SPEED_WALK)
-			{
-				m_SpeedDest += SPEED_DECELERATION * 5.0f;
-			}
-			else
-			{
-				m_SpeedDest = SPEED_WALK;
-			}
+			m_SpeedDest = 0.0f;
 
-			m_rotDest.z = rotCamera.y - RotStick;
-
+			//m_bWall = false;
 			m_bDash = false;
 			m_bTurn = false;
 		}
-	}
-	else
-	{
-		m_SpeedDest = 0.0f;
-		m_bWall = false;
-		m_bDash = false;
-		m_bTurn = false;
-	}
 
-	if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
-	{
-		m_bTurn = true;
-	}
-
-	if (input->GetButtonPress(5) == true && m_bAir == false && m_bTurn)
-	{
-		if (m_bDash)
+		if (input->GetButtonTrigger(5) == true && m_bAir == false && m_Speed >= SPEED_EFFECT_BOOST)
 		{
-			m_SpeedDest = SPEED_TURN;
-
-			m_bDash = false;
+			m_bTurn = true;
 		}
-	}
-	else
-	{
-		if (m_bDash && m_bAir == false && m_bTurn)
+
+		if (input->GetButtonPress(5) == true && m_bAir == false && m_bTurn)
 		{
-			m_SpeedDest = SPEED_TURN;
-
-			m_bDash = false;
-
-			if (m_Speed >= SPEED_BOOSTON)
+			if (m_bDash)
 			{
-				m_SpeedDest = SPEED_BOOST;
-				m_bTurn = false;
-				m_bBoost = true;
+				m_SpeedDest = SPEED_TURN;
+
+				m_bDash = false;
 			}
 		}
 		else
 		{
-			m_rotMove = *rot;
+			if (m_bDash && m_bAir == false && m_bTurn)
+			{
+				m_SpeedDest = SPEED_TURN;
+
+				m_bDash = false;
+
+				if (m_Speed >= SPEED_BOOSTON)
+				{
+					m_SpeedDest = SPEED_BOOST;
+					m_bTurn = false;
+					m_bBoost = true;
+				}
+			}
+			else
+			{
+				m_rotMove = *rot;
+			}
+		}
+
+		if (input->GetButtonTrigger(2) == true)
+		{
+			if (m_bAir && !m_Hook->GetBoolShot())
+			{
+				//m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+			}
+			else
+			{
+				move->y = SPEED_JUMP;
+				m_bTurn = false;
+
+				if (m_bWall)
+				{
+					if (m_SpeedDest <= SPEED_DASH)
+					{
+						move->y = 50.0f;
+					}
+					else if (m_SpeedDest <= SPEED_WALK)
+					{
+						move->y = 15.0f;
+					}
+					else
+					{
+						move->y = 5.0f;
+					}
+
+					m_SpeedDest = -10.0f;
+					rot->y = atan2f(m_vecWall.x, m_vecWall.z);
+					m_rotDest.z = atan2f(m_vecWall.x, m_vecWall.z);
+					m_rotMove.y = atan2f(m_vecWall.x, m_vecWall.z);
+
+					move->x += sinf(m_rotMove.y) * m_SpeedDest;
+					move->z += cosf(m_rotMove.y) * m_SpeedDest;
+
+					D3DXVECTOR3 posDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					posDest.x = sinf(rot->y) * m_SpeedDest;
+					posDest.z = cosf(rot->y) * m_SpeedDest;
+
+					*pos += posDest;
+
+					m_bWall = false;
+				}
+
+				if (m_SpeedDest <= SPEED_MAX && m_bBoost)
+				{
+					m_SpeedDest += SPEED_DASH;
+					m_bBoost = false;
+				}
+			}
+		}
+
+		if (input->GetButtonTrigger(7) == true && !m_Hook->GetBoolShot() && !m_bWall)
+		{
+			m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
 		}
 	}
-
-	if (input->GetButtonTrigger(2) == true && m_bAir == false)
+	else
 	{
-		move->y = 15.0f;
-		m_pMotion->Set(MOTION_JUMP);
-		m_bTurn = false;
+		D3DXVECTOR3 vecMove = *pos - m_Hook->GetPos();
+		D3DXVec3Normalize(&vecMove, &vecMove);
+		m_rotDest.z = atan2f(vecMove.x, vecMove.z);
+		rot->y = m_rotDest.z;
+		m_SpeedDest = -30.0f;
+		*move = vecMove * m_Speed * 10.0f;
 
-		if (m_bWall)
+		if (input->GetButtonTrigger(2) == true)
 		{
-			move->y = 30.0f;
-			m_SpeedDest = 50.0f;
-
-			rot->y += D3DX_PI;
-			m_rotDest.z += D3DX_PI;
-
-			m_bWall = false;
+			m_SpeedDest = 0.0f;
+			m_Hook->SetBoolCollision(false);
+			m_Hook->SetBoolShot(false);
+			move->y = 50.0f;
 		}
-
-		if (m_SpeedDest <= SPEED_MAX && m_bBoost)
-		{
-			m_SpeedDest += SPEED_DASH;
-			m_bBoost = false;
-		}
-	}
-
-	if (input->GetButtonTrigger(7) == true)
-	{
-		D3DXVECTOR3 wirePos = D3DXVECTOR3(0.0f, 0.0f, -1000.0f);
-		D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		D3DXVECTOR3 posAnswer;
-		D3DXMATRIX mtxO, mtxAnswer;
-		D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
-		D3DXMATRIX mtxRotModel, mtxTransModel, mtxPalent;		//計算用マトリックス
-
-		mtxPalent = CManager::Get()->Get()->GetScene()->GetCamera()->GetMtxView();
-
-		//パーツのワールドマトリックス初期化
-		D3DXMatrixIdentity(&mtxAnswer);
-
-		//向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot,
-			0.0f, 0.0f, 0.0f);
-		D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxRot);
-
-		//位置を反映
-		D3DXMatrixTranslation(&mtxTransModel,
-			wirePos.x, wirePos.y, wirePos.z);
-		D3DXMatrixMultiply(&mtxAnswer, &mtxAnswer, &mtxTransModel);
-
-		//算出したパーツのワールドマトリックスと親のマトリックスをかけ合わせる
-		D3DXMatrixMultiply(&mtxAnswer,
-			&mtxAnswer,
-			&m_mtxWorld);
-
-		posAnswer.x = mtxAnswer._41;
-		posAnswer.y = mtxAnswer._42;
-		posAnswer.z = mtxAnswer._43;
-
-		Collision(&wirePos, pos, &move);
-
-		*pos = posAnswer;
 	}
 }
 
@@ -777,7 +859,14 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 	}
 	else
 	{
-		m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
+		if (m_bDash)
+		{
+			m_Speed += (m_SpeedDest - m_Speed) * 0.1f;
+		}
+		else
+		{
+			m_Speed += (m_SpeedDest - m_Speed) * 0.05f;
+		}
 	}
 
 	if (m_Speed < SPEED_MAX)
@@ -801,25 +890,25 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 	move->x += sinf(m_rotMove.y) * speed;
 	move->z += cosf(m_rotMove.y) * speed;
 
-	if (speed <= SPEED_EFFECT)
+	if (speed <= SPEED_EFFECT || m_Hook->GetBoolCollision())
 	{
-		D3DXVECTOR3 posEffectOffset = CManager::Get()->Get()->GetScene()->GetCamera()->GetPosV();
-		posEffectOffset = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y, 0.0f), D3DXVECTOR3(0.0f, -10.0f, 300.0f));
+		D3DXVECTOR3 posEffectOffset = D3DXVECTOR3(640.0f, 360.0f, 0.0f);
+		//posEffectOffset = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		for (int nCntEff = 0; nCntEff < 5; nCntEff++)
 		{
 			float randRot = (float)(rand() % 629 - 314) * 0.01f;
-			D3DXVECTOR3 posEffect = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, CManager::Get()->Get()->GetScene()->GetCamera()->GetRot().y + D3DX_PI, randRot), D3DXVECTOR3((float)(rand() % 100) + 70.0f + (speed * 1.0f), 0.0f, 0.0f));
+			D3DXVECTOR3 posEffect = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, D3DX_PI, randRot + (D3DX_PI * -0.0f)), D3DXVECTOR3(((float)(rand() % 300) + 210.0f + (speed * -3.0f)), 0.0f, 0.0f));
 
 			if (speed >= SPEED_EFFECT_BOOST)
 			{
-				CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 100.0f, 5.0f);
+				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 300.0f + (speed * -3.0f), 15.0f);
 				break;
 			}
 			else
 			{
-				CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 100.0f, 5.0f);
-				//CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), useful::HSLtoRGB((float)(rand() % 360)), 20, 100.0f, 5.0f);
+				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 300.0f + (speed * -3.0f), 15.0f);
+				//CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), useful::HSLtoRGB((float)(rand() % 360)), 20, 100.0f, 5.0f);
 			}
 		}
 	}
@@ -830,46 +919,43 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 //=====================================
 void CPlayer::ControlMotion(D3DXVECTOR3 move)
 {
-	if (m_state == STATE_KICK)
+	if (m_bAir)
 	{
-		m_pMotion->Set(MOTION_KICK);
-
-		if (m_pMotion->IsFinish())
+		if (m_Hook->GetBoolCollision())
 		{
-			m_state = STATE_NORMAL;
-		}
-	}
-	else if (m_bShot == true)
-	{
-		if (fabsf(move.x) > 1.0f || fabsf(move.z) > 1.0f)
-		{
-			m_pMotion->Set(MOTION_MOVE_SHOT);
+			m_pMotion->Set(MOTION_HOOK);
 		}
 		else
 		{
-			m_pMotion->Set(MOTION_SHOT);
-		}
-
-		if (m_bAir == true)
-		{
-			m_pMotion->Set(MOTION_JUMP_SHOT);
+			m_pMotion->Set(MOTION_AIR);
 		}
 	}
 	else
 	{
-		if (fabsf(move.x) > 1.0f || fabsf(move.z) > 1.0f)
+		if (m_bTurn)
 		{
-			m_pMotion->Set(MOTION_MOVE);
+			m_pMotion->Set(MOTION_TURN);
 		}
 		else
 		{
-			m_pMotion->Set(MOTION_NORMAL);
+			if (m_Speed < SPEED_EFFECT)
+			{
+				m_pMotion->Set(MOTION_DASH);
+			}
+			else if (m_Speed < SPEED_TURN)
+			{
+				m_pMotion->Set(MOTION_MOVE);
+			}
+			else
+			{
+				m_pMotion->Set(MOTION_NORMAL);
+			}
 		}
+	}
 
-		if (m_bAir == true)
-		{
-			m_pMotion->Set(MOTION_JUMP);
-		}
+	if (m_bWall)
+	{
+		m_pMotion->Set(MOTION_WALL);
 	}
 }
 
@@ -908,7 +994,18 @@ void CPlayer::SetRot(D3DXVECTOR3 *rot)
 	}
 	else
 	{
-		fRotMove += fRotDiff * 0.1f;
+		if (m_Speed > SPEED_WALK * 2.0f)
+		{
+			fRotMove += fRotDiff * 0.1f;
+		}
+		else if (m_Speed > SPEED_EFFECT_BOOST)
+		{
+			fRotMove += fRotDiff * 0.02f;
+		}
+		else
+		{
+			fRotMove += fRotDiff * 0.008f;
+		}
 	}
 
 	if (fRotMove > 3.14f)
@@ -936,7 +1033,7 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 
 			pObj = GetObjectTop(nCntPri);
 
-			while (pObj != NULL)
+			while (pObj != nullptr)
 			{
 				CObject *pObjNext = pObj->GetObjectNext();
 
@@ -947,16 +1044,26 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 
 				if (type == TYPE_BLOCK)
 				{
-					if (pObj->GetCollider() != NULL)
+					if (pObj->GetCollider() != nullptr)
 					{
-						if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move) == true)
+						bool bColAir = false;
+						if (m_bAir && m_Hook->GetBoolCollision())
 						{
-							m_bWall = true;
+							bColAir = true;
+						}
+
+						if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move, bColAir, &m_vecWall) == true)
+						{
+							move->y = -1.0f;
+							if (m_vecWall.y > -0.8f && m_bAir)
+							{
+								m_bWall = true;
+								move->y = 0.0f;
+								m_Hook->SetBoolCollision(false);
+								m_Hook->SetBoolShot(false);
+							}
 							m_bAir = false;
-							m_SpeedDest = 0.0f;
-							move->x = 0.0f;
-							move->y = 0.0f;
-							move->z = 0.0f;
+							m_Hook->SetBoolGet(true);
 						}
 					}
 				}
@@ -982,17 +1089,17 @@ void CPlayer::ReadFilePlayer(void)
 	CMotion::Info info;
 	m_pMotionOrigin = new CMotion;
 
-	if (m_pMotionOrigin != NULL)
+	if (m_pMotionOrigin != nullptr)
 	{
 		m_pMotionOrigin->Init();
 	}
 
 	memset(&info, 0, sizeof(info));
 	
-	FILE *pFile = fopen("data\\MOTION\\motion_dessan_maid.txt", "r");
+	FILE *pFile = fopen("data\\MOTION\\motion_dessan_delivery.txt", "r");
 
 	//ファイル読み込み
-	if (pFile == NULL)
+	if (pFile == nullptr)
 	{
 		return;
 	}
@@ -1059,7 +1166,7 @@ void CPlayer::ReadFilePlayer(void)
 
 		if (nParent == -1)
 		{
-			m_apModelOrigin[nCntModel]->SetParent(NULL);
+			m_apModelOrigin[nCntModel]->SetParent(nullptr);
 		}
 		else
 		{
@@ -1072,7 +1179,7 @@ void CPlayer::ReadFilePlayer(void)
 		fgets(&aText[0], 128, pFile);
 	}
 	
-	if (m_pMotionOrigin != NULL)
+	if (m_pMotionOrigin != nullptr)
 	{
 		m_pMotionOrigin->SetModel(&m_apModelOrigin[0], m_nNumModel);
 	}
@@ -1144,7 +1251,7 @@ void CPlayer::ReadFilePlayer(void)
 				}
 			} while (strcmp(aText, "END_MOTIONSET") != 0);
 			
-			if (m_pMotionOrigin != NULL)
+			if (m_pMotionOrigin != nullptr)
 			{
 				m_pMotionOrigin->SetInfo(info);
 			}
@@ -1163,49 +1270,4 @@ void  CPlayer::Set(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight
 {
 	m_pos = pos;
 	m_rot = rot;
-}
-
-void  CPlayer::Easter(void)
-{
-	
-}
-
-void CPlayer::SetSave(CPlayer *pPlayerSave)
-{
-	if (pPlayerSave != NULL)
-	{
-		m_pos = pPlayerSave->m_pos;
-		m_posOld = pPlayerSave->m_posOld;
-		m_move = pPlayerSave->m_move;
-		m_rot = pPlayerSave->m_rot;
-		m_rotDest = pPlayerSave->m_rotDest;
-		m_mtxWorld = pPlayerSave->m_mtxWorld;
-
-		for (int nCnt = 0; nCnt < 32; nCnt++)
-		{
-			if (m_apModel[nCnt] != NULL && pPlayerSave->GetModel(nCnt) != NULL)
-			{
-				pPlayerSave->GetModel(nCnt)->SetPos(m_apModel[nCnt]->GetPos());
-				pPlayerSave->GetModel(nCnt)->SetPosDef(m_apModel[nCnt]->GetPosDef());
-				pPlayerSave->GetModel(nCnt)->SetRot(m_apModel[nCnt]->GetRot());
-				pPlayerSave->GetModel(nCnt)->SetRotDef(m_apModel[nCnt]->GetRotDef());
-
-				pPlayerSave->GetModel(nCnt)->Update();
-			}
-			
-		}
-	}
-}
-
-void CPlayer::GetSave(CPlayer *pPlayerSave)
-{
-	if (pPlayerSave != NULL)
-	{
-		m_pos = pPlayerSave->m_pos;
-		m_posOld = pPlayerSave->m_posOld;
-		m_move = pPlayerSave->m_move;
-		m_rot = pPlayerSave->m_rot;
-		m_rotDest = pPlayerSave->m_rotDest;
-		m_mtxWorld = pPlayerSave->m_mtxWorld;
-	}
 }

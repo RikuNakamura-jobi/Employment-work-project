@@ -28,7 +28,7 @@ const char *CField::m_apFilename[CField::TYPE_MAX] =
 	"data/TEXTURE/roadCross000.png",
 	"data/TEXTURE/roadT000.png",
 	"data/TEXTURE/roadL000.png",
-	"data/TEXTURE/roadU000.png",
+	"data/TEXTURE/roadS000.png",
 	"data/TEXTURE/roadO000.png",
 	"data/TEXTURE/roadS000.png",
 	"data/TEXTURE/rand000.png"

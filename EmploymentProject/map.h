@@ -29,7 +29,7 @@ namespace
 	const int MAX_SMALLAPART = 30;		//アパートの最大個数
 	const int MIN_SMALLAPART = 15;		//アパートの最小個数
 
-	const D3DXVECTOR3 DEF_VECTOR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		//vec関連の初期値
+	const D3DXVECTOR3 DEF_VECTOR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			//vec関連の初期値
 	const D3DXVECTOR3 SIZ_FIELD = D3DXVECTOR3(2000.0f, 0.0f, 2000.0f);		//vec関連の初期値
 }
 
@@ -80,6 +80,8 @@ public:
 	CBlock *GetBlock() { return m_pBlock; }
 	CField *GetRand() { return m_pRand; }
 
+	virtual float GetHight() = 0;
+
 protected:
 	CBlock *m_pBlock;
 	CField *m_pRand;
@@ -101,6 +103,9 @@ public:
 	}
 	~CAreaBigBuilding() {}
 
+	float GetHight()
+	{ return 14400.0f; }
+
 private:
 
 };
@@ -115,6 +120,11 @@ public:
 	}
 	~CAreaSmallBuilding() {}
 
+	float GetHight()
+	{
+		return 20000.0f;
+	}
+
 private:
 
 };
@@ -126,8 +136,15 @@ public:
 	{ 
 		m_pBlock = CBlock::Create(DEF_VECTOR, DEF_VECTOR, 1500.0f, 1500.0f, CBlock::TYPE_APART);
 		m_pRand = CField::Create(DEF_VECTOR, D3DXVECTOR3(4005.0f, 0.0f, 4005.0f), CField::TYPE_RAND);
+
+		//m_pBlock->GetModel()->pTexture
 	}
 	~CAreaApart() {}
+
+	float GetHight()
+	{
+		return 8000.0f;
+	}
 
 private:
 
@@ -138,6 +155,11 @@ class  CAreaRoad : public CMapArea
 public:
 	CAreaRoad() {}
 	~CAreaRoad() {}
+
+	float GetHight()
+	{
+		return 0.0f;
+	}
 
 	static CAreaRoad *Create(bool bRoadUP, bool bRoadDown, bool bRoadL, bool bRoadR, int nNumRoad);
 

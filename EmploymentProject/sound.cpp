@@ -10,11 +10,11 @@
 CSound::SOUNDINFO CSound::m_aSoundInfo[SOUND_LABEL_MAX] =
 {
 	{ "data/BGM/BLACK_ESCAPE.wav", -1 },							// BGM0
-	{ "data/BGM/Introduction.wav", -1 },							// BGM0
+	{ "data/BGM/Runners_High.wav", -1 },							// BGM0
 	{ "data/BGM/ŒÎ…‚ğŒ©‚Â‚ß‚Ä.wav", -1 },							// BGM0
-	{ "data/BGM/Cyber_Attack.wav", -1 },							// BGM0
-	{ "data/BGM/Evil_Dance.wav", -1 },							// BGM0
-	{ "data/BGM/‹âF“ss‚Ì”é–§.wav", -1 },							// BGM0
+	{ "data/BGM/1R_DISCO.wav", -1 },							// BGM0
+	{ "data/BGM/Escape.wav", 0 },							// BGM0
+	{ "data/BGM/Triple_Time.wav", -1 },							// BGM0
 	{ "data/SE/Œe‚ğŒ‚‚Â.wav", 0 },							// ’e”­Ë‰¹1
 	{ "data/SE/Œˆ’èƒ{ƒ^ƒ“‚ğ‰Ÿ‚·46.wav", 0 },							// ’e”­Ë‰¹1
 	{ "data/SE/¬Œ÷‰¹.wav", 0 },							// ’e”­Ë‰¹1

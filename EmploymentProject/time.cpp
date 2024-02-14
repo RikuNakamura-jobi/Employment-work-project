@@ -9,6 +9,7 @@
 #include "manager.h"
 #include "object2D.h"
 #include "number.h"
+#include "debugproc.h"
 
 //ƒ}ƒNƒ’è‹`---------------------------
 
@@ -196,6 +197,8 @@ void CTime::Update(void)
 	{
 		m_startTime = timeGetTime();
 	}
+
+	CManager::Get()->Get()->GetDebugProc()->Print("ŽžŠÔ: %d\n", m_nTime);
 }
 
 //=====================================

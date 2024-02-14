@@ -47,6 +47,7 @@ public:				//外部からアクセス可能
 	void SetParent(CModel *pModel) { m_pParent = pModel; }
 
 	D3DXMATRIX GetMtxWorld(void) { return m_mtxWorld; }
+	LPD3DXBUFFER GetBuffMat(void) { return m_pBuffMatModel; }
 
 	//静的メンバ関数
 	static CModel *Create(char *pFilename);

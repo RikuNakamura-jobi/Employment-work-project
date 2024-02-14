@@ -75,7 +75,7 @@ HRESULT CMap::Init(void)
 	areaNum = NUM_BIGBUILDING;
 	setArea = 0;
 
-	while (setArea < areaNum)
+	while (setArea < areaNum && setArea < NUM_AREA_X * NUM_AREA_Y)
 	{
 		int areaX = rand() % 10;
 		int areaY = rand() % 10;
@@ -95,7 +95,7 @@ HRESULT CMap::Init(void)
 	areaNum = (rand() % (MAX_SMALLBUILDING - MIN_SMALLBUILDING)) + MIN_SMALLBUILDING;
 	setArea = 0;
 
-	while (setArea < areaNum)
+	while (setArea < areaNum && setArea < NUM_AREA_X * NUM_AREA_Y)
 	{
 		int areaX = rand() % 10;
 		int areaY = rand() % 10;
@@ -115,7 +115,7 @@ HRESULT CMap::Init(void)
 	areaNum = (rand() % (MAX_SMALLAPART - MIN_SMALLAPART)) + MIN_SMALLAPART;
 	setArea = 0;
 
-	while (setArea < areaNum)
+	while (setArea < areaNum && setArea < NUM_AREA_X * NUM_AREA_Y)
 	{
 		int areaX = rand() % 10;
 		int areaY = rand() % 10;
@@ -251,23 +251,20 @@ D3DXVECTOR3 CMap::GetPosAreaCorner()
 	D3DXVECTOR3 areaPos;
 	areaPos = m_pArea[areaX][areaY]->GetRand()->GetPos();
 
-	areaX = rand() % 3 - 1;
+	int areaXPos = rand() % 3 - 1;
+	int areaYPos = rand() % 3 - 1;
+	areaXPos = 0;
+	areaYPos = 0;
+	areaCornerPos.x = areaPos.x + (4000.0f * (float)areaXPos);
+	areaCornerPos.z = areaPos.z + (4000.0f * (float)areaYPos);
 
-	if (areaX == 0)
+	if (areaXPos == 0 && areaYPos == 0)
 	{
-		areaY = rand() % 2 - 1;
-
-		areaCornerPos.x = areaPos.x + (4000.0f * (float)areaX);
-		areaCornerPos.y = 0.0f;
-		areaCornerPos.z = areaPos.z + (4000.0f * (float)(-2 * areaY - 1));
+		areaCornerPos.y = m_pArea[areaX][areaY]->GetHight();
 	}
 	else
 	{
-		areaY = rand() % 3 - 1;
-
-		areaCornerPos.x = areaPos.x + (4000.0f * (float)areaX);
 		areaCornerPos.y = 0.0f;
-		areaCornerPos.z = areaPos.z + (4000.0f * (float)areaY);
 	}
 
 	return areaCornerPos;

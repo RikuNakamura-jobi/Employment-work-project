@@ -61,6 +61,10 @@ public:				//外部からアクセス可能
 	void SetHeight(float fHeight) { m_fHeight = fHeight; }
 	float GetHeight(void) { return m_fHeight; }
 
+	//正面に向けるか
+	void SetCenter(bool Center) { m_bCenter = Center; }
+	bool GetCenter(void) { return m_bCenter; }
+
 	LPDIRECT3DVERTEXBUFFER9 *GetBuff(void) { return &m_pVtxBuff; }
 	void SetBuff(LPDIRECT3DVERTEXBUFFER9 pVtxBuff) { m_pVtxBuff =  pVtxBuff; }
 
@@ -90,6 +94,8 @@ private:			//外部からアクセス不可能
 	float m_fHeight;
 	float m_fLength;
 	float m_fAngle;
+
+	bool m_bCenter;
 
 	//静的メンバ変数
 
