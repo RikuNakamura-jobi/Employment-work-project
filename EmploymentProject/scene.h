@@ -18,6 +18,7 @@
 class CBg;
 class CBgMulti;
 class CScore;
+class CCombo;
 class CObject3D;
 class CCamera;
 class CTime;
@@ -64,6 +65,8 @@ public:				//外部からアクセス可能
 	virtual CField *GetField(void) { return NULL; }
 
 	virtual CScore *GetScore(void) { return NULL; }
+
+	virtual CCombo *GetCombo(void) { return NULL; }
 
 	virtual CMap *GetMap(void) { return NULL; }
 
@@ -199,6 +202,8 @@ public:				//外部からアクセス可能
 
 	CScore *GetScore(void) { return m_pScore; }
 
+	CCombo *GetCombo(void) { return m_pCombo; }
+
 	CSky *GetSky(void) { return m_pSky; }
 
 	CMap *GetMap(void) { return m_pMap; }
@@ -219,6 +224,7 @@ private:			//外部からアクセス不可能
 
 	//メンバ変数
 	CScore *m_pScore;
+	CCombo *m_pCombo;
 	CPlayer *m_pPlayer;
 	CPlayer *m_pPlayerSave;
 	CField *m_pField;

@@ -231,6 +231,10 @@ void CPlayer::Update(void)
 			ControlPad(&pos, &posOld, &rot, &move, &fHeight, &fWidth);
 		}
 	}
+	else
+	{
+		m_SpeedDest = 0.0f;
+	}
 
 	if (m_bAir && !m_bWall)
 	{
@@ -337,6 +341,12 @@ void CPlayer::Update(void)
 	if (!m_bWall)
 	{
 		SetRot(&rot);
+	}
+	else
+	{
+		rot.y = atan2f(m_vecWall.x, m_vecWall.z) + D3DX_PI;
+		m_rotDest.z = atan2f(m_vecWall.x, m_vecWall.z) + D3DX_PI;
+		m_rotMove.y = atan2f(m_vecWall.x, m_vecWall.z) + D3DX_PI;
 	}
 
 	SetPos(pos);
@@ -902,12 +912,12 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 
 			if (speed >= SPEED_EFFECT_BOOST)
 			{
-				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 300.0f + (speed * -3.0f), 15.0f);
+				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 400.0f + (speed * -3.0f), 15.0f);
 				break;
 			}
 			else
 			{
-				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 300.0f + (speed * -3.0f), 15.0f);
+				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 400.0f + (speed * -3.0f), 15.0f);
 				//CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), useful::HSLtoRGB((float)(rand() % 360)), 20, 100.0f, 5.0f);
 			}
 		}
@@ -927,7 +937,14 @@ void CPlayer::ControlMotion(D3DXVECTOR3 move)
 		}
 		else
 		{
-			m_pMotion->Set(MOTION_AIR);
+			if (m_bWall)
+			{
+				m_pMotion->Set(MOTION_WALL);
+			}
+			else
+			{
+				m_pMotion->Set(MOTION_AIR);
+			}
 		}
 	}
 	else
@@ -938,24 +955,26 @@ void CPlayer::ControlMotion(D3DXVECTOR3 move)
 		}
 		else
 		{
-			if (m_Speed < SPEED_EFFECT)
+			if (m_bWall)
 			{
-				m_pMotion->Set(MOTION_DASH);
-			}
-			else if (m_Speed < SPEED_TURN)
-			{
-				m_pMotion->Set(MOTION_MOVE);
+				m_pMotion->Set(MOTION_WALL);
 			}
 			else
 			{
-				m_pMotion->Set(MOTION_NORMAL);
+				if (m_Speed < SPEED_EFFECT)
+				{
+					m_pMotion->Set(MOTION_DASH);
+				}
+				else if (m_Speed < SPEED_TURN)
+				{
+					m_pMotion->Set(MOTION_MOVE);
+				}
+				else
+				{
+					m_pMotion->Set(MOTION_NORMAL);
+				}
 			}
 		}
-	}
-
-	if (m_bWall)
-	{
-		m_pMotion->Set(MOTION_WALL);
 	}
 }
 
@@ -1062,6 +1081,12 @@ bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 								m_Hook->SetBoolCollision(false);
 								m_Hook->SetBoolShot(false);
 							}
+
+							if (bColAir)
+							{
+								m_SpeedDest = SPEED_DASH;
+							}
+
 							m_bAir = false;
 							m_Hook->SetBoolGet(true);
 						}

@@ -27,7 +27,7 @@ CCamera::CCamera()
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rotOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_cameraLength = 0.0f;
-
+	m_fViewBack = 0.0f;
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 }
 
@@ -107,7 +107,7 @@ void CCamera::Update(void)
 		if (lengthStick > 10.0f)
 		{
 			m_rot.y += (float)inputPad->GetRStickLRPress() * 0.001f * 0.04f;
-			m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.04f;
+			m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.02f;
 		}
 	}
 
@@ -116,7 +116,16 @@ void CCamera::Update(void)
 	if (lengthStick > 10.0f)
 	{
 		m_rot.y += (float)inputMouse->GetRStickLRPress() * 0.001f * 0.04f;
-		m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.04f;
+		m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.02f;
+	}
+
+	if (inputPad->GetButtonPress(9))
+	{
+		m_fViewBack += (D3DX_PI - m_fViewBack) * 0.4f;
+	}
+	else
+	{
+		m_fViewBack += (0.0f - m_fViewBack) * 0.4f;
 	}
 
 	Rot();
@@ -162,7 +171,7 @@ void CCamera::Set(void)
 //===========================
 void CCamera::Rot(void)
 {
-	m_cameraLength = 0.0f;
+	//m_cameraLength = 0.0f;
 	CPlayer *player = CManager::Get()->Get()->GetScene()->GetPlayer();
 
 	m_posVOld = m_posV;
@@ -198,28 +207,28 @@ void CCamera::Rot(void)
 	{
 		m_cameraLength = 150.0f + (speedLength * -35.0f);
 	}
-	else if (speedLengthDest >= SPEED_DASH)
-	{
-		m_cameraLength = 200.0f + (speedLength * -20.0f);
-	}
 	else if (speedLengthDest < SPEED_DASH)
 	{
-		m_cameraLength = 50.0f + (speedLength * -35.0f);
+		m_cameraLength = 50.0f + (speedLength * -20.0f);
+	}
+	else if (speedLengthDest == SPEED_DASH)
+	{
+		m_cameraLength += (250.0f - m_cameraLength);
 	}
 	else
 	{
-		m_cameraLength = 200.0f;
+		m_cameraLength = 250.0f;
 	}
 	
 	CManager::Get()->Get()->GetDebugProc()->Print("ƒJƒƒ‰‹——£: %f\n", m_cameraLength);
 
 	m_posRDest.x = player->GetPos().x - (sinf(0.0f) * 0.0f);
-	m_posRDest.y = player->GetPos().y + 20.0f;
+	m_posRDest.y = player->GetPos().y + 40.0f;
 	m_posRDest.z = player->GetPos().z - (cosf(0.0f) * 0.0f);
 
-	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y)) * m_cameraLength;
+	m_posVDest.x = m_posRDest.x - (sinf(m_rot.z) * sinf(m_rot.y + m_fViewBack)) * m_cameraLength;
 	m_posVDest.y = m_posRDest.y + 0.0f - (cosf(m_rot.z) * m_cameraLength);
-	m_posVDest.z = m_posRDest.z - (sinf(m_rot.z) * cosf(m_rot.y)) * m_cameraLength;
+	m_posVDest.z = m_posRDest.z - (sinf(m_rot.z) * cosf(m_rot.y + m_fViewBack)) * m_cameraLength;
 
 	m_posR.x += (m_posRDest.x - m_posR.x) * 0.7f;
 	m_posR.y += (m_posRDest.y - m_posR.y) * 0.7f;

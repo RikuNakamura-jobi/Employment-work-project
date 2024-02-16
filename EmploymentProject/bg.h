@@ -22,6 +22,8 @@ public:				//外部からアクセス可能
 	enum TEXTURE
 	{
 		TEXTURE_RESULT = 0,				//なにもしてない状態
+		TEXTURE_TUTORIAL_KEY,			//フェードイン状態
+		TEXTURE_TUTORIAL_PAD,			//フェードイン状態
 		TEXTURE_START,					//フェードイン状態
 		TEXTURE_READY,					//フェードイン状態
 		TEXTURE_GO,						//フェードイン状態

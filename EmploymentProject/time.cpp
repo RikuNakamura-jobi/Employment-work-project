@@ -9,7 +9,9 @@
 #include "manager.h"
 #include "object2D.h"
 #include "number.h"
+#include "combo.h"
 #include "debugproc.h"
+#include "useful.h"
 
 //ƒ}ƒNƒ’è‹`---------------------------
 
@@ -36,6 +38,7 @@ CTime::CTime(int nPriority = 6) : CObject(nPriority)
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_fWidth = 0.0f;
 	m_fHeight = 0.0f;
+	m_fHue = 0.0f;
 	m_nTime = 0;
 }
 
@@ -188,6 +191,13 @@ void CTime::Update(void)
 			{
 				D3DXVECTOR2 *texPos = NULL;
 				m_apObject2D[nCnt]->SetNumber(m_nTime % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
+
+				if (CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo() > 5)
+				{
+					m_apObject2D[nCnt]->SetCol(useful::HSLtoRGB(m_fHue));
+
+					m_fHue += 2.0f;
+				}
 
 				m_apObject2D[nCnt]->Update();
 			}

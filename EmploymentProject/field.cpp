@@ -24,7 +24,7 @@
 LPDIRECT3DTEXTURE9 CField::m_pTexture[CField::TYPE_MAX] = {};
 const char *CField::m_apFilename[CField::TYPE_MAX] =
 {
-	"data/TEXTURE/field001.png",
+	"data/TEXTURE/sea000.png",
 	"data/TEXTURE/roadCross000.png",
 	"data/TEXTURE/roadT000.png",
 	"data/TEXTURE/roadL000.png",
@@ -136,6 +136,11 @@ void CField::Update(void)
 	//SetCol(useful::HSLtoRGB(m_nHue));
 	m_nHue++;
 
+	if (m_type == CField::TYPE_NONE)
+	{
+		SetCol(useful::HSLtoRGB(180.0f));
+	}
+
 	CObject3D::Update();
 }
 
@@ -144,7 +149,5 @@ void CField::Update(void)
 //=====================================
 void CField::Draw(void)
 {
-	
-		CObject3D::Draw();
-	
+	CObject3D::Draw();
 }

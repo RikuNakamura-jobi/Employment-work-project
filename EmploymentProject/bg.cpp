@@ -23,6 +23,8 @@ LPDIRECT3DTEXTURE9 CBg::m_pTexture[TEXTURE_MAX] = {};
 const char *CBg::m_apFilename[TEXTURE_MAX] =
 {
 	"data\\TEXTURE\\result001.png",
+	"data\\TEXTURE\\tutorial000.png",
+	"data\\TEXTURE\\tutorial001.png",
 	"data\\TEXTURE\\Start000.png",
 	"data\\TEXTURE\\Start001.png",
 	"data\\TEXTURE\\Start002.png",

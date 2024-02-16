@@ -70,6 +70,7 @@ public:
 		TAG_NONE = 0,		//タイプ無し
 		TAG_PLAYER,			//プレイヤー
 		TAG_BOX,			//ボックス
+		TAG_CAR,			//ボックス
 		TAG_MAX
 	};
 

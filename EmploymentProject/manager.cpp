@@ -31,6 +31,7 @@
 #include "deliveryarrow.h"
 #include "collision.h"
 #include "chain.h"
+#include "car.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -305,6 +306,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	CHook::Load();
 	CDeliverypoint::Load();
 	CDeliveryarrow::Load();
+	CCar::Load();
 
 	if (m_pScene != NULL)
 	{
@@ -347,6 +349,7 @@ void CManager::Uninit(void)
 	CHook::Unload();
 	CDeliverypoint::Unload();
 	CDeliveryarrow::Unload();
+	CCar::Unload();
 
 	CObject::ReleaseAll();
 

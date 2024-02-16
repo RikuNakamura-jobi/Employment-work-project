@@ -61,6 +61,7 @@ private:
 	D3DXVECTOR3 m_rot;			//角度
 	D3DXVECTOR3 m_rotOld;		//角度
 	float m_cameraLength;		//角度
+	float m_fViewBack;
 
 	//静的メンバ変数
 

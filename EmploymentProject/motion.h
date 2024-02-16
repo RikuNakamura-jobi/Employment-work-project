@@ -68,6 +68,7 @@ private:			//外部からアクセス不可能
 
 	//メンバ変数
 	Info m_aInfo[MAX_MOTION];
+	KeyInfo aKeyInfoBlend;
 	int m_nNumInfo;
 
 	int m_nType;

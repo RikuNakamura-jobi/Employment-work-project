@@ -14,7 +14,10 @@
 #include "debugproc.h"
 #include "player.h"
 #include "score.h"
+#include "combo.h"
 #include "map.h"
+#include "useful.h"
+#include "particle.h"
 
 //マクロ定義---------------------------
 
@@ -224,7 +227,7 @@ void CDeliverypoint::Update(void)
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
-	SetMtxScale(2.0f);
+	SetMtxScale(4.0f);
 
 	Collision();
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
@@ -237,6 +240,12 @@ void CDeliverypoint::Update(void)
 //=====================================
 void CDeliverypoint::Draw(void)
 {
+	D3DXMATERIAL *pMat;
+	//マテリアルのデータのポイントを取得
+	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
+
+	pMat[0].MatD3D.Emissive = useful::HSLtoRGB(0.0f);
+
 	CObjectX::Draw();
 }
 
@@ -247,17 +256,26 @@ bool CDeliverypoint::Collision(void)
 	D3DXVECTOR3 vecPlayer;
 
 	vecPlayer.x = pos.x - posPlayer.x;
-	vecPlayer.y = 0.0f;
+	vecPlayer.y = pos.y - posPlayer.y;
 	vecPlayer.z = pos.z - posPlayer.z;
 
-	if (D3DXVec3Length(&vecPlayer) < 600.0f)
+	if (D3DXVec3Length(&vecPlayer) < 1200.0f)
 	{
 		m_nCntDelivery++;
 
 		if (m_nCntDelivery >= 3)
 		{
 			m_nCntDelivery = 0;
-			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000);
+
+			CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+			int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000 * combo);
+
+			for (int nCntParticle = 0; nCntParticle < 20; nCntParticle++)
+			{
+				float fHue = (float)(rand() % 361);
+				CParticle::Create(pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), useful::HSLtoRGB(fHue), 5, 10, 2, 50, 30.0f, 30.0f);
+			}
 
 			SetPos(CManager::Get()->Get()->GetScene()->GetMap()->GetPosAreaCorner());
 		}

@@ -104,7 +104,7 @@ public:
 	~CAreaBigBuilding() {}
 
 	float GetHight()
-	{ return 14400.0f; }
+	{ return 28800.0f; }
 
 private:
 

@@ -11,7 +11,7 @@
 #include "object.h"
 
 //マクロ定義---------------------------
-#define MAX_PLACE (6)			//多重スクロール用背景の最大数
+#define MAX_PLACE (7)			//多重スクロール用背景の最大数
 
 //列挙型定義---------------------------
 
@@ -71,6 +71,7 @@ private:			//外部からアクセス不可能
 	D3DXVECTOR3 m_rot;
 	float m_fWidth;
 	float m_fHeight;
+	float m_fHue;
 	int m_nScore;
 
 	//静的メンバ変数

@@ -4,12 +4,11 @@
 // Author:中村陸
 //
 //=====================================
-#include "score.h"
+#include "combo.h"
 #include "renderer.h"
 #include "manager.h"
 #include "object2D.h"
 #include "number.h"
-#include "combo.h"
 #include "useful.h"
 
 //マクロ定義---------------------------
@@ -23,36 +22,36 @@
 //プロトタイプ宣言---------------------
 
 //静的メンバ変数宣言-------------------
-int CScore::m_nScoreResult = 0;
+int CCombo::m_nComboResult = 0;
 
 //=====================================
 // コンストラクタ・デストラクタ
 //=====================================
-CScore::CScore(int nPriority = 6) : CObject(nPriority)
+CCombo::CCombo(int nPriority = 6) : CObject(nPriority)
 {
-	m_nScore = 0;
+	m_nCombo = 0;
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_fWidth = 0.0f;
 	m_fHeight = 0.0f;
 	m_fHue = 0.0f;
-	m_nScore = 0;
+	m_nCombo = 0;
 }
 
-CScore::~CScore()
+CCombo::~CCombo()
 {
 }
 
 //=====================================
 // 生成処理
 //=====================================
-CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
+CCombo *CCombo::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
 {
-	CScore *pScore;
+	CCombo *pScore;
 
 	//2Dオブジェクトの生成
-	pScore = new CScore();
+	pScore = new CCombo();
 
 	if (pScore != NULL)
 	{
@@ -71,9 +70,9 @@ CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHe
 //=====================================
 // ポリゴンの初期化処理
 //=====================================
-HRESULT CScore::Init(void)
+HRESULT CCombo::Init(void)
 {
-	for (int nCnt = 0; nCnt < MAX_PLACE; nCnt++)
+	for (int nCnt = 0; nCnt < MAX_PLACE_COMBO; nCnt++)
 	{
 		m_apObject2D[nCnt] = CNumber::Create();
 
@@ -97,9 +96,9 @@ HRESULT CScore::Init(void)
 //=====================================
 // ポリゴンの終了処理
 //=====================================
-void CScore::Uninit(void)
+void CCombo::Uninit(void)
 {
-	for (int nCnt = 0; nCnt < MAX_PLACE; nCnt++)
+	for (int nCnt = 0; nCnt < MAX_PLACE_COMBO; nCnt++)
 	{
 		if (m_apObject2D[nCnt] != NULL)
 		{
@@ -113,30 +112,27 @@ void CScore::Uninit(void)
 //=====================================
 // ポリゴンの更新処理
 //=====================================
-void CScore::Update(void)
+void CCombo::Update(void)
 {
 	m_posOld = m_pos;
 
-	if (m_nScore < 0)
+	if (m_nCombo < 0)
 	{
-		m_nScore = 0;
+		m_nCombo = 0;
 	}
 
-	for (int nCnt = 0; nCnt < MAX_PLACE; nCnt++)
+	for (int nCnt = 0; nCnt < MAX_PLACE_COMBO; nCnt++)
 	{
 		if (m_apObject2D[nCnt] != NULL)
 		{
 			D3DXVECTOR2 *texPos = NULL;
-			m_apObject2D[nCnt]->SetNumber(m_nScore % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
+			m_apObject2D[nCnt]->SetNumber(m_nCombo % (int)pow(10, nCnt + 1) / (int)pow(10, nCnt));
 
-			if (CManager::Get()->Get()->GetScene()->GetCombo() != nullptr)
+			if (m_nCombo > 5)
 			{
-				if (CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo() > 5)
-				{
-					m_apObject2D[nCnt]->SetCol(useful::HSLtoRGB(m_fHue));
+				m_apObject2D[nCnt]->SetCol(useful::HSLtoRGB(m_fHue));
 
-					m_fHue += 1.0f;
-				}
+				m_fHue += 3.0f;
 			}
 
 			m_apObject2D[nCnt]->Update();
@@ -147,7 +143,7 @@ void CScore::Update(void)
 //=====================================
 // ポリゴンの描画処理
 //=====================================
-void CScore::Draw(void)
+void CCombo::Draw(void)
 {
 	
 }
@@ -155,7 +151,7 @@ void CScore::Draw(void)
 //=====================================
 // ポリゴンの設定処理
 //=====================================
-void CScore::Set(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
+void CCombo::Set(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
 {
 	m_pos = pos;
 	m_rot = rot;

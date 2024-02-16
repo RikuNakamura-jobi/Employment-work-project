@@ -21,6 +21,8 @@
 #include "deliverypoint.h"
 #include "sound.h"
 #include "map.h"
+#include "car.h"
+#include "combo.h"
 
 //マクロ定義---------------------------
 #define TIME_FADE (3600)
@@ -304,11 +306,14 @@ HRESULT CGame::Init(void)
 	m_pSky = CSky::Create();
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f));
 	m_pMap = CMap::Create();
-	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
+	m_pCombo = CCombo::Create(D3DXVECTOR3(1200.0f, 200.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(100.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
-	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 800.0f, 200.0f, CBg::TEXTURE_MAX);
+	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 900.0f, 600.0f, CBg::TEXTURE_TUTORIAL_KEY);
 	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 	m_pDeliverypoint->SetPos(m_pMap->GetPosAreaCorner());
+
+	CCar::Create(D3DXVECTOR3(1000.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -0.0f, 0.0f), 0.0f, 0.0f, CCar::TYPE_NONE);
 
 	//カメラの生成
 	if (m_pCamera != NULL)
@@ -376,10 +381,45 @@ void CGame::Uninit(void)
 //=====================================
 void CGame::Update(void)
 {
-	m_nStartCount++;
-
-	if (m_nStartCount == 30)
+	if (m_nStartCount > 0)
 	{
+		m_nStartCount++;
+	}
+
+	if (m_nStartCount == 0)
+	{
+		CInput *input = CManager::Get()->GetInputKeyboard();
+		CInput *inputMouse = CManager::Get()->GetInputMouse();
+		CInput *inputPad = CManager::Get()->GetInputPad();
+
+		if (input->GetTrigger(DIK_RETURN) == true)
+		{
+			m_nStartCount++;
+			m_pBgStart->SetTextureType(CBg::TEXTURE_MAX);
+		}
+
+		if (input->GetAll() || inputMouse->GetAll())
+		{
+			m_pBgStart->SetTextureType(CBg::TEXTURE_TUTORIAL_KEY);
+		}
+
+		if (inputPad != NULL)
+		{
+			if (inputPad->GetButtonTrigger(11) == true)
+			{
+				m_nStartCount++;
+				m_pBgStart->SetTextureType(CBg::TEXTURE_MAX);
+			}
+
+			if (inputPad->GetAll())
+			{
+				m_pBgStart->SetTextureType(CBg::TEXTURE_TUTORIAL_PAD);
+			}
+		}
+	}
+	else if (m_nStartCount == 30)
+	{
+		m_pBgStart->Set(D3DXVECTOR3(640.0f, 360.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 800.0f, 200.0f);
 		m_pBgStart->SetTextureType(CBg::TEXTURE_START);
 	}
 	else if (m_nStartCount == 150)
@@ -544,11 +584,11 @@ HRESULT CResult::Init(void)
 
 	for (int nCnt = 0; nCnt < 5; nCnt++)
 	{
-		m_pScore[nCnt] = CScore::Create(D3DXVECTOR3(717.0f, 101.0f * nCnt + 235.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+		m_pScore[nCnt] = CScore::Create(D3DXVECTOR3(830.0f, 101.0f * nCnt + 235.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 		m_pScore[nCnt]->AddScore(nScore[nCnt]);
 	}
 
-	m_pScore[5] = CScore::Create(D3DXVECTOR3(717.0f, 70.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 26.0f, 64.0f);
+	m_pScore[5] = CScore::Create(D3DXVECTOR3(830.0f, 70.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pScore[5]->AddScore(CScore::GetScoreResult());
 
 	CSound::PlaySound(CSound::SOUND_LABEL_BGM005);

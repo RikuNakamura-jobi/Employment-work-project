@@ -156,8 +156,10 @@
     <ClCompile Include="bgmulti.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="car.cpp" />
     <ClCompile Include="chain.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="combo.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="deliveryarrow.cpp" />
     <ClCompile Include="deliverypoint.cpp" />
@@ -195,8 +197,10 @@
     <ClInclude Include="bgmulti.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="car.h" />
     <ClInclude Include="chain.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="combo.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="deliveryarrow.h" />
     <ClInclude Include="deliverypoint.h" />
