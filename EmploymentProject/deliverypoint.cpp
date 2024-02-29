@@ -13,6 +13,7 @@
 #include "objectX.h"
 #include "debugproc.h"
 #include "player.h"
+#include "sound.h"
 #include "score.h"
 #include "combo.h"
 #include "map.h"
@@ -38,6 +39,7 @@ CObjectX::MODELX CDeliverypoint::m_model = {};
 CDeliverypoint::CDeliverypoint(int nPriority = 3) : CObjectX(nPriority)
 {
 	m_nCntDelivery = 0;
+	m_fHue = 0.0f;
 }
 
 CDeliverypoint::~CDeliverypoint()
@@ -244,7 +246,17 @@ void CDeliverypoint::Draw(void)
 	//マテリアルのデータのポイントを取得
 	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
 
-	pMat[0].MatD3D.Emissive = useful::HSLtoRGB(0.0f);
+	int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+
+	if (combo > 5)
+	{
+		m_fHue += 0.5f;
+		pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+	}
+	else
+	{
+		pMat[0].MatD3D.Emissive = useful::HSLtoRGB(0.0f);
+	}
 
 	CObjectX::Draw();
 }
@@ -267,9 +279,10 @@ bool CDeliverypoint::Collision(void)
 		{
 			m_nCntDelivery = 0;
 
-			CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+			CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(10);
 			int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
-			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000 * combo);
+			CManager::Get()->Get()->GetScene()->GetScore()->AddScore(3000 * combo);
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
 
 			for (int nCntParticle = 0; nCntParticle < 20; nCntParticle++)
 			{

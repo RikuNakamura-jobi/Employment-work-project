@@ -10,6 +10,7 @@
 #include "manager.h"
 #include "scene.h"
 #include "collision.h"
+#include "combo.h"
 #include "objectX.h"
 #include "debugproc.h"
 #include "useful.h"
@@ -200,7 +201,7 @@ HRESULT CCar::Init(void)
 
 	SetType(TYPE_BLOCK);
 
-	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(65.0f, 120.0f, 125.0f), D3DXVECTOR3(-65.0f, -1.0f, -140.0f), CCollider::TAG_CAR));
+	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(195.0f, 360.0f, 425.0f), D3DXVECTOR3(-195.0f, -1.0f, -420.0f), CCollider::TAG_CAR));
 	GetCollider()->SetType(CCollider::TYPE_BOX);
 
 	m_fHueOrg = (float)(rand() % 3600) * 0.1f;
@@ -229,15 +230,23 @@ void CCar::Update(void)
 	float fWidth = GetWidth();
 	D3DXVECTOR3 movePos;
 
-	m_fHueOrg += 1.0f;
-	m_fHue = m_fHueOrg;
+	int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+
+	if (combo > 5)
+	{
+		m_fHue += 1.0f;
+	}
+	else
+	{
+		m_fHue = m_fHueOrg;
+	}
 
 	SetPos(pos);
 	SetRot(rot);
 	SetMove(move);
 	SetHeight(fHeight);
 	SetWidth(fWidth);
-	SetMtxScale(1.0f);
+	SetMtxScale(3.0f);
 
 	//CManager::Get()->GetDebugProc()->Print("エネミーのpos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 
@@ -254,6 +263,13 @@ void CCar::Draw(void)
 	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
 
 	pMat[0].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+
+	int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+
+	if (combo > 5)
+	{
+		pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+	}
 
 	CObjectX::Draw();
 }

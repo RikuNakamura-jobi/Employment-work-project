@@ -10,6 +10,7 @@
 #include "object2D.h"
 #include "number.h"
 #include "combo.h"
+#include "bg.h"
 #include "debugproc.h"
 #include "useful.h"
 
@@ -65,6 +66,8 @@ CTime *CTime::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeig
 		{
 			pScore->Release();
 		}
+
+		CBg::CreateMin(D3DXVECTOR3(pos.x + 30.0f, pos.y - 75.0f, pos.z), 100.0f, 50.0f, CBg::TEXTURE_TIME);
 	}
 
 	return pScore;

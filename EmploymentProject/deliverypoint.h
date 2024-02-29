@@ -48,6 +48,7 @@ private:			//外部からアクセス不可能
 	MODELX m_modelTemp;
 
 	int m_nCntDelivery;
+	float m_fHue;
 
 	//静的メンバ変数
 	static MODELX m_model;

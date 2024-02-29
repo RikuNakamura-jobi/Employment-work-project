@@ -21,6 +21,8 @@
 #include "scene.h"
 #include "particle.h"
 #include "chain.h"
+#include "sound.h"
+#include "combo.h"
 #include "collision.h"
 #include "debugproc.h"
 #include "orbit.h"
@@ -70,9 +72,12 @@ CPlayer::CPlayer(int nPriority = 4) : CObject(nPriority)
 	m_bBoost = false;
 	m_bControl = false;
 	m_nShotTimer = 0;
+	m_nPalTimer = 0;
 	m_state = STATE_NORMAL;
 	m_nCombo = 0;
 	m_nEnergy = 0;
+	m_nHookSoundTimer = 0;
+	m_nWindCounter = 0;
 	m_Speed = 0.0f;
 	m_SpeedDest = 0.0f;
 	m_fHue = 0.0f;
@@ -293,6 +298,14 @@ void CPlayer::Update(void)
 		move.y = 0.0f;
 		m_bAir = false;
 		m_bWall = false;
+
+		if (m_bBoost)
+		{
+			m_bBoost = false;
+			m_bControl = true;
+			m_SpeedDest = SPEED_BOOST;
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_BOOST);
+		}
 	}
 	else
 	{
@@ -309,6 +322,13 @@ void CPlayer::Update(void)
 
 	if (m_state != STATE_HIT)
 	{
+		m_nPalTimer--;
+
+		if (m_nPalTimer < 0)
+		{
+			m_nPalTimer = 0;
+		}
+
 		Collision(&pos, &posOld, &move);
 	}
 
@@ -357,18 +377,6 @@ void CPlayer::Update(void)
 
 	D3DXVECTOR3 posEffect;
 
-	/*posEffect.x = GetModel(16)->GetMtxWorld()._41;
-	posEffect.y = GetModel(16)->GetMtxWorld()._42;
-	posEffect.z = GetModel(16)->GetMtxWorld()._43;
-	CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), useful::HSLtoRGB(m_fHue), 100, 5.0f, 5.0f);
-
-	posEffect.x = GetModel(17)->GetMtxWorld()._41;
-	posEffect.y = GetModel(17)->GetMtxWorld()._42;
-	posEffect.z = GetModel(17)->GetMtxWorld()._43;
-	CEffect::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), useful::HSLtoRGB(m_fHue), 100, 5.0f, 5.0f);
-
-	m_fHue += 0.7f;*/
-
 	CManager::Get()->Get()->GetScene()->GetCamera()->SetPos(pos);
 
 	ControlMotion(move);
@@ -388,6 +396,7 @@ void CPlayer::Draw(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::Get()->Get()->GetRenderer()->GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		//計算用マトリックス
+	int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
 
 	//ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -415,8 +424,16 @@ void CPlayer::Draw(void)
 				//マテリアルのデータのポイントを取得
 				pMat = (D3DXMATERIAL*)m_apModel[nCntModel]->GetBuffMat()->GetBufferPointer();
 
-				pMat[0].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
-				pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+				if (combo > 5)
+				{
+					pMat[0].MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
+					pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+				}
+				else
+				{
+					pMat[0].MatD3D.Diffuse = useful::HSLtoRGB(20.0f);
+					pMat[0].MatD3D.Emissive = useful::HSLtoRGB(20.0f);
+				}
 			}
 
 			m_apModel[nCntModel]->Draw();
@@ -425,31 +442,36 @@ void CPlayer::Draw(void)
 
 	m_Hook->Draw();
 
-	if (m_orbit[0] != nullptr)
+	if (combo > 5)
 	{
-		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
-		m_orbit[0]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
-	}
-	
-	if (m_orbit[1] != nullptr)
-	{
-		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
-		m_orbit[1]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
-	}
+		if (m_orbit[0] != nullptr)
+		{
+			D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
+			m_orbit[0]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
+		}
 
-	/*if (m_orbit[2] != nullptr)
-	{
-		D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
-		m_orbit[2]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
+		if (m_orbit[1] != nullptr)
+		{
+			D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
+			m_orbit[1]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
+		}
+
+		m_fHue += 4.0f;
 	}
-
-	if (m_orbit[3] != nullptr)
+	else
 	{
-		D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
-		m_orbit[3]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(m_fHue));
-	}*/
+		if (m_orbit[0] != nullptr)
+		{
+			D3DXMATRIX mtxTemp = GetModel(16)->GetMtxWorld();
+			m_orbit[0]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(20.0f));
+		}
 
-	m_fHue += 4.0f;
+		if (m_orbit[1] != nullptr)
+		{
+			D3DXMATRIX mtxTemp = GetModel(17)->GetMtxWorld();
+			m_orbit[1]->SetPositionOffset(mtxTemp, useful::HSLtoRGB(20.0f));
+		}
+	}
 }
 
 //=====================================
@@ -591,6 +613,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 					m_SpeedDest = SPEED_BOOST;
 					m_bTurn = false;
 					m_bBoost = true;
+
+					CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+					int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+					CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000 * combo);
+
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_BOOST);
 				}
 			}
 			else
@@ -599,11 +628,11 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			}
 		}
 
-		if (input->GetTrigger(DIK_SPACE) == true && m_bAir == false)
+		if (input->GetTrigger(DIK_SPACE) == true)
 		{
-			if (m_bAir && !m_Hook->GetBoolShot())
+			if (m_bAir)
 			{
-				//m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+				move->y = -150.0f; 
 			}
 			else
 			{
@@ -640,6 +669,12 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 					*pos += posDest;
 
 					m_bWall = false;
+
+					CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+					int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+					CManager::Get()->Get()->GetScene()->GetScore()->AddScore(300 * combo);
+
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
 				}
 
 				if (m_SpeedDest <= SPEED_MAX && m_bBoost)
@@ -653,6 +688,13 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 		if (inputMouse->GetTrigger(0) == true && !m_Hook->GetBoolShot() && !m_bWall)
 		{
 			m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+		}
+
+		if (m_nHookSoundTimer >= 0)
+		{
+			CSound::StopSound(CSound::SOUND_LABEL_SE_CHAIN);
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_CHAINJUMP);
+			m_nHookSoundTimer = -1;
 		}
 	}
 	else
@@ -670,6 +712,17 @@ void CPlayer::Control(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot, D
 			m_Hook->SetBoolCollision(false);
 			m_Hook->SetBoolShot(false);
 			move->y = 50.0f;
+		}
+
+		if (m_pMotion->GetKey() == 0)
+		{
+			if (m_nHookSoundTimer <= 0)
+			{
+				CSound::PlaySound(CSound::SOUND_LABEL_SE_CHAIN);
+				m_nHookSoundTimer = 3;
+			}
+
+			m_nHookSoundTimer -= 1;
 		}
 	}
 }
@@ -773,6 +826,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 					m_SpeedDest = SPEED_BOOST;
 					m_bTurn = false;
 					m_bBoost = true;
+
+					CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+					int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+					CManager::Get()->Get()->GetScene()->GetScore()->AddScore(1000 * combo);
+				
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_BOOST);
 				}
 			}
 			else
@@ -783,9 +843,15 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 
 		if (input->GetButtonTrigger(2) == true)
 		{
-			if (m_bAir && !m_Hook->GetBoolShot())
+			if (m_bAir)
 			{
-				//m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+				move->y = -250.0f;
+
+				if (pos->y > 500.0f)
+				{
+					m_bBoost = true;
+					m_bControl = false;
+				}
 			}
 			else
 			{
@@ -822,6 +888,12 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 					*pos += posDest;
 
 					m_bWall = false;
+
+					CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+					int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+					CManager::Get()->Get()->GetScene()->GetScore()->AddScore(300 * combo);
+
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
 				}
 
 				if (m_SpeedDest <= SPEED_MAX && m_bBoost)
@@ -835,6 +907,13 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 		if (input->GetButtonTrigger(7) == true && !m_Hook->GetBoolShot() && !m_bWall)
 		{
 			m_Hook->ShotHook(D3DXVECTOR3(rot->x, m_rotDest.z, rot->z), 700.0f);
+		}
+
+		if (m_nHookSoundTimer >= 0)
+		{
+			CSound::StopSound(CSound::SOUND_LABEL_SE_CHAIN);
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_CHAINJUMP);
+			m_nHookSoundTimer = -1;
 		}
 	}
 	else
@@ -852,6 +931,17 @@ void CPlayer::ControlPad(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *rot
 			m_Hook->SetBoolCollision(false);
 			m_Hook->SetBoolShot(false);
 			move->y = 50.0f;
+		}
+
+		if (m_pMotion->GetKey() == 0)
+		{
+			if (m_nHookSoundTimer <= 0)
+			{
+				CSound::PlaySound(CSound::SOUND_LABEL_SE_CHAIN);
+				m_nHookSoundTimer = 3;
+			}
+
+			m_nHookSoundTimer -= 1;
 		}
 	}
 }
@@ -900,7 +990,7 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 	move->x += sinf(m_rotMove.y) * speed;
 	move->z += cosf(m_rotMove.y) * speed;
 
-	if (speed <= SPEED_EFFECT || m_Hook->GetBoolCollision())
+	if (speed <= SPEED_EFFECT || m_Hook->GetBoolCollision() || (m_bBoost && !m_bControl))
 	{
 		D3DXVECTOR3 posEffectOffset = D3DXVECTOR3(640.0f, 360.0f, 0.0f);
 		//posEffectOffset = useful::PosRelativeMtx(posEffectOffset, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -920,6 +1010,18 @@ void CPlayer::ControlMove(D3DXVECTOR3 *pos, D3DXVECTOR3 *posOld, D3DXVECTOR3 *ro
 				CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20, 400.0f + (speed * -3.0f), 15.0f);
 				//CEffect2D::Create(posEffect, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, randRot), useful::HSLtoRGB((float)(rand() % 360)), 20, 100.0f, 5.0f);
 			}
+		}
+
+		if (!m_bAir || m_Hook->GetBoolCollision())
+		{
+			int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+			CManager::Get()->Get()->GetScene()->GetScore()->AddScore((int)(0.2f * -speed) * combo);
+		}
+
+		if (m_bBoost && !m_bControl)
+		{
+			int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+			CManager::Get()->Get()->GetScene()->GetScore()->AddScore((int)(0.2f * 30.0f) * combo);
 		}
 	}
 }
@@ -943,7 +1045,14 @@ void CPlayer::ControlMotion(D3DXVECTOR3 move)
 			}
 			else
 			{
-				m_pMotion->Set(MOTION_AIR);
+				if (m_bBoost)
+				{
+					m_pMotion->Set(MOTION_DROP);
+				}
+				else
+				{
+					m_pMotion->Set(MOTION_AIR);
+				}
 			}
 		}
 	}
@@ -974,6 +1083,50 @@ void CPlayer::ControlMotion(D3DXVECTOR3 move)
 					m_pMotion->Set(MOTION_NORMAL);
 				}
 			}
+		}
+	}
+
+	if (m_pMotion->GetType() == MOTION_MOVE)
+	{
+		if (m_pMotion->GetKey() == 0 || m_pMotion->GetKey() == 2)
+		{
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_DASH);
+		}
+	}
+
+	if (m_pMotion->GetType() == MOTION_DASH)
+	{
+		if (m_pMotion->GetKey() == 0 || m_pMotion->GetKey() == 2)
+		{
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_DASH);
+		}
+	}
+
+	if (m_Speed <= SPEED_EFFECT_BOOST || GetMove().y <= -200.0f)
+	{
+		if (m_nWindCounter != 1)
+		{
+			CSound::StopSound(CSound::SOUND_LABEL_SE_WIND_WALK);
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_WIND_DASH);
+			m_nWindCounter = 1;
+		}
+	}
+	else if (m_Speed <= SPEED_EFFECT && !m_bWall)
+	{
+		if (m_nWindCounter != 2)
+		{
+			CSound::PlaySound(CSound::SOUND_LABEL_SE_WIND_WALK);
+			CSound::StopSound(CSound::SOUND_LABEL_SE_WIND_DASH);
+			m_nWindCounter = 2;
+		}
+	}
+	else if(m_Speed > SPEED_EFFECT)
+	{
+		if (m_nWindCounter != 0)
+		{
+			CSound::StopSound(CSound::SOUND_LABEL_SE_WIND_WALK);
+			CSound::StopSound(CSound::SOUND_LABEL_SE_WIND_DASH);
+			m_nWindCounter = 0;
 		}
 	}
 }
@@ -1044,58 +1197,125 @@ void CPlayer::SetRot(D3DXVECTOR3 *rot)
 //=====================================
 bool CPlayer::Collision(D3DXVECTOR3 *pos,D3DXVECTOR3 *posOld, D3DXVECTOR3 *move)
 {
-	for (int nCntPri = 0; nCntPri < ALL_PRIORITY; nCntPri++)
+	CCollider *pCollider;
+
+	pCollider = CCollision::Get()->GetTop();
+
+	while (pCollider != NULL)
 	{
-		if (nCntPri != 4)
+		CCollider *pColliderNext = pCollider->GetNext();
+
+		CCollider::TAG tag;
+
+		//種類取得
+		tag = pCollider->GetTag();
+
+		bool bColAir = false;
+		if (m_bAir && m_Hook->GetBoolCollision())
 		{
-			CObject *pObj;
+			bColAir = true;
+		}
 
-			pObj = GetObjectTop(nCntPri);
-
-			while (pObj != nullptr)
+		if (tag == CCollider::TAG_BOX)
+		{
+			if (pCollider->CollisionSquare(pos, *posOld, move, bColAir, &m_vecWall) == true)
 			{
-				CObject *pObjNext = pObj->GetObjectNext();
-
-				CObject::TYPE type;
-
-				//種類取得
-				type = pObj->GetType();
-
-				if (type == TYPE_BLOCK)
+				move->y = -1.0f;
+				if (m_vecWall.y > -0.8f && m_bAir)
 				{
-					if (pObj->GetCollider() != nullptr)
-					{
-						bool bColAir = false;
-						if (m_bAir && m_Hook->GetBoolCollision())
-						{
-							bColAir = true;
-						}
-
-						if (pObj->GetCollider()->CollisionSquare(pos, *posOld, move, bColAir, &m_vecWall) == true)
-						{
-							move->y = -1.0f;
-							if (m_vecWall.y > -0.8f && m_bAir)
-							{
-								m_bWall = true;
-								move->y = 0.0f;
-								m_Hook->SetBoolCollision(false);
-								m_Hook->SetBoolShot(false);
-							}
-
-							if (bColAir)
-							{
-								m_SpeedDest = SPEED_DASH;
-							}
-
-							m_bAir = false;
-							m_Hook->SetBoolGet(true);
-						}
-					}
+					m_bWall = true;
+					move->y = 0.0f;
+					m_Hook->SetBoolCollision(false);
+					m_Hook->SetBoolShot(false);
 				}
 
-				pObj = pObjNext;
+				if (bColAir)
+				{
+					m_SpeedDest = SPEED_DASH;
+				}
+
+				m_bAir = false;
+				m_Hook->SetBoolGet(true);
+
+				if (m_bBoost)
+				{
+					m_bBoost = false;
+					m_bControl = true;
+					m_SpeedDest = SPEED_BOOST;
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_BOOST);
+				}
 			}
 		}
+
+		if (tag == CCollider::TAG_CAR)
+		{
+			if (m_bDash && m_bAir && !m_Hook->GetBoolCollision())
+			{
+				if (pCollider->CollisionSquareTrigger(*pos) == true && m_nPalTimer == 0)
+				{
+					move->y = 30.0f;
+					m_bBoost = false;
+					m_bControl = true;
+					m_SpeedDest = SPEED_BOOST;
+
+					CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+					int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+					CManager::Get()->Get()->GetScene()->GetScore()->AddScore(500 * combo);
+					
+					CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
+					m_nPalTimer = 30;
+				}
+			}
+			else
+			{
+				if (pCollider->CollisionSquare(pos, *posOld, move, bColAir, &m_vecWall) == true)
+				{
+					move->y = -1.0f;
+					if (m_vecWall.y > -0.8f && m_bAir)
+					{
+						m_bWall = true;
+						move->y = 0.0f;
+						m_Hook->SetBoolCollision(false);
+						m_Hook->SetBoolShot(false);
+					}
+
+					if (bColAir)
+					{
+						m_SpeedDest = SPEED_DASH;
+					}
+
+					m_bAir = false;
+					m_Hook->SetBoolGet(true);
+
+					if (m_bBoost)
+					{
+						m_bBoost = false;
+						m_bControl = true;
+						m_SpeedDest = SPEED_BOOST;
+						CSound::PlaySound(CSound::SOUND_LABEL_SE_BOOST);
+					}
+				}
+			}
+		}
+
+		if (tag == CCollider::TAG_DRONE)
+		{
+			if (pCollider->CollisionSquareTrigger(*pos) == true && m_nPalTimer == 0)
+			{
+				move->y = 100.0f;
+				m_bBoost = false;
+				m_bControl = true;
+
+				CManager::Get()->Get()->GetScene()->GetCombo()->AddCombo(1);
+				int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+				CManager::Get()->Get()->GetScene()->GetScore()->AddScore(500 * combo);
+
+				CSound::PlaySound(CSound::SOUND_LABEL_SE_SCORE);
+				m_nPalTimer = 30;
+			}
+		}
+
+		pCollider = pColliderNext;
 	}
 
 	return false;

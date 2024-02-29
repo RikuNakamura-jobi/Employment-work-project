@@ -106,8 +106,8 @@ void CCamera::Update(void)
 	{
 		if (lengthStick > 10.0f)
 		{
-			m_rot.y += (float)inputPad->GetRStickLRPress() * 0.001f * 0.04f;
-			m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.02f;
+			m_rot.y += (float)inputPad->GetRStickLRPress() * 0.001f * 0.05f;
+			m_rot.z += (float)inputPad->GetRStickUDPress() * 0.001f * 0.05f;
 		}
 	}
 
@@ -115,17 +115,20 @@ void CCamera::Update(void)
 
 	if (lengthStick > 10.0f)
 	{
-		m_rot.y += (float)inputMouse->GetRStickLRPress() * 0.001f * 0.04f;
-		m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.02f;
+		m_rot.y += (float)inputMouse->GetRStickLRPress() * 0.001f * 0.05f;
+		m_rot.z += (float)inputMouse->GetRStickUDPress() * 0.001f * 0.05f;
 	}
 
-	if (inputPad->GetButtonPress(9))
+	if (inputPad != NULL)
 	{
-		m_fViewBack += (D3DX_PI - m_fViewBack) * 0.4f;
-	}
-	else
-	{
-		m_fViewBack += (0.0f - m_fViewBack) * 0.4f;
+		if (inputPad->GetButtonPress(9))
+		{
+			m_fViewBack += (D3DX_PI - m_fViewBack) * 0.4f;
+		}
+		else
+		{
+			m_fViewBack += (0.0f - m_fViewBack) * 0.4f;
+		}
 	}
 
 	Rot();

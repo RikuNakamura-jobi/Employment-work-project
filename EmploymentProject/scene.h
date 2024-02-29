@@ -238,6 +238,8 @@ private:			//外部からアクセス不可能
 	bool m_bFinish;
 
 	int m_nStartCount;
+	int m_nTutorialCount;
+	int m_nPadCrossCount;
 
 	//静的メンバ変数
 

@@ -23,12 +23,17 @@ public:
 		SOUND_LABEL_BGM003,				// BGM0
 		SOUND_LABEL_BGM004,				// BGM0
 		SOUND_LABEL_BGM005,				// BGM0
-		SOUND_LABEL_SE_SHOT000,			// ’e”­ŽË‰¹1
 		SOUND_LABEL_SE_SCORE,			// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_CHAIN,			// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_CHAINJUMP,		// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_DASH,			// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_BOOST,			// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_WIND_DASH,		// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_WIND_WALK,		// ’e”­ŽË‰¹1
 		SOUND_LABEL_SE_YES,				// ’e”­ŽË‰¹1
 		SOUND_LABEL_SE_DAMAGE,			// ’e”­ŽË‰¹1
 		SOUND_LABEL_SE_HIT,				// ’e”­ŽË‰¹1
-		SOUND_LABEL_SE_DASH,			// ’e”­ŽË‰¹1
+		SOUND_LABEL_SE_DASH_OLD,			// ’e”­ŽË‰¹1
 		SOUND_LABEL_SE_THUNDER,			// ’e”­ŽË‰¹1
 		SOUND_LABEL_MAX,
 	} ;

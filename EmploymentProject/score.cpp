@@ -10,6 +10,7 @@
 #include "object2D.h"
 #include "number.h"
 #include "combo.h"
+#include "bg.h"
 #include "useful.h"
 
 //ƒ}ƒNƒ’è‹`---------------------------
@@ -63,6 +64,8 @@ CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHe
 		{
 			pScore->Release();
 		}
+
+		CBg::CreateMin(D3DXVECTOR3(pos.x - 480.0f, pos.y, pos.z), 100.0f, 50.0f, CBg::TEXTURE_SCORE);
 	}
 
 	return pScore;

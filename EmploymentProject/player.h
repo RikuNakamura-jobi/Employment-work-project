@@ -47,6 +47,8 @@ public:				//外部からアクセス可能
 		MOTION_WALL,				//アクションモーション
 		MOTION_HOOK,				//アクションモーション
 		MOTION_AIR,					//アクションモーション
+		MOTION_DROP,				//アクションモーション
+		MOTION_ACTION,				//アクションモーション
 		MOTION_MAX
 	};
 
@@ -151,6 +153,9 @@ private:			//外部からアクセス不可能
 	int m_nShotTimer;
 	int m_nCombo;
 	int m_nEnergy;
+	int m_nPalTimer;
+	int m_nHookSoundTimer;
+	int m_nWindCounter;
 	float m_Speed;
 	float m_SpeedDest;
 	float m_fHue;

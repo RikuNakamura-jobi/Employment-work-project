@@ -4,8 +4,8 @@
 // Author:íÜë∫Å@ó§
 //
 //=====================================
-#ifndef _BG_H_
-#define _BG_H_
+#ifndef _USEFUL_H_
+#define _USEFUL_H_
 
 #include "main.h"
 #include "object2D.h"
@@ -28,4 +28,4 @@ namespace useful
 	D3DXVECTOR3 PosRelativeMtx(D3DXVECTOR3 posO, D3DXVECTOR3 rot, D3DXVECTOR3 offset);
 }
 
-#endif // !_BG_H_
+#endif // !_USEFUL_H_

@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "manager.h"
 #include "object2D.h"
+#include "bg.h"
 #include "number.h"
 #include "useful.h"
 
@@ -62,6 +63,8 @@ CCombo *CCombo::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHe
 		{
 			pScore->Release();
 		}
+
+		CBg::CreateMin(D3DXVECTOR3(pos.x - 200.0f, pos.y, pos.z), 100.0f, 50.0f, CBg::TEXTURE_COMBO);
 	}
 
 	return pScore;

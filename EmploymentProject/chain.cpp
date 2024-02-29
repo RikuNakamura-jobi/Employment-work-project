@@ -231,7 +231,7 @@ void CHook::Draw(void)
 {
 	CPlayer *pPlayer = CManager::Get()->GetScene()->GetPlayer();
 	D3DXVECTOR3 pos = GetPos();
-	D3DXVECTOR3 m_posOld = GetPos();
+	m_posOld = GetPos();
 	D3DXVECTOR3 rot = GetRot();
 	D3DXVECTOR3 move = GetMove();
 

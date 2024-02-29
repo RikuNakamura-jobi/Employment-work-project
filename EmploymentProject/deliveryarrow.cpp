@@ -10,6 +10,7 @@
 #include "manager.h"
 #include "scene.h"
 #include "collision.h"
+#include "combo.h"
 #include "objectX.h"
 #include "debugproc.h"
 #include "player.h"
@@ -254,7 +255,7 @@ void CDeliveryarrow::Update(void)
 		{
 			rot.y += 0.05f;
 		}
-		rot.z += (0.0f - rot.x) * 0.08f;
+		rot.z += (0.0f - rot.z) * 0.08f;
 
 		scale = lengthDP * 0.003f;
 
@@ -316,11 +317,16 @@ void CDeliveryarrow::Draw(void)
 	//マテリアルのデータのポイントを取得
 	pMat = (D3DXMATERIAL*)GetModel()->pBuffMatModel->GetBufferPointer();
 
-	//pMat->MatD3D.Diffuse = useful::HSLtoRGB(m_fHue);
-	//pMat->MatD3D.Ambient = useful::HSLtoRGB(m_fHue);
-	//pMat->MatD3D.Specular = useful::HSLtoRGB(m_fHue);
-	//pMat->MatD3D.Power = 1.0f;
-	pMat->MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+	int combo = CManager::Get()->Get()->GetScene()->GetCombo()->GetCombo();
+
+	if (combo > 5)
+	{
+		pMat[0].MatD3D.Emissive = useful::HSLtoRGB(m_fHue);
+	}
+	else
+	{
+		pMat[0].MatD3D.Emissive = useful::HSLtoRGB(40.0f);
+	}
 
 	CObjectX::Draw();
 }

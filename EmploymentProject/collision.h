@@ -71,6 +71,7 @@ public:
 		TAG_PLAYER,			//プレイヤー
 		TAG_BOX,			//ボックス
 		TAG_CAR,			//ボックス
+		TAG_DRONE,			//ボックス
 		TAG_MAX
 	};
 

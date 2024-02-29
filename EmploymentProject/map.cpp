@@ -7,6 +7,9 @@
 #include "map.h"
 #include "renderer.h"
 #include "manager.h"
+#include "car.h"
+#include "drone.h"
+#include "useful.h"
 
 //ƒ}ƒNƒ’è‹`---------------------------
 
@@ -181,6 +184,20 @@ HRESULT CMap::Init(void)
 
 				//m_pArea[nCnt1][nCnt2]->GetBlock()->SetPos(D3DXVECTOR3(4000.0f * nCnt1, 4000.0f * nCnt2, 0.0f));
 				m_pArea[nCnt1][nCnt2]->GetRand()->SetPos(D3DXVECTOR3(8000.0f * nCnt1, 0.0f, 8000.0f * nCnt2));
+
+				int nRand = rand() % 3;
+				if (nRand == 0)
+				{
+					D3DXVECTOR3 posCar = useful::PosRelativeMtx(m_pArea[nCnt1][nCnt2]->GetRand()->GetPos(), m_pArea[nCnt1][nCnt2]->GetRand()->GetRot(), D3DXVECTOR3(1000.0f, 5000.0f, 0.0f));
+
+					CDrone::Create(posCar, m_pArea[nCnt1][nCnt2]->GetRand()->GetRot(), 0.0f, 0.0f, CDrone::TYPE_NONE);
+				}
+				else if (nRand == 1)
+				{
+					D3DXVECTOR3 posCar = useful::PosRelativeMtx(m_pArea[nCnt1][nCnt2]->GetRand()->GetPos(), m_pArea[nCnt1][nCnt2]->GetRand()->GetRot(), D3DXVECTOR3(1000.0f, 0.0f, 0.0f));
+
+					CCar::Create(posCar, m_pArea[nCnt1][nCnt2]->GetRand()->GetRot(), 0.0f, 0.0f, CCar::TYPE_NONE);
+				}
 			}
 		}
 	}

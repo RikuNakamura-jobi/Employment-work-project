@@ -15,8 +15,13 @@ CSound::SOUNDINFO CSound::m_aSoundInfo[SOUND_LABEL_MAX] =
 	{ "data/BGM/1R_DISCO.wav", -1 },							// BGM0
 	{ "data/BGM/Escape.wav", 0 },							// BGM0
 	{ "data/BGM/Triple_Time.wav", -1 },							// BGM0
-	{ "data/SE/Œe‚ðŒ‚‚Â.wav", 0 },							// ’e”­ŽË‰¹1
-	{ "data/SE/Œˆ’èƒ{ƒ^ƒ“‚ð‰Ÿ‚·46.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/nc147300.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/chain.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/chainjump.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/dash.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/dashstart.wav", 0 },							// ’e”­ŽË‰¹1
+	{ "data/SE/dashwind.wav", -1 },							// ’e”­ŽË‰¹1
+	{ "data/SE/walkwind.wav", -1 },							// ’e”­ŽË‰¹1
 	{ "data/SE/¬Œ÷‰¹.wav", 0 },							// ’e”­ŽË‰¹1
 	{ "data/SE/small_explosion1.wav", 0 },							// ’e”­ŽË‰¹1
 	{ "data/SE/hit000.wav", 0 },							// ’e”­ŽË‰¹1
@@ -237,7 +242,7 @@ HRESULT CSound::PlaySound(SOUND_LABEL label)
 	{// Ä¶’†
 		// ˆêŽž’âŽ~
 		m_apSourceVoice[label]->Stop(0);
-
+		
 		// ƒI[ƒfƒBƒIƒoƒbƒtƒ@‚Ìíœ
 		m_apSourceVoice[label]->FlushSourceBuffers();
 	}

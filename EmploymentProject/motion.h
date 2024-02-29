@@ -12,6 +12,7 @@
 
 //マクロ定義---------------------------
 #define MAX_KEY (32)
+#define MAX_KEY_INFO (16)
 #define MAX_MOTION (16)
 
 //列挙型定義---------------------------
@@ -38,7 +39,7 @@ public:				//外部からアクセス可能
 
 	struct Info
 	{
-		KeyInfo aKeyInfo[MAX_KEY];
+		KeyInfo aKeyInfo[MAX_KEY_INFO];
 		int nLoop;
 		int nNumKey;
 	};
@@ -57,6 +58,9 @@ public:				//外部からアクセス可能
 
 	int GetType(void) { return m_nType; }
 	bool IsFinish(void) { return m_bFinish; }
+
+	int GetKey(void) { return m_nKey; }
+	int GetFrame(void) { return m_nNumCounter; }
 
 	void ResetFrame(void) { m_nNumCounter = 0; }
 

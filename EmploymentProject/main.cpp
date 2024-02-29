@@ -10,7 +10,7 @@
 
 //マクロ定義
 #define CLASS_NAME "WindowClass"												//ウィンドウクラスの名前
-#define WINDOW_NAME "就職作品"													//ウィンドウの名前
+#define WINDOW_NAME "迅速！爆速！超高速！アルティメットデリバリー！！！"		//ウィンドウの名前
 
 //プロトタイプ宣言
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

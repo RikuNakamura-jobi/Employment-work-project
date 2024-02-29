@@ -32,6 +32,7 @@
 #include "collision.h"
 #include "chain.h"
 #include "car.h"
+#include "drone.h"
 
 //É}ÉNÉçíËã`---------------------------
 
@@ -307,6 +308,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	CDeliverypoint::Load();
 	CDeliveryarrow::Load();
 	CCar::Load();
+	CDrone::Load();
 
 	if (m_pScene != NULL)
 	{
@@ -350,6 +352,7 @@ void CManager::Uninit(void)
 	CDeliverypoint::Unload();
 	CDeliveryarrow::Unload();
 	CCar::Unload();
+	CDrone::Unload();
 
 	CObject::ReleaseAll();
 

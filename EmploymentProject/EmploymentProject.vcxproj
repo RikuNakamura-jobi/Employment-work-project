@@ -163,6 +163,7 @@
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="deliveryarrow.cpp" />
     <ClCompile Include="deliverypoint.cpp" />
+    <ClCompile Include="drone.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="field.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="deliveryarrow.h" />
     <ClInclude Include="deliverypoint.h" />
+    <ClInclude Include="drone.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="field.h" />

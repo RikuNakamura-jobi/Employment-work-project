@@ -81,7 +81,6 @@ void CMotion::Update(void)
 						m_ppModel[nCntModel]->SetPos(posDiff);
 
 						rotDiff = m_aInfo[m_nType].aKeyInfo[0].aKey[nCntModel].rot - m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot;
-						rotDiff = m_ppModel[nCntModel]->GetRotDef() + m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)m_aInfo[m_nType].aKeyInfo[m_nKey].nFrame);
 
 						if (rotDiff.x > 3.14f)
 						{
@@ -109,6 +108,8 @@ void CMotion::Update(void)
 						{
 							rotDiff.z += 6.28f;
 						}
+
+						rotDiff = m_ppModel[nCntModel]->GetRotDef() + m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)m_aInfo[m_nType].aKeyInfo[m_nKey].nFrame);
 
 						m_ppModel[nCntModel]->SetRot(rotDiff);
 					}
@@ -122,7 +123,6 @@ void CMotion::Update(void)
 						m_ppModel[nCntModel]->SetPos(posDiff);
 
 						rotDiff = m_aInfo[m_nType].aKeyInfo[m_nKey + 1].aKey[nCntModel].rot - aKeyInfoBlend.aKey[nCntModel].rot;
-						rotDiff = m_ppModel[nCntModel]->GetRotDef() + aKeyInfoBlend.aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)aKeyInfoBlend.nFrame);
 
 						if (rotDiff.x > 3.14f)
 						{
@@ -151,6 +151,8 @@ void CMotion::Update(void)
 							rotDiff.z += 6.28f;
 						}
 
+						rotDiff = m_ppModel[nCntModel]->GetRotDef() + aKeyInfoBlend.aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)aKeyInfoBlend.nFrame);
+						
 						m_ppModel[nCntModel]->SetRot(rotDiff);
 					}
 				}
@@ -163,7 +165,6 @@ void CMotion::Update(void)
 						m_ppModel[nCntModel]->SetPos(posDiff);
 
 						rotDiff = m_aInfo[m_nType].aKeyInfo[m_nKey + 1].aKey[nCntModel].rot - m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot;
-						rotDiff = m_ppModel[nCntModel]->GetRotDef() + m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)m_aInfo[m_nType].aKeyInfo[m_nKey].nFrame);
 
 						if (rotDiff.x > 3.14f)
 						{
@@ -192,6 +193,8 @@ void CMotion::Update(void)
 							rotDiff.z += 6.28f;
 						}
 
+						rotDiff = m_ppModel[nCntModel]->GetRotDef() + m_aInfo[m_nType].aKeyInfo[m_nKey].aKey[nCntModel].rot + rotDiff * ((float)m_nNumCounter / (float)m_aInfo[m_nType].aKeyInfo[m_nKey].nFrame);
+						
 						m_ppModel[nCntModel]->SetRot(rotDiff);
 					}
 				}

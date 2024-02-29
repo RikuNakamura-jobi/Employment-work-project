@@ -291,6 +291,8 @@ CGame::CGame()
 	m_pBgStart = nullptr;
 	m_bFinish = false;
 	m_nStartCount = 0;
+	m_nTutorialCount = 0;
+	m_nPadCrossCount = -1;
 }
 
 CGame::~CGame()
@@ -309,11 +311,9 @@ HRESULT CGame::Init(void)
 	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pCombo = CCombo::Create(D3DXVECTOR3(1200.0f, 200.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(100.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
-	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 900.0f, 600.0f, CBg::TEXTURE_TUTORIAL_KEY);
+	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 900.0f, 600.0f, CBg::TEXTURE_TUTORIAL_KEY0);
 	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
 	m_pDeliverypoint->SetPos(m_pMap->GetPosAreaCorner());
-
-	CCar::Create(D3DXVECTOR3(1000.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -0.0f, 0.0f), 0.0f, 0.0f, CCar::TYPE_NONE);
 
 	//ƒJƒƒ‰‚Ì¶¬
 	if (m_pCamera != NULL)
@@ -392,28 +392,50 @@ void CGame::Update(void)
 		CInput *inputMouse = CManager::Get()->GetInputMouse();
 		CInput *inputPad = CManager::Get()->GetInputPad();
 
-		if (input->GetTrigger(DIK_RETURN) == true)
+		if (input->GetTrigger(DIK_RETURN) == true && m_nTutorialCount == 2)
 		{
 			m_nStartCount++;
 			m_pBgStart->SetTextureType(CBg::TEXTURE_MAX);
 		}
 
+		if (input->GetTrigger(DIK_D) == true && m_nTutorialCount < 2)
+		{
+			m_nTutorialCount++;
+		}
+
+		if (input->GetTrigger(DIK_A) == true && m_nTutorialCount > 0)
+		{
+			m_nTutorialCount--;
+		}
+
 		if (input->GetAll() || inputMouse->GetAll())
 		{
-			m_pBgStart->SetTextureType(CBg::TEXTURE_TUTORIAL_KEY);
+			m_pBgStart->SetTextureType((CBg::TEXTURE)((int)(CBg::TEXTURE_TUTORIAL_KEY0) + m_nTutorialCount));
 		}
 
 		if (inputPad != NULL)
 		{
-			if (inputPad->GetButtonTrigger(11) == true)
+			if (inputPad->GetButtonTrigger(11) == true && m_nTutorialCount == 2)
 			{
 				m_nStartCount++;
 				m_pBgStart->SetTextureType(CBg::TEXTURE_MAX);
 			}
 
+			if (inputPad->GetButtonCrossPress() == 9000 && m_nPadCrossCount != 9000 && m_nTutorialCount < 2)
+			{
+				m_nTutorialCount++;
+			}
+
+			if (inputPad->GetButtonCrossPress() == 27000 && m_nPadCrossCount != 27000 && m_nTutorialCount > 0)
+			{
+				m_nTutorialCount--;
+			}
+
+			m_nPadCrossCount = inputPad->GetButtonCrossPress();
+
 			if (inputPad->GetAll())
 			{
-				m_pBgStart->SetTextureType(CBg::TEXTURE_TUTORIAL_PAD);
+				m_pBgStart->SetTextureType((CBg::TEXTURE)((int)(CBg::TEXTURE_TUTORIAL_PAD0) + m_nTutorialCount));
 			}
 		}
 	}
