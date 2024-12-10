@@ -16,6 +16,7 @@
 #include "model.h"
 #include "debugproc.h"
 #include "orbit.h"
+#include "effect.h"
 
 //ƒ}ƒNƒ’è‹`---------------------------
 
@@ -203,7 +204,10 @@ HRESULT CHook::Init(void)
 	SetCollider(CCollider::Create(GetPosPointa(), GetRotPointa(), D3DXVECTOR3(1000.0f, 1000.0f, 1000.0f), D3DXVECTOR3(-1000.0f, -1000.0f, -1000.0f), CCollider::TAG_NONE));
 	GetCollider()->SetType(CCollider::TYPE_BOX);
 
-	m_orbit = COrbit::Create(GetMtx(), D3DXVECTOR3(0.0f, 3.5f, 0.0f), D3DXVECTOR3(-0.0f, -3.5f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 2);
+	m_orbit[0] = COrbit::Create(GetMtx(), D3DXVECTOR3(2.5f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 2.5f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 2);
+	m_orbit[1] = COrbit::Create(GetMtx(), D3DXVECTOR3(-2.5f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 2.5f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 2);
+	m_orbit[2] = COrbit::Create(GetMtx(), D3DXVECTOR3(2.5f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.5f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 2);
+	m_orbit[3] = COrbit::Create(GetMtx(), D3DXVECTOR3(-2.5f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.5f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 2);
 
 	return S_OK;
 }
@@ -294,21 +298,42 @@ void CHook::Draw(void)
 		}
 	}
 
+	D3DXVECTOR3 vecReticle = CManager::Get()->GetScene()->GetCamera()->GetPosR() - CManager::Get()->GetScene()->GetCamera()->GetPosV();
+	D3DXVECTOR3 posToMove;
+	D3DXVec3Normalize(&vecReticle, &vecReticle);
+
+	posToMove = pos + (vecReticle * 20000.0f);
+
+	if (CollisionReticle(&posToMove, &vecReticle))
+	{
+		//CEffect3D::Create(posToMove, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 1, 300.0f, 300.0f);
+	}
+	else
+	{
+		//CEffect3D::Create(posToMove, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 1, 200.0f, 200.0f);
+	}
+
 	SetPos(pos);
 	SetRot(rot);
 	SetMove(move);
 
-	if (m_orbit != nullptr)
+	for (int nCntOrbit = 0; nCntOrbit < 4; nCntOrbit++)
 	{
-		D3DXMATRIX mtxTemp = pPlayer->GetModel(16)->GetMtxWorld();
-		m_orbit->SetPositionOffset(mtxTemp);
+		if (m_orbit[nCntOrbit] != nullptr)
+		{
+			D3DXMATRIX mtxTemp = pPlayer->GetModel(16)->GetMtxWorld();
+			m_orbit[nCntOrbit]->SetPositionOffset(mtxTemp);
+		}
 	}
 
 	CObjectX::Draw();
 
-	if (m_orbit != nullptr)
+	for (int nCntOrbit = 0; nCntOrbit < 4; nCntOrbit++)
 	{
-		m_orbit->SetPositionOffset(GetMtx(), D3DXCOLOR(0.8f, 0.8f, 0.8f, 0.9f));
+		if (m_orbit[nCntOrbit] != nullptr)
+		{
+			m_orbit[nCntOrbit]->SetPositionOffset(GetMtx(), D3DXCOLOR(0.8f, 0.8f, 0.8f, 0.9f));
+		}
 	}
 }
 
@@ -337,6 +362,9 @@ void CHook::ShotHook(D3DXVECTOR3 rot, float speed)
 	}
 }
 
+//=====================================
+// “–‚½‚è”»’è
+//=====================================
 bool CHook::Collision(D3DXVECTOR3 *pos, D3DXVECTOR3 *move)
 {
 	CCollider *pCollider;
@@ -369,6 +397,40 @@ bool CHook::Collision(D3DXVECTOR3 *pos, D3DXVECTOR3 *move)
 			{
 				pos->y = 0.0f;
 				m_bShot = false;
+				return true;
+			}
+		}
+
+		pCollider = pColliderNext;
+	}
+
+	return false;
+}
+
+bool  CHook::CollisionReticle(D3DXVECTOR3 *pos, D3DXVECTOR3 *move)
+{
+	CCollider *pCollider;
+
+	pCollider = CCollision::Get()->GetTop();
+
+	while (pCollider != NULL)
+	{
+		CCollider *pColliderNext = pCollider->GetNext();
+
+		CCollider::TAG tag;
+
+		//Ží—ÞŽæ“¾
+		tag = pCollider->GetTag();
+
+		if (tag == CCollider::TAG_BOX)
+		{
+			D3DXVECTOR3 posParts;
+			posParts.x = CManager::Get()->GetScene()->GetPlayer()->GetModel(16)->GetMtxWorld()._41;
+			posParts.y = CManager::Get()->GetScene()->GetPlayer()->GetModel(16)->GetMtxWorld()._42;
+			posParts.z = CManager::Get()->GetScene()->GetPlayer()->GetModel(16)->GetMtxWorld()._43;
+
+			if (pCollider->CollisionSquare(pos, posParts, move, true) == true)
+			{
 				return true;
 			}
 		}

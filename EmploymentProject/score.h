@@ -52,7 +52,7 @@ public:				//外部からアクセス可能
 	int GetScore(void) { return m_nScore; }
 
 	//静的メンバ関数
-	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight);
+	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool result);
 
 	static int GetScoreResult(void) { return m_nScoreResult; }
 	static void SetScoreResult(int score) { m_nScoreResult = score; }

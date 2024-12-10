@@ -48,7 +48,7 @@ CScore::~CScore()
 //=====================================
 // ¶¬ˆ—
 //=====================================
-CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight)
+CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool result)
 {
 	CScore *pScore;
 
@@ -65,7 +65,11 @@ CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHe
 			pScore->Release();
 		}
 
-		CBg::CreateMin(D3DXVECTOR3(pos.x - 480.0f, pos.y, pos.z), 100.0f, 50.0f, CBg::TEXTURE_SCORE);
+		if (!result)
+		{
+			CBg::CreateMin(D3DXVECTOR3(pos.x - 480.0f, pos.y, pos.z), 100.0f, 50.0f, CBg::TEXTURE_SCORE);
+
+		}
 	}
 
 	return pScore;

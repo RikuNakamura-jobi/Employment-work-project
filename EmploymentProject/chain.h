@@ -57,10 +57,11 @@ private:			//外部からアクセス不可能
 
 	//メンバ関数
 	bool Collision(D3DXVECTOR3 *pos, D3DXVECTOR3 *move);
+	bool CollisionReticle(D3DXVECTOR3 *pos, D3DXVECTOR3 *move);
 
 	//メンバ変数
 	MODELX m_modelTemp;
-	COrbit *m_orbit;
+	COrbit *m_orbit[4];
 	D3DXVECTOR3 m_posOld;
 
 	bool m_bShot;

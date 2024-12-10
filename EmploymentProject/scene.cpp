@@ -308,8 +308,8 @@ HRESULT CGame::Init(void)
 	m_pSky = CSky::Create();
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, -2.335f, 0.0f));
 	m_pMap = CMap::Create();
-	m_pScore = CScore::Create(D3DXVECTOR3(1200.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
-	m_pCombo = CCombo::Create(D3DXVECTOR3(1200.0f, 200.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
+	m_pScore = CScore::Create(D3DXVECTOR3(1250.0f, 50.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f, false);
+	m_pCombo = CCombo::Create(D3DXVECTOR3(1250.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pTime = CTime::Create(D3DXVECTOR3(100.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
 	m_pBgStart = CBg::CreateMin(D3DXVECTOR3(640.0f, 360.0f, 0.0f), 900.0f, 600.0f, CBg::TEXTURE_TUTORIAL_KEY0);
 	m_pDeliverypoint = CDeliverypoint::Create(D3DXVECTOR3(10600.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1000.0f, 1000.0f);
@@ -606,11 +606,11 @@ HRESULT CResult::Init(void)
 
 	for (int nCnt = 0; nCnt < 5; nCnt++)
 	{
-		m_pScore[nCnt] = CScore::Create(D3DXVECTOR3(830.0f, 101.0f * nCnt + 235.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
+		m_pScore[nCnt] = CScore::Create(D3DXVECTOR3(830.0f, 101.0f * nCnt + 235.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f, true);
 		m_pScore[nCnt]->AddScore(nScore[nCnt]);
 	}
 
-	m_pScore[5] = CScore::Create(D3DXVECTOR3(830.0f, 70.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f);
+	m_pScore[5] = CScore::Create(D3DXVECTOR3(830.0f, 70.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 52.0f, 128.0f, true);
 	m_pScore[5]->AddScore(CScore::GetScoreResult());
 
 	CSound::PlaySound(CSound::SOUND_LABEL_BGM005);
